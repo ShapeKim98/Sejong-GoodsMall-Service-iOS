@@ -1,1 +1,1 @@
-# Sejong-GoodsMall-Service-iOS
+# Sejong-University-GoodsMall-Service-iOS
