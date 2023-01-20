@@ -15,50 +15,19 @@ enum Page {
 
 struct AppView: View {
     @State private var page: Page = .home
+    @State private var showDetailView: Bool = false
     
     var body: some View {
         GeometryReader { reader in
             VStack {
-                HomeView()
+                HomeView(showDetailView: $showDetailView)
                     .offset(y: reader.safeAreaInsets.top)
                 
-                VStack {
-                    HStack {
-                        Spacer()
-                        
-                        tabBarButton("홈", icon: "home-icon", selected: .home) {
-                            withAnimation {
-                                page = .home
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        tabBarButton("장바구니", icon: "shopping-cart-icon", selected: .shoppingCart) {
-                            withAnimation {
-                                page = .shoppingCart
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        tabBarButton("내정보", icon: "my-info-icon", selected: .myInfo) {
-                            withAnimation {
-                                page = .myInfo
-                            }
-                        }
-                        
-                        Spacer()
-                    }
-                    .frame(height: reader.safeAreaInsets.magnitude)
+                if showDetailView {
                     
-                    Spacer()
-                }
-                .frame(width: reader.size.width, height: reader.safeAreaInsets.magnitude + reader.safeAreaInsets.bottom)
-                .background {
-                    Rectangle()
-                        .foregroundColor(.white)
-                        .shadow(color: .gray.opacity(0.3), radius: 3)
+                } else {
+                    tabBar(reader: reader)
+                        .transition(.move(edge: .bottom))
                 }
             }
             .ignoresSafeArea()
@@ -68,6 +37,7 @@ struct AppView: View {
     @ViewBuilder
     func tabBarButton(_ title: String, icon: String, selected: Page, _ action: @escaping () -> Void) -> some View {
         let isSelected = page == selected
+        
         Button(action: action) {
             VStack {
                 Image(icon)
@@ -77,9 +47,50 @@ struct AppView: View {
                 
                 Text(title)
                     .font(.caption)
+                
+                Spacer()
             }
             .foregroundColor(isSelected ? Color("main-highlight-color") : Color("secondary-text-color"))
         }
+    }
+    
+    @ViewBuilder
+    func tabBar(reader: GeometryProxy) -> some View {
+        HStack {
+            Spacer()
+            
+            tabBarButton("홈", icon: "home-icon", selected: .home) {
+                withAnimation {
+                    page = .home
+                }
+            }
+            
+            Spacer()
+            
+            tabBarButton("장바구니", icon: "shopping-cart-icon", selected: .shoppingCart) {
+                withAnimation {
+                    page = .shoppingCart
+                }
+            }
+            
+            Spacer()
+            
+            tabBarButton("내정보", icon: "my-info-icon", selected: .myInfo) {
+                withAnimation {
+                    page = .myInfo
+                }
+            }
+            
+            Spacer()
+        }
+        .background {
+            Rectangle()
+                .foregroundColor(.white)
+                .shadow(color: .gray.opacity(0.3), radius: 3)
+                .frame(width: reader.size.width, height: 83)
+        }
+        .padding(.top)
+        .frame(width: reader.size.width, height: 83)
     }
 }
 
