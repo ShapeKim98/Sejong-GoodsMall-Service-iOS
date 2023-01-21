@@ -21,6 +21,7 @@
 		C5324C9F29794AD20034C710 /* SejongUniversityGoodsMallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SejongUniversityGoodsMallApp.swift; sourceTree = "<group>"; };
 		C5324CA329794AD30034C710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C5324CA629794AD30034C710 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C594AB7C297BE0F10035C3EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C5D32C7829794C4A00644BFD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		C5D32C7A29794C8600644BFD /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoodsModel.swift; sourceTree = "<group>"; };
@@ -57,6 +58,7 @@
 		C5324C9E29794AD20034C710 /* SejongUniversityGoodsMall */ = {
 			isa = PBXGroup;
 			children = (
+				C594AB7C297BE0F10035C3EA /* Info.plist */,
 				C5324C9F29794AD20034C710 /* SejongUniversityGoodsMallApp.swift */,
 				C5D32C7829794C4A00644BFD /* AppView.swift */,
 				C5D32C7A29794C8600644BFD /* HomeView.swift */,
@@ -282,7 +284,7 @@
 				DEVELOPMENT_TEAM = FNC65X95VM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = SejongUniversityGoodsMall/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -312,7 +314,7 @@
 				DEVELOPMENT_TEAM = FNC65X95VM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_FILE = SejongUniversityGoodsMall/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

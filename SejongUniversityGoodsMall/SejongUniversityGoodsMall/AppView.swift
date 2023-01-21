@@ -14,83 +14,41 @@ enum Page {
 }
 
 struct AppView: View {
+    @Namespace var heroTranstion
+    
     @State private var page: Page = .home
-    @State private var showDetailView: Bool = false
+    @State private var showDetailView = false
+    @State private var selectedGoods: SampleGoodsModel? = nil
     
     var body: some View {
         GeometryReader { reader in
-            VStack {
-                HomeView(showDetailView: $showDetailView)
-                    .offset(y: reader.safeAreaInsets.top)
-                
-                if showDetailView {
+            TabView {
+                HomeView(showDetailView: $showDetailView, selectedGoods: $selectedGoods, heroTransition: heroTranstion)
+                    .tabItem {
+                        Label("홈", systemImage: "house")
+                    }
+                VStack {
                     
-                } else {
-                    tabBar(reader: reader)
-                        .transition(.move(edge: .bottom))
                 }
-            }
-            .ignoresSafeArea()
-        }
-    }
-    
-    @ViewBuilder
-    func tabBarButton(_ title: String, icon: String, selected: Page, _ action: @escaping () -> Void) -> some View {
-        let isSelected = page == selected
-        
-        Button(action: action) {
-            VStack {
-                Image(icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 25)
+                .tabItem {
+                    Label("장바구니", systemImage: "cart")
+                }
                 
-                Text(title)
-                    .font(.caption)
-                
-                Spacer()
-            }
-            .foregroundColor(isSelected ? Color("main-highlight-color") : Color("secondary-text-color"))
-        }
-    }
-    
-    @ViewBuilder
-    func tabBar(reader: GeometryProxy) -> some View {
-        HStack {
-            Spacer()
-            
-            tabBarButton("홈", icon: "home-icon", selected: .home) {
-                withAnimation {
-                    page = .home
+                VStack {
+                    
+                }
+                .tabItem {
+                    Label("내정보", systemImage: "person")
                 }
             }
-            
-            Spacer()
-            
-            tabBarButton("장바구니", icon: "shopping-cart-icon", selected: .shoppingCart) {
-                withAnimation {
-                    page = .shoppingCart
+            .accentColor(Color("main-highlight-color"))
+            .disabled(showDetailView)
+            .overlay {
+                if let goods = selectedGoods, showDetailView {
+                    GoodsDetailView(showDetailView: $showDetailView, heroTransition: heroTranstion, goods: goods)
                 }
             }
-            
-            Spacer()
-            
-            tabBarButton("내정보", icon: "my-info-icon", selected: .myInfo) {
-                withAnimation {
-                    page = .myInfo
-                }
-            }
-            
-            Spacer()
         }
-        .background {
-            Rectangle()
-                .foregroundColor(.white)
-                .shadow(color: .gray.opacity(0.3), radius: 3)
-                .frame(width: reader.size.width, height: 83)
-        }
-        .padding(.top)
-        .frame(width: reader.size.width, height: 83)
     }
 }
 

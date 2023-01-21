@@ -16,124 +16,140 @@ enum Servie {
 struct GoodsDetailView: View {
     @Binding var showDetailView: Bool
     
+    @State var heroTransition: Namespace.ID
     @State var goods: SampleGoodsModel
-    
     @State var service: Servie = .goodsInformation
+    @State var isDetailView: Bool = false
     
     var body: some View {
         GeometryReader { reader in
             VStack {
-                ScrollView {
-                    VStack(spacing: 10) {
-                        Image(goods.image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                        
-                        HStack(spacing: 0) {
-                            Text("1 ")
-                                .foregroundColor(Color("main-text-color"))
-                            Text("/ 8")
-                                .foregroundColor(Color("secondary-text-color"))
-                            
-                            Spacer()
+                HStack {
+                    Button {
+                        withAnimation(.spring()) {
+                            isDetailView = false
+                            showDetailView = false
                         }
-                        .font(.footnote)
-                        .padding(.horizontal)
-                        
-                        HStack {
-                            Text(goods.name)
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .padding(.horizontal, 5)
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        
-                        HStack {
-                            ForEach(goods.tag, id: \.hashValue) {
-                                Text($0)
-                                    .font(.caption)
-                                    .foregroundColor(Color("main-text-color"))
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background {
-                                        RoundedRectangle(cornerRadius: 40)
-                                            .foregroundColor(Color("shape-bkg-color"))
-                                    }
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal)
-                        .padding(.horizontal, 5)
+                    } label: {
+                        Image(systemName: "chevron.backward")
                     }
-                    .padding(.bottom)
+                    .foregroundColor(Color("main-text-color"))
                     
-                    Rectangle()
-                        .foregroundColor(Color("shape-bkg-color"))
-                        .frame(height: 10)
+                    Spacer()
                     
-                    HStack {
-                        serviceButton("상품정보", .goodsInformation) {
-                            withAnimation {
-                                service = .goodsInformation
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        serviceButton("상품후기", .goodsReview) {
-                            withAnimation {
-                                service = .goodsReview
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        serviceButton("문의하기", .contactUs) {
-                            withAnimation {
-                                service = .contactUs
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.horizontal)
-                    .background {
-                        VStack {
-                            Spacer()
-                            
-                            Rectangle()
-                                .foregroundColor(Color("shape-bkg-color"))
-                                .frame(height: 1)
-                        }
-                    }
-                    
-                    switch service {
-                        case .goodsInformation:
-                            goodsInformationPage()
-                        case .goodsReview:
-                            goodReviewPage()
-                        case .contactUs:
-                            contactUsPage()
-                    }
-                    
-                    
-                }
-            }
-            .offset(y: reader.safeAreaInsets.top)
-            .ignoresSafeArea()
-            .frame(height: reader.size.height - reader.safeAreaInsets.top)
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
                     Button {
                         
                     } label: {
                         Image(systemName: "ellipsis")
-                            .foregroundColor(Color("main-text-color"))
+                    }
+                    .foregroundColor(Color("main-text-color"))
+                }
+                .padding()
+                
+                ScrollView {
+                    VStack {
+                        VStack(spacing: 10) {
+                            Image(goods.image)
+                                .resizable()
+                                .scaledToFit()
+                                .matchedGeometryEffect(id: goods.image, in: heroTransition)
+                            
+                            HStack(spacing: 0) {
+                                Text("1 ")
+                                    .foregroundColor(Color("main-text-color"))
+                                Text("/ 8")
+                                    .foregroundColor(Color("secondary-text-color"))
+                                
+                                Spacer()
+                            }
+                            .font(.footnote)
+                            .padding(.horizontal)
+                            
+                            HStack {
+                                Text(goods.name)
+                                    .font(isDetailView ? .title.bold() : nil)
+                                    .matchedGeometryEffect(id: goods.name, in: heroTransition)
+                                    .padding(.horizontal, 5)
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            
+                            HStack {
+                                ForEach(goods.tag, id: \.hashValue) {
+                                    Text($0)
+                                        .font(.caption)
+                                        .foregroundColor(Color("main-text-color"))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 5)
+                                        .background {
+                                            RoundedRectangle(cornerRadius: 40)
+                                                .foregroundColor(Color("shape-bkg-color"))
+                                        }
+                                }
+                                
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            .padding(.horizontal, 5)
+                        }
+                        .padding(.bottom)
+                        
+                        Rectangle()
+                            .foregroundColor(Color("shape-bkg-color"))
+                            .frame(height: 10)
+                        
+                        HStack {
+                            serviceButton("상품정보", .goodsInformation) {
+                                withAnimation {
+                                    service = .goodsInformation
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            serviceButton("상품후기", .goodsReview) {
+                                withAnimation {
+                                    service = .goodsReview
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            serviceButton("문의하기", .contactUs) {
+                                withAnimation {
+                                    service = .contactUs
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.horizontal)
+                        .background {
+                            VStack {
+                                Spacer()
+                                
+                                Rectangle()
+                                    .foregroundColor(Color("shape-bkg-color"))
+                                    .frame(height: 1)
+                            }
+                        }
+                        
+                        switch service {
+                            case .goodsInformation:
+                                goodsInformationPage()
+                            case .goodsReview:
+                                goodReviewPage()
+                            case .contactUs:
+                                contactUsPage()
+                        }
+                        
+                        
                     }
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .background(.white)
+            .onAppear() {
+                isDetailView = true
+            }
         }
     }
     
@@ -202,11 +218,5 @@ struct GoodsDetailView: View {
         }
         .padding(.top)
         .frame(width: reader.size.width, height: 83)
-    }
-}
-
-struct GoodsDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        GoodsDetailView(showDetailView: .constant(true), goods: SampleGoodsModel(name: "학과 잠바", price: 85_000, image: "sample-image1", tag: ["#새내기", "#종이"], category: .clothing))
     }
 }
