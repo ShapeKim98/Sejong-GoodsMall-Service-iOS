@@ -68,7 +68,6 @@ struct GoodsDetailView: View {
                             HStack {
                                 Text(goods.name)
                                     .font(isDetailView ? .title.bold() : nil)
-                                    .matchedGeometryEffect(id: goods.name, in: heroTransition)
                                     .padding(.horizontal, 5)
                                 Spacer()
                             }
@@ -77,7 +76,7 @@ struct GoodsDetailView: View {
                             HStack {
                                 ForEach(goods.tag, id: \.hashValue) {
                                     Text($0)
-                                        .font(.caption)
+                                        .font(.caption2)
                                         .foregroundColor(Color("main-text-color"))
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 5)
@@ -202,21 +201,5 @@ struct GoodsDetailView: View {
     @ViewBuilder
     func contactUsPage() -> some View {
         
-    }
-    
-    
-    @ViewBuilder
-    func tabBar(reader: GeometryProxy) -> some View {
-        HStack {
-            Text("\(goods.price)원")
-        }
-        .background {
-            Rectangle()
-                .foregroundColor(.white)
-                .shadow(color: .gray.opacity(0.3), radius: 3)
-                .frame(width: reader.size.width, height: 83)
-        }
-        .padding(.top)
-        .frame(width: reader.size.width, height: 83)
     }
 }

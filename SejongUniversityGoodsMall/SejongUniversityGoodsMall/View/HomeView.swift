@@ -19,9 +19,9 @@ struct HomeView: View {
     @Binding var showDetailView: Bool
     @Binding var selectedGoods: SampleGoodsModel?
     
+    @State var heroTransition: Namespace.ID
     @State private var searchText = ""
     @State private var category: Category = .allProduct
-    @State var heroTransition: Namespace.ID
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -37,100 +37,115 @@ struct HomeView: View {
     
     var body: some View {
         GeometryReader { reader in
-            VStack(spacing: 0) {
-                VStack {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(Color("secondary-text-color"))
-                        
-                        TextField("검색", text: $searchText, prompt: Text("종이의 취향을 검색해보세요"))
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                    }
-                    .padding(10)
-                    .background {
-                        RoundedRectangle(cornerRadius: 40)
-                            .foregroundColor(Color("shape-bkg-color"))
-                    }
-                    .padding()
+            ZStack(alignment: .top) {
+                VStack(spacing: 0) {
+                    toolBar()
                     
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-                            categotyButton("전체 상품", .allProduct) {
-                                withAnimation {
-                                    category = .allProduct
-                                    filteredGoods = goods
-                                }
-                            }
-                            
-                            categotyButton("문구", .phrases) {
-                                withAnimation {
-                                    category = .phrases
-                                    filteredGoods = goods.filter({ item in
-                                        return item.category == .phrases
-                                    })
-                                }
-                            }
-                            
-                            categotyButton("의류", .clothing) {
-                                withAnimation {
-                                    category = .clothing
-                                    filteredGoods = goods.filter({ item in
-                                        return item.category == .clothing
-                                    })
-                                }
-                            }
-                            
-                            categotyButton("뱃지&키링", .badgeAndKeyring) {
-                                withAnimation {
-                                    category = .badgeAndKeyring
-                                    filteredGoods = goods.filter({ item in
-                                        return item.category == .badgeAndKeyring
-                                    })
-                                }
-                            }
-                            
-                            categotyButton("선물용", .forGift) {
-                                withAnimation {
-                                    category = .forGift
-                                    filteredGoods = goods.filter({ item in
-                                        return item.category == .forGift
-                                    })
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    .background {
-                        VStack {
-                            Spacer()
-                            
-                            Rectangle()
-                                .foregroundColor(Color("shape-bkg-color"))
-                                .frame(height: 1)
-                        }
-                    }
-                }
-                
-                ScrollView {
-                    LazyVGrid(columns: columns) {
-                        ForEach(filteredGoods) { item in
-                            if !showDetailView {
-                                subGoodsView(item) {
-                                    withAnimation(.spring()) {
-                                        selectedGoods = item
-                                        showDetailView = true
+                    ScrollView {
+                        LazyVGrid(columns: columns) {
+                            ForEach(filteredGoods) { item in
+                                if !showDetailView {
+                                    subGoodsView(item) {
+                                        withAnimation(.spring()) {
+                                            selectedGoods = item
+                                            showDetailView = true
+                                        }
                                     }
                                 }
                             }
                         }
+                        .padding(.top)
                     }
-                    .padding(.top)
                 }
+                .navigationBarHidden(true)
+                .onAppear() {
+                    filteredGoods = goods
+                }
+                .overlay {
+                    if let goods = selectedGoods, showDetailView {
+                        GoodsDetailView(showDetailView: $showDetailView, heroTransition: heroTransition, goods: goods)
+                    }
+                }
+                .frame(height: reader.size.height - reader.frame(in: .named("TabBar")).minY + 8)
+                
+                
             }
-            .navigationBarHidden(true)
-            .onAppear() {
-                filteredGoods = goods
+        }
+    }
+    
+    @ViewBuilder
+    func toolBar() -> some View {
+        VStack {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                TextField("검색", text: $searchText, prompt: Text("종이의 취향을 검색해보세요"))
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+            }
+            .padding(10)
+            .background {
+                RoundedRectangle(cornerRadius: 40)
+                    .foregroundColor(Color("shape-bkg-color"))
+            }
+            .padding()
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    categotyButton("전체 상품", .allProduct) {
+                        withAnimation {
+                            category = .allProduct
+                            filteredGoods = goods
+                        }
+                    }
+                    
+                    categotyButton("문구", .phrases) {
+                        withAnimation {
+                            category = .phrases
+                            filteredGoods = goods.filter({ item in
+                                return item.category == .phrases
+                            })
+                        }
+                    }
+                    
+                    categotyButton("의류", .clothing) {
+                        withAnimation {
+                            category = .clothing
+                            filteredGoods = goods.filter({ item in
+                                return item.category == .clothing
+                            })
+                        }
+                    }
+                    
+                    categotyButton("뱃지&키링", .badgeAndKeyring) {
+                        withAnimation {
+                            category = .badgeAndKeyring
+                            filteredGoods = goods.filter({ item in
+                                return item.category == .badgeAndKeyring
+                            })
+                        }
+                    }
+                    
+                    categotyButton("선물용", .forGift) {
+                        withAnimation {
+                            category = .forGift
+                            filteredGoods = goods.filter({ item in
+                                return item.category == .forGift
+                            })
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .background {
+                VStack {
+                    Spacer()
+                    
+                    Rectangle()
+                        .foregroundColor(Color("shape-bkg-color"))
+                        .frame(height: 1)
+                }
             }
         }
     }
@@ -173,7 +188,6 @@ struct HomeView: View {
                                 Text(goods.name)
                                     .foregroundColor(Color("main-text-color"))
                                     .font(showDetailView ? .title.bold() : nil)
-                                    .matchedGeometryEffect(id: goods.name, in: heroTransition)
                                 
                                 Spacer()
                             }
@@ -182,13 +196,14 @@ struct HomeView: View {
                                 ForEach(goods.tag, id: \.hashValue) {
                                     Text($0)
                                         .font(.caption2)
+                                        .matchedGeometryEffect(id: $0, in: heroTransition)
                                         .foregroundColor(Color("secondary-text-color"))
                                 }
                             }
                         }
                         
                         Text("\(goods.price)원")
-                            .font(.headline)
+                            .font(.title3)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
                     }
@@ -208,9 +223,3 @@ struct HomeView: View {
         
     }
 }
-
-//struct HomeView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        HomeView(showDetailView: .constant(false), selectedGoods: .constant(nil))
-//    }
-//}
