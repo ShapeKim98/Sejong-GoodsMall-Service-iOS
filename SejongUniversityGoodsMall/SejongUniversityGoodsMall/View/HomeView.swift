@@ -177,7 +177,7 @@ struct HomeView: View {
                     Image(goods.image)
                         .resizable()
                         .scaledToFit()
-                        .matchedGeometryEffect(id: goods.image, in: heroTransition)
+                        .matchedGeometryEffect(id: "\(goods.name)\(goods.image)", in: heroTransition)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .frame(width: 130, height: 130)
                         .shadow(radius: 1)
@@ -196,7 +196,6 @@ struct HomeView: View {
                                 ForEach(goods.tag, id: \.hashValue) {
                                     Text($0)
                                         .font(.caption2)
-                                        .matchedGeometryEffect(id: $0, in: heroTransition)
                                         .foregroundColor(Color("secondary-text-color"))
                                 }
                             }

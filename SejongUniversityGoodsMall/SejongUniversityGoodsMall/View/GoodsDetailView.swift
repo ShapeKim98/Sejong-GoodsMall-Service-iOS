@@ -52,7 +52,7 @@ struct GoodsDetailView: View {
                             Image(goods.image)
                                 .resizable()
                                 .scaledToFit()
-                                .matchedGeometryEffect(id: goods.image, in: heroTransition)
+                                .matchedGeometryEffect(id: "\(goods.name)\(goods.image)", in: heroTransition)
                             
                             HStack(spacing: 0) {
                                 Text("1 ")
