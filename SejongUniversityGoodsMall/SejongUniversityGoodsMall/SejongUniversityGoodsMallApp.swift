@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct SejongUniversityGoodsMallApp: App {
+    @StateObject var sampleGoodsViewModel: SampleGoodsViewModel = SampleGoodsViewModel()
     var body: some Scene {
         WindowGroup {
             AppView()
+                .environmentObject(sampleGoodsViewModel)
         }
     }
 }

@@ -40,7 +40,7 @@ struct TabBarView: View {
                             .font(.title2)
                         
                         Text("홈")
-                            .font(.caption)
+                            .font(.system(size: 10))
                     }
                     .foregroundColor(selectedItem == .home ? Color("main-highlight-color") : Color("secondary-text-color"))
                 }
@@ -57,7 +57,7 @@ struct TabBarView: View {
                             .font(.title2)
                         
                         Text("장바구니")
-                            .font(.caption)
+                            .font(.system(size: 10))
                     }
                     .foregroundColor(selectedItem == .shoppingCart ? Color("main-highlight-color") : Color("secondary-text-color"))
                 }
@@ -74,7 +74,7 @@ struct TabBarView: View {
                             .font(.title2)
                         
                         Text("내정보")
-                            .font(.caption)
+                            .font(.system(size: 10))
                     }
                     .foregroundColor(selectedItem == .myInformation ? Color("main-highlight-color") : Color("secondary-text-color"))
                 }
@@ -82,5 +82,11 @@ struct TabBarView: View {
             .padding(.vertical, 5)
             .padding(.horizontal, 50)
             .background(.white)
+    }
+}
+
+struct Previews_TabBarView_Previews: PreviewProvider {
+    static var previews: some View {
+        TabBarView(selectedItem: .constant(.home))
     }
 }

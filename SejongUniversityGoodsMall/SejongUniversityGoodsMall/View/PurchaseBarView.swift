@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct PurchaseBarView: View {
+    @Binding var showOptionSheet: Bool
+    
     @State var selectedGoods: SampleGoodsModel
-    @State var showSelectOption: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -23,43 +24,64 @@ struct PurchaseBarView: View {
             .background(.clear)
             
             purchaseMode(selectedGoods)
+                .padding(.vertical, 7.3)
+                .padding(.horizontal, 20)
+                .background(.white)
         }
         .background(.clear)
-//        .modifier(OptionSheetModifier(showSelectOption: $showSelectOption))
     }
     
     func purchaseMode(_ goods: SampleGoodsModel) -> some View {
         HStack {
-            Text("\(goods.price)원")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(Color("main-text-color"))
+            if !showOptionSheet {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 40)
+                        .stroke(Color("main-highlight-color"))
+                        .frame(width: 160)
+                    
+                    Button {
+                        withAnimation(.spring()) {
+                            
+                        }
+                    } label: {
+                        Text("장바구니 담기")
+                            .font(.system(size: 15).bold())
+                            .foregroundColor(Color("main-highlight-color"))
+                            .padding(.vertical, 8)
+                    }
+                }
+            } else {
+                Text("\(goods.price)원")
+                    .font(.system(size: 20))
+                    .fontWeight(.bold)
+                    .foregroundColor(Color("main-text-color"))
+            }
             
             Spacer()
             
-            Button {
-                withAnimation {
-                    showSelectOption = true
-                }
-            } label: {
-                Text("구매하기")
-                    .foregroundColor(.white)
-                    .padding(8)
-                    .padding(.horizontal, 30)
-                    .background {
-                        RoundedRectangle(cornerRadius: 40)
-                            .foregroundColor(Color("main-highlight-color"))
+            ZStack {
+                RoundedRectangle(cornerRadius: 40)
+                    .foregroundColor(Color("main-highlight-color"))
+                    .frame(width: 160)
+                
+                Button {
+                    
+                    withAnimation(.spring()) {
+                        showOptionSheet = true
                     }
+                } label: {
+                    Text("구매하기")
+                        .font(.system(size: 15).bold())
+                        .foregroundColor(.white)
+                        .padding(.vertical, 8)
+            }
             }
         }
-        .padding(.vertical, 7.3)
-        .padding(.horizontal)
-        .background(.white)
     }
 }
 
 struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
-        PurchaseBarView(selectedGoods: SampleGoodsModel(name: "학과 잠바", price: 85_000, image: "sample-image1", tag: ["#새내기", "#종이"], category: .clothing))
+        PurchaseBarView(showOptionSheet: .constant(false), selectedGoods: SampleGoodsModel(name: "학과 잠바", price: 85_000, image: "sample-image1", tag: ["#새내기", "#종이"], category: .clothing))
     }
 }

@@ -16,24 +16,16 @@ enum Category: Int {
 }
 
 struct HomeView: View {
-    @Binding var showDetailView: Bool
-    @Binding var selectedGoods: SampleGoodsModel?
+    @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
     
-    @State var heroTransition: Namespace.ID
+    @State var selectedGoods: SampleGoodsModel?
     @State private var searchText = ""
     @State private var category: Category = .allProduct
+    @State private var filteredGoods = [SampleGoodsModel]()
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
-    
-    @State private var goods = [SampleGoodsModel(name: "학과 잠바", price: 85_000, image: "sample-image1", tag: ["#새내기", "#종이"], category: .clothing),
-                         SampleGoodsModel(name: "큐브형 포스트잇", price: 3_000, image: "sample-image2", tag: ["#포스트잇", "#큐브형"], category: .phrases),
-                         SampleGoodsModel(name: "뜯는 노트", price: 2_000, image: "sample-image3", tag: ["#뜯는 노트"], category: .phrases),
-                         SampleGoodsModel(name: "스프링 노트", price: 1_500, image: "sample-image4", tag: ["#스프링 노트"], category: .phrases)
-    ]
-    
-    @State private var filteredGoods = [SampleGoodsModel]()
     
     var body: some View {
         GeometryReader { reader in
@@ -44,14 +36,7 @@ struct HomeView: View {
                     ScrollView {
                         LazyVGrid(columns: columns) {
                             ForEach(filteredGoods) { item in
-                                if !showDetailView {
-                                    subGoodsView(item) {
-                                        withAnimation(.spring()) {
-                                            selectedGoods = item
-                                            showDetailView = true
-                                        }
-                                    }
-                                }
+                                subGoodsView(item)
                             }
                         }
                         .padding(.top)
@@ -59,14 +44,9 @@ struct HomeView: View {
                 }
                 .navigationBarHidden(true)
                 .onAppear() {
-                    filteredGoods = goods
+                    filteredGoods = sampleGoodsViewModel.goodsList
                 }
-                .overlay {
-                    if let goods = selectedGoods, showDetailView {
-                        GoodsDetailView(showDetailView: $showDetailView, heroTransition: heroTransition, goods: goods)
-                    }
-                }
-                .frame(height: reader.size.height - reader.frame(in: .named("TabBar")).minY + 8)
+                .frame(height: reader.size.height - reader.frame(in: .named("TabBar")).minY + 10)
                 
                 
             }
@@ -78,9 +58,10 @@ struct HomeView: View {
         VStack {
             HStack {
                 Image(systemName: "magnifyingglass")
+                    .font(.system(size: 15))
                     .foregroundColor(Color("secondary-text-color"))
                 
-                TextField("검색", text: $searchText, prompt: Text("종이의 취향을 검색해보세요"))
+                TextField("검색", text: $searchText, prompt: Text("종이의 취향을 검색해보세요").font(.system(size: 15)))
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
             }
@@ -96,14 +77,14 @@ struct HomeView: View {
                     categotyButton("전체 상품", .allProduct) {
                         withAnimation {
                             category = .allProduct
-                            filteredGoods = goods
+                            filteredGoods = sampleGoodsViewModel.goodsList
                         }
                     }
                     
                     categotyButton("문구", .phrases) {
                         withAnimation {
                             category = .phrases
-                            filteredGoods = goods.filter({ item in
+                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
                                 return item.category == .phrases
                             })
                         }
@@ -112,7 +93,7 @@ struct HomeView: View {
                     categotyButton("의류", .clothing) {
                         withAnimation {
                             category = .clothing
-                            filteredGoods = goods.filter({ item in
+                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
                                 return item.category == .clothing
                             })
                         }
@@ -121,7 +102,7 @@ struct HomeView: View {
                     categotyButton("뱃지&키링", .badgeAndKeyring) {
                         withAnimation {
                             category = .badgeAndKeyring
-                            filteredGoods = goods.filter({ item in
+                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
                                 return item.category == .badgeAndKeyring
                             })
                         }
@@ -130,7 +111,7 @@ struct HomeView: View {
                     categotyButton("선물용", .forGift) {
                         withAnimation {
                             category = .forGift
-                            filteredGoods = goods.filter({ item in
+                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
                                 return item.category == .forGift
                             })
                         }
@@ -157,7 +138,7 @@ struct HomeView: View {
         Button(action: action) {
             VStack {
                 Text(title)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .fontWeight(.semibold)
                     .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
                 
@@ -170,14 +151,18 @@ struct HomeView: View {
     }
     
     @ViewBuilder
-    func subGoodsView(_ goods: SampleGoodsModel, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+    func subGoodsView(_ goods: SampleGoodsModel) -> some View {
+        NavigationLink {
+            GoodsDetailView(goods: goods)
+                .navigationTitle("")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
+        } label: {
             VStack {
                 HStack(alignment: .top) {
                     Image(goods.image)
                         .resizable()
                         .scaledToFit()
-                        .matchedGeometryEffect(id: "\(goods.name)\(goods.image)", in: heroTransition)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .frame(width: 130, height: 130)
                         .shadow(radius: 1)
@@ -187,7 +172,7 @@ struct HomeView: View {
                             HStack {
                                 Text(goods.name)
                                     .foregroundColor(Color("main-text-color"))
-                                    .font(showDetailView ? .title.bold() : nil)
+                                    .font(.system(size: 15))
                                 
                                 Spacer()
                             }
@@ -195,14 +180,14 @@ struct HomeView: View {
                             HStack(spacing: 3) {
                                 ForEach(goods.tag, id: \.hashValue) {
                                     Text($0)
-                                        .font(.caption2)
+                                        .font(.system(size: 10))
                                         .foregroundColor(Color("secondary-text-color"))
                                 }
                             }
                         }
                         
                         Text("\(goods.price)원")
-                            .font(.title3)
+                            .font(.system(size: 18))
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
                     }
@@ -218,7 +203,18 @@ struct HomeView: View {
                     .padding(.vertical, 5)
             }
         }
+        .simultaneousGesture(TapGesture().onEnded({
+            selectedGoods = goods
+        }))
         .padding(.horizontal)
-        
+    }
+    
+    
+}
+
+struct Previews_HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeView()
+            .environmentObject(SampleGoodsViewModel())
     }
 }
