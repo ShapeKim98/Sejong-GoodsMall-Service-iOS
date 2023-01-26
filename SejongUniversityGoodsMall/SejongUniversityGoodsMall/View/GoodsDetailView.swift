@@ -16,13 +16,13 @@ enum Servie {
 struct GoodsDetailView: View {
     @Environment(\.dismiss) var dismiss
     
-    private var goods: SampleGoodsModel
+    private let goods: SampleGoodsModel
     
     @State var service: Servie = .goodsInformation
     @State var showOptionSheet: Bool = false
     @State var imagePage: Int = 1
     @State var optionSheetDrag: CGFloat = .zero
-    @State var optionSelected: Bool = false
+    @State var isOptionSelected: Bool = false
     
     init(goods: SampleGoodsModel) {
         self.goods = goods
@@ -54,7 +54,7 @@ struct GoodsDetailView: View {
                     VStack {
                         Spacer()
                         
-                        OptionSheetView(optionSelected: $optionSelected, optionList: goods.options)
+                        OptionSheetView(isOptionSelected: $isOptionSelected, currentGoods: goods)
                             .frame(width: reader.size.width, height: reader.size.height - reader.size.width + 5)
                     }
                     .coordinateSpace(name: "Contents")
@@ -78,7 +78,7 @@ struct GoodsDetailView: View {
                     )
                 }
                 
-                if !optionSelected {
+                if !isOptionSelected {
                     VStack {
                         Spacer()
                         

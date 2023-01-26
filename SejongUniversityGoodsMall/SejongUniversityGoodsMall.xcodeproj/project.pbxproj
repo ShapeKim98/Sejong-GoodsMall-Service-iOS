@@ -16,6 +16,7 @@
 		C594AB81297C1B540035C3EA /* SelectedTabPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C594AB80297C1B540035C3EA /* SelectedTabPage.swift */; };
 		C595C74B297FC55600AF6E86 /* SampleGoodsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C74A297FC55600AF6E86 /* SampleGoodsViewModel.swift */; };
 		C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C74C298113F100AF6E86 /* OptionSheetView.swift */; };
+		C595C75129819A3C00AF6E86 /* SampleBasketItem:Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C75029819A3C00AF6E86 /* SampleBasketItem:Model.swift */; };
 		C5D32C7929794C4A00644BFD /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D32C7829794C4A00644BFD /* AppView.swift */; };
 		C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D32C7A29794C8600644BFD /* HomeView.swift */; };
 		C5DF2FDF2979854A00642700 /* SampleGoodsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */; };
@@ -34,6 +35,7 @@
 		C594AB80297C1B540035C3EA /* SelectedTabPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTabPage.swift; sourceTree = "<group>"; };
 		C595C74A297FC55600AF6E86 /* SampleGoodsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoodsViewModel.swift; sourceTree = "<group>"; };
 		C595C74C298113F100AF6E86 /* OptionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSheetView.swift; sourceTree = "<group>"; };
+		C595C75029819A3C00AF6E86 /* SampleBasketItem:Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SampleBasketItem:Model.swift"; sourceTree = "<group>"; };
 		C5D32C7829794C4A00644BFD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		C5D32C7A29794C8600644BFD /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoodsModel.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 			children = (
 				C5324CA629794AD30034C710 /* Preview Assets.xcassets */,
 				C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */,
+				C595C75029819A3C00AF6E86 /* SampleBasketItem:Model.swift */,
 				C595C74A297FC55600AF6E86 /* SampleGoodsViewModel.swift */,
 			);
 			path = "Preview Content";
@@ -195,6 +198,7 @@
 				C5DF2FE129798C7900642700 /* GoodsDetailView.swift in Sources */,
 				C595C74B297FC55600AF6E86 /* SampleGoodsViewModel.swift in Sources */,
 				C5053705297C1E82003E808C /* PurchaseBarView.swift in Sources */,
+				C595C75129819A3C00AF6E86 /* SampleBasketItem:Model.swift in Sources */,
 				C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */,
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,

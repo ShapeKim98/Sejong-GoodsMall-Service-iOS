@@ -16,20 +16,7 @@ struct SampleGoodsModel: Identifiable {
     var category: Category
     var goodsInfo: String = "상품 설명과 상품 사이즈 등을 텍스트, 이미지로 표시"
     var options: [[String]]?
-    var specifiedOption: [String]?
-    
-    init(id: UUID = UUID(), name: String, price: Int, image: String, tag: [String], category: Category, options: [[String]]? = nil) {
-        self.id = id
-        self.name = name
-        self.price = price
-        self.image = image
-        self.tag = tag
-        self.category = category
-        self.options = options
-        if let opn = options {
-            self.specifiedOption = [String].init(repeating: "", count: opn.count)
-        }
-    }
+    var specifiedOption = [String?]()
     
     enum Category: Int {
         case allProduct

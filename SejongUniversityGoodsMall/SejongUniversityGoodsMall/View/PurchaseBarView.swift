@@ -33,7 +33,7 @@ struct PurchaseBarView: View {
     
     func purchaseMode(_ goods: SampleGoodsModel) -> some View {
         HStack {
-            if !showOptionSheet {
+            if showOptionSheet {
                 ZStack {
                     RoundedRectangle(cornerRadius: 40)
                         .stroke(Color("main-highlight-color"))
@@ -74,7 +74,7 @@ struct PurchaseBarView: View {
                         .font(.system(size: 15).bold())
                         .foregroundColor(.white)
                         .padding(.vertical, 8)
-            }
+                }
             }
         }
     }
