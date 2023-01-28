@@ -13,4 +13,8 @@ class SampleGoodsViewModel: ObservableObject {
                                                     SampleGoodsModel(name: "뜯는 노트", price: 2_000, image: "sample-image3", tag: ["#뜯는 노트"], category: .phrases),
                                                     SampleGoodsModel(name: "스프링 노트", price: 1_500, image: "sample-image4", tag: ["#스프링 노트"], category: .phrases)
     ]
+    
+    @Published var basketGoodsList: [SampleGoodsModel]?
+    
+    @Published var popularKeywords: [String] = ["과잠", "큐브형 포스트잇", "뜯는 노트", "스프링 노트"]
 }

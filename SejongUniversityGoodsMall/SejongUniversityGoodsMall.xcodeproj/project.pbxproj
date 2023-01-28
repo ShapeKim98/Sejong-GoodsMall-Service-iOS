@@ -12,11 +12,12 @@
 		C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5324C9F29794AD20034C710 /* SejongUniversityGoodsMallApp.swift */; };
 		C5324CA429794AD30034C710 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA329794AD30034C710 /* Assets.xcassets */; };
 		C5324CA729794AD30034C710 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA629794AD30034C710 /* Preview Assets.xcassets */; };
-		C594AB7E297C003E0035C3EA /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C594AB7D297C003E0035C3EA /* TabBarView.swift */; };
-		C594AB81297C1B540035C3EA /* SelectedTabPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C594AB80297C1B540035C3EA /* SelectedTabPage.swift */; };
 		C595C74B297FC55600AF6E86 /* SampleGoodsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C74A297FC55600AF6E86 /* SampleGoodsViewModel.swift */; };
 		C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C74C298113F100AF6E86 /* OptionSheetView.swift */; };
 		C595C75129819A3C00AF6E86 /* SampleBasketItem:Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C75029819A3C00AF6E86 /* SampleBasketItem:Model.swift */; };
+		C5C73AD02983B57700D42719 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73ACF2983B57700D42719 /* LoginView.swift */; };
+		C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AD12983CE5100D42719 /* SignUpView.swift */; };
+		C5C73AE92985310700D42719 /* HalfSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AE82985310700D42719 /* HalfSheet.swift */; };
 		C5D32C7929794C4A00644BFD /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D32C7829794C4A00644BFD /* AppView.swift */; };
 		C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D32C7A29794C8600644BFD /* HomeView.swift */; };
 		C5DF2FDF2979854A00642700 /* SampleGoodsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */; };
@@ -31,11 +32,12 @@
 		C5324CA329794AD30034C710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C5324CA629794AD30034C710 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C594AB7C297BE0F10035C3EA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		C594AB7D297C003E0035C3EA /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
-		C594AB80297C1B540035C3EA /* SelectedTabPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedTabPage.swift; sourceTree = "<group>"; };
 		C595C74A297FC55600AF6E86 /* SampleGoodsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoodsViewModel.swift; sourceTree = "<group>"; };
 		C595C74C298113F100AF6E86 /* OptionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSheetView.swift; sourceTree = "<group>"; };
 		C595C75029819A3C00AF6E86 /* SampleBasketItem:Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SampleBasketItem:Model.swift"; sourceTree = "<group>"; };
+		C5C73ACF2983B57700D42719 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		C5C73AD12983CE5100D42719 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		C5C73AE82985310700D42719 /* HalfSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HalfSheet.swift; sourceTree = "<group>"; };
 		C5D32C7829794C4A00644BFD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		C5D32C7A29794C8600644BFD /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoodsModel.swift; sourceTree = "<group>"; };
@@ -57,9 +59,10 @@
 			isa = PBXGroup;
 			children = (
 				C5D32C7829794C4A00644BFD /* AppView.swift */,
+				C5C73ACF2983B57700D42719 /* LoginView.swift */,
+				C5C73AD12983CE5100D42719 /* SignUpView.swift */,
 				C5D32C7A29794C8600644BFD /* HomeView.swift */,
 				C5DF2FE029798C7900642700 /* GoodsDetailView.swift */,
-				C594AB7D297C003E0035C3EA /* TabBarView.swift */,
 				C5053704297C1E82003E808C /* PurchaseBarView.swift */,
 				C595C74C298113F100AF6E86 /* OptionSheetView.swift */,
 			);
@@ -118,7 +121,7 @@
 		C594AB7F297C1B2E0035C3EA /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				C594AB80297C1B540035C3EA /* SelectedTabPage.swift */,
+				C5C73AE82985310700D42719 /* HalfSheet.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -193,18 +196,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C594AB81297C1B540035C3EA /* SelectedTabPage.swift in Sources */,
 				C5DF2FDF2979854A00642700 /* SampleGoodsModel.swift in Sources */,
 				C5DF2FE129798C7900642700 /* GoodsDetailView.swift in Sources */,
 				C595C74B297FC55600AF6E86 /* SampleGoodsViewModel.swift in Sources */,
 				C5053705297C1E82003E808C /* PurchaseBarView.swift in Sources */,
+				C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */,
 				C595C75129819A3C00AF6E86 /* SampleBasketItem:Model.swift in Sources */,
 				C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */,
+				C5C73AD02983B57700D42719 /* LoginView.swift in Sources */,
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
 				C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */,
-				C594AB7E297C003E0035C3EA /* TabBarView.swift in Sources */,
 				C5D32C7929794C4A00644BFD /* AppView.swift in Sources */,
+				C5C73AE92985310700D42719 /* HalfSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

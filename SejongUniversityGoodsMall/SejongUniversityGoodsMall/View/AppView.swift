@@ -7,63 +7,19 @@
 
 import SwiftUI
 
-
-
 struct AppView: View {
     @Namespace var heroTransition
     
     @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
     
-    @State private var selectedTabPage: SelectedTabPage = .home
+    @State private var showLoginView: Bool = true
     
     var body: some View {
-        GeometryReader { reader in
-            if #available(iOS 16.0, *) {
-                NavigationStack {
-                    ZStack {
-                        switch selectedTabPage {
-                            case .home:
-                                HomeView()
-                                    .navigationTitle("")
-                                    .navigationBarHidden(true)
-                            case .shoppingCart:
-                                VStack{}
-                            case .myInformation:
-                                VStack{}
-                        }
-                        
-                        VStack {
-                            Spacer()
-                            
-                            TabBarView(selectedItem: $selectedTabPage)
-                                .coordinateSpace(name: "TabBar")
-                        }
-                    }
-                }
-                .tint(Color("main-text-color"))
-            } else {
-                NavigationView {
-                    ZStack {
-                        switch selectedTabPage {
-                            case .home:
-                                HomeView()
-                                    .navigationTitle("")
-                                    .navigationBarHidden(true)
-                            case .shoppingCart:
-                                VStack{}
-                            case .myInformation:
-                                VStack{}
-                        }
-                        
-                        VStack {
-                            Spacer()
-                            
-                            TabBarView(selectedItem: $selectedTabPage)
-                                .coordinateSpace(name: "TabBar")
-                        }
-                    }
-                }
-            }
+        if showLoginView {
+            LoginView()
+        } else {
+            HomeView()
+                .environmentObject(sampleGoodsViewModel)
         }
     }
 }

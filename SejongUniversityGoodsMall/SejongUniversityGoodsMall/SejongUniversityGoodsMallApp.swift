@@ -14,6 +14,7 @@ struct SejongUniversityGoodsMallApp: App {
         WindowGroup {
             AppView()
                 .environmentObject(sampleGoodsViewModel)
+                .preferredColorScheme(.light)
         }
     }
 }
