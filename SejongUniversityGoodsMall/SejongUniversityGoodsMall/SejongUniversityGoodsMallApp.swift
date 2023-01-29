@@ -10,10 +10,13 @@ import SwiftUI
 @main
 struct SejongUniversityGoodsMallApp: App {
     @StateObject var sampleGoodsViewModel: SampleGoodsViewModel = SampleGoodsViewModel()
+    @StateObject var loginViewModel: LoginViewModel = LoginViewModel()
+    
     var body: some Scene {
         WindowGroup {
             AppView()
                 .environmentObject(sampleGoodsViewModel)
+                .environmentObject(loginViewModel)
                 .preferredColorScheme(.light)
         }
     }

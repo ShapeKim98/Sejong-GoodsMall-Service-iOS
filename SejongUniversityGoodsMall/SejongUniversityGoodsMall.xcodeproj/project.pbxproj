@@ -18,6 +18,16 @@
 		C5C73AD02983B57700D42719 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73ACF2983B57700D42719 /* LoginView.swift */; };
 		C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AD12983CE5100D42719 /* SignUpView.swift */; };
 		C5C73AE92985310700D42719 /* HalfSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AE82985310700D42719 /* HalfSheet.swift */; };
+		C5C73AEE2986542B00D42719 /* Goods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AED2986542B00D42719 /* Goods.swift */; };
+		C5C73AF029865E4100D42719 /* UserRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AEF29865E4100D42719 /* UserRequest.swift */; };
+		C5C73AF22986603700D42719 /* LoginRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AF12986603700D42719 /* LoginRequest.swift */; };
+		C5C73AF42986604100D42719 /* LoginResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AF32986604100D42719 /* LoginResponse.swift */; };
+		C5C73AF62986610000D42719 /* FindEmailRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AF52986610000D42719 /* FindEmailRequest.swift */; };
+		C5C73AF82986611600D42719 /* FindEmailResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AF72986611600D42719 /* FindEmailResponse.swift */; };
+		C5C73AFA2986644100D42719 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AF92986644100D42719 /* ApiService.swift */; };
+		C5C73AFC298676C600D42719 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AFB298676C600D42719 /* LoginViewModel.swift */; };
+		C5C73AFE2986B07000D42719 /* GoodsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AFD2986B07000D42719 /* GoodsViewModel.swift */; };
+		C5C73B002986B91600D42719 /* UserResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AFF2986B91600D42719 /* UserResponse.swift */; };
 		C5D32C7929794C4A00644BFD /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D32C7829794C4A00644BFD /* AppView.swift */; };
 		C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D32C7A29794C8600644BFD /* HomeView.swift */; };
 		C5DF2FDF2979854A00642700 /* SampleGoodsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */; };
@@ -38,6 +48,16 @@
 		C5C73ACF2983B57700D42719 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		C5C73AD12983CE5100D42719 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		C5C73AE82985310700D42719 /* HalfSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HalfSheet.swift; sourceTree = "<group>"; };
+		C5C73AED2986542B00D42719 /* Goods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goods.swift; sourceTree = "<group>"; };
+		C5C73AEF29865E4100D42719 /* UserRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRequest.swift; sourceTree = "<group>"; };
+		C5C73AF12986603700D42719 /* LoginRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRequest.swift; sourceTree = "<group>"; };
+		C5C73AF32986604100D42719 /* LoginResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginResponse.swift; sourceTree = "<group>"; };
+		C5C73AF52986610000D42719 /* FindEmailRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailRequest.swift; sourceTree = "<group>"; };
+		C5C73AF72986611600D42719 /* FindEmailResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailResponse.swift; sourceTree = "<group>"; };
+		C5C73AF92986644100D42719 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
+		C5C73AFB298676C600D42719 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		C5C73AFD2986B07000D42719 /* GoodsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodsViewModel.swift; sourceTree = "<group>"; };
+		C5C73AFF2986B91600D42719 /* UserResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserResponse.swift; sourceTree = "<group>"; };
 		C5D32C7829794C4A00644BFD /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		C5D32C7A29794C8600644BFD /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		C5DF2FDE2979854A00642700 /* SampleGoodsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoodsModel.swift; sourceTree = "<group>"; };
@@ -96,6 +116,9 @@
 		C5324C9E29794AD20034C710 /* SejongUniversityGoodsMall */ = {
 			isa = PBXGroup;
 			children = (
+				C5C73AEC298653F800D42719 /* Api */,
+				C5C73AEB298653EC00D42719 /* ViewModel */,
+				C5C73AEA298653E000D42719 /* Model */,
 				C526A7A6297C2240009BE7EF /* Modifier */,
 				C5053706297C21CC003E808C /* View */,
 				C594AB7F297C1B2E0035C3EA /* Common */,
@@ -124,6 +147,37 @@
 				C5C73AE82985310700D42719 /* HalfSheet.swift */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		C5C73AEA298653E000D42719 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C5C73AED2986542B00D42719 /* Goods.swift */,
+				C5C73AEF29865E4100D42719 /* UserRequest.swift */,
+				C5C73AFF2986B91600D42719 /* UserResponse.swift */,
+				C5C73AF12986603700D42719 /* LoginRequest.swift */,
+				C5C73AF32986604100D42719 /* LoginResponse.swift */,
+				C5C73AF52986610000D42719 /* FindEmailRequest.swift */,
+				C5C73AF72986611600D42719 /* FindEmailResponse.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C5C73AEB298653EC00D42719 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C5C73AFB298676C600D42719 /* LoginViewModel.swift */,
+				C5C73AFD2986B07000D42719 /* GoodsViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C5C73AEC298653F800D42719 /* Api */ = {
+			isa = PBXGroup;
+			children = (
+				C5C73AF92986644100D42719 /* ApiService.swift */,
+			);
+			path = Api;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -196,19 +250,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5C73AEE2986542B00D42719 /* Goods.swift in Sources */,
+				C5C73B002986B91600D42719 /* UserResponse.swift in Sources */,
 				C5DF2FDF2979854A00642700 /* SampleGoodsModel.swift in Sources */,
 				C5DF2FE129798C7900642700 /* GoodsDetailView.swift in Sources */,
+				C5C73AF62986610000D42719 /* FindEmailRequest.swift in Sources */,
 				C595C74B297FC55600AF6E86 /* SampleGoodsViewModel.swift in Sources */,
 				C5053705297C1E82003E808C /* PurchaseBarView.swift in Sources */,
+				C5C73AFA2986644100D42719 /* ApiService.swift in Sources */,
 				C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */,
 				C595C75129819A3C00AF6E86 /* SampleBasketItem:Model.swift in Sources */,
 				C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */,
+				C5C73AF029865E4100D42719 /* UserRequest.swift in Sources */,
+				C5C73AFE2986B07000D42719 /* GoodsViewModel.swift in Sources */,
 				C5C73AD02983B57700D42719 /* LoginView.swift in Sources */,
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
 				C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */,
 				C5D32C7929794C4A00644BFD /* AppView.swift in Sources */,
 				C5C73AE92985310700D42719 /* HalfSheet.swift in Sources */,
+				C5C73AF42986604100D42719 /* LoginResponse.swift in Sources */,
+				C5C73AF22986603700D42719 /* LoginRequest.swift in Sources */,
+				C5C73AF82986611600D42719 /* FindEmailResponse.swift in Sources */,
+				C5C73AFC298676C600D42719 /* LoginViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

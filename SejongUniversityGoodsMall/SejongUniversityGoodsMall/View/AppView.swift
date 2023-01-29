@@ -11,12 +11,14 @@ struct AppView: View {
     @Namespace var heroTransition
     
     @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
+    @EnvironmentObject var loginViewModel: LoginViewModel
     
     @State private var showLoginView: Bool = true
     
     var body: some View {
         if showLoginView {
             LoginView()
+                .environmentObject(loginViewModel)
         } else {
             HomeView()
                 .environmentObject(sampleGoodsViewModel)
@@ -28,5 +30,6 @@ struct AppView_Previews: PreviewProvider {
     static var previews: some View {
         AppView()
             .environmentObject(SampleGoodsViewModel())
+            .environmentObject(LoginViewModel())
     }
 }

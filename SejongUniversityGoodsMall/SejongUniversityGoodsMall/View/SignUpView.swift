@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SignUpView: View {
+    @EnvironmentObject var loginViewModel: LoginViewModel
+    
     init() {
         if #available(iOS 16.0, *) {
 
@@ -371,7 +373,10 @@ struct SignUpView: View {
             Spacer()
             
             Button {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd"
                 
+                loginViewModel.signUp(email: email, password: password, userName: userName, birth: formatter.string(from: userBirthday))
             } label: {
                 HStack {
                     Spacer()
@@ -421,11 +426,13 @@ struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
         if #available(iOS 16.0, *) {
             NavigationStack {
-                SignUpView().registeredUserPage()
+                SignUpView()
+                    .environmentObject(LoginViewModel())
             }
         } else {
             NavigationView {
                 SignUpView()
+                    .environmentObject(LoginViewModel())
             }
         }
     }

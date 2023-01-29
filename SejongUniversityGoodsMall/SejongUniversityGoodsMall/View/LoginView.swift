@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject var loginViewModel: LoginViewModel
+    
     var body: some View {
         GeometryReader { reader in
             if #available(iOS 16.0, *) {
@@ -60,6 +62,7 @@ struct LoginView: View {
                 SignUpView()
                     .navigationTitle("")
                     .navigationBarTitleDisplayMode(.inline)
+                    .environmentObject(loginViewModel)
             } label: {
                 HStack {
                     Spacer()
@@ -104,5 +107,6 @@ struct LoginView: View {
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .environmentObject(LoginViewModel())
     }
 }
