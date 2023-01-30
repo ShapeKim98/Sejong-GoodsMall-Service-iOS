@@ -24,7 +24,7 @@ struct LoginView: View {
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()
                 }
-                .accentColor(Color("main-text-color"))
+                .tint(Color("main-text-color"))
             } else {
                 NavigationView {
                     VStack {

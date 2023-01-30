@@ -18,7 +18,7 @@ struct SignUpView: View {
         }
         
         self.dateFormatter.locale = Locale(identifier: "ko_kr")
-        self.dateFormatter.dateFormat = "yy/MM/dd"
+        self.dateFormatter.dateFormat = "yyyy/MM/dd"
     }
     
     var body: some View {
@@ -28,6 +28,22 @@ struct SignUpView: View {
             termsPage()
             
             signUpButton()
+        }
+        .onTapGesture {
+            withAnimation(.spring()) {
+                showDatePicker = false
+            }
+        }
+        .overlay {
+            if showDatePicker {
+                VStack {
+                    Spacer()
+                    
+                    dataPickerSheet()
+                }
+                .ignoresSafeArea()
+                .transition(.move(edge: .bottom))
+            }
         }
     }
     
@@ -321,7 +337,9 @@ struct SignUpView: View {
             }
             
             Button {
-                showDatePicker = true
+                withAnimation(.spring()) {
+                    showDatePicker = true
+                }
             } label: {
                 HStack {
                     TextField("생년월일", text: $userBirthdayString, prompt: Text("생년월일"))
@@ -335,58 +353,6 @@ struct SignUpView: View {
             .background {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color("shape-bkg-color"))
-            }
-            .sheet(isPresented: $showDatePicker) {
-                if #available(iOS 16.0, *) {
-                    VStack {
-                        HStack {
-                            Button("취소", role: .cancel) {
-                                showDatePicker = false
-                            }
-                            
-                            Spacer()
-                            
-                            Button("완료") {
-                                userBirthdayString = dateFormatter.string(from: userBirthday)
-                                showDatePicker = false
-                            }
-                        }
-                        
-                        DatePicker(selection: $userBirthday, in: ...Date.now, displayedComponents: .date) {
-                            
-                        }
-                        .datePickerStyle(.wheel)
-                        .labelsHidden()
-                    }
-                    .padding()
-                    .presentationDetents([.height(300)])
-                } else {
-                    HalfSheet {
-                        VStack {
-                            HStack {
-                                Button("취소", role: .cancel) {
-                                    showDatePicker = false
-                                }
-                                
-                                Spacer()
-                                
-                                Button("완료") {
-                                    userBirthdayString = dateFormatter.string(from: userBirthday)
-                                    showDatePicker = false
-                                }
-                            }
-                            
-                            DatePicker(selection: $userBirthday, in: ...Date.now, displayedComponents: .date) {
-                                
-                            }
-                            .datePickerStyle(.wheel)
-                            .labelsHidden()
-                            
-                            Spacer()
-                        }
-                        .padding()
-                    }
-                }
             }
         }
         .padding()
@@ -403,21 +369,74 @@ struct SignUpView: View {
             HStack {
                 Spacer()
                 
-                Text("회원가입 완료")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding()
+                if loginViewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .padding()
+                } else {
+                    Text("회원가입 완료")
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding()
+                }
                 
                 Spacer()
             }
         }
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .foregroundColor(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "" ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                .foregroundColor((agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
         }
-        .disabled(!(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != ""))
+        .disabled((!(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "")) || loginViewModel.isLoading)
         .padding()
         .padding(.bottom, 20)
+    }
+    
+    @State private var datePickerSheetDrag: CGFloat = .zero
+    
+    @ViewBuilder
+    func dataPickerSheet() -> some View {
+        VStack {
+            HStack {
+                Button {
+                    withAnimation(.spring()) {
+                        showDatePicker = false
+                    }
+                } label: {
+                    Text("취소")
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("main-text-color"))
+                }
+                
+                Spacer()
+                
+                Button {
+                    userBirthdayString = dateFormatter.string(from: userBirthday)
+                    withAnimation(.spring()) {
+                        showDatePicker = false
+                    }
+                } label: {
+                    Text("확인")
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("main-highlight-color"))
+                }
+            }
+            .padding()
+            .background(Color("shape-bkg-color"))
+            
+            DatePicker(selection: $userBirthday, in: ...Date.now, displayedComponents: .date) {
+                
+            }
+            .datePickerStyle(.wheel)
+            .labelsHidden()
+            .padding(.bottom)
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .foregroundColor(.white)
+                .ignoresSafeArea()
+                .shadow(color: .black.opacity(0.2), radius: 5)
+        }
     }
     
     @ViewBuilder

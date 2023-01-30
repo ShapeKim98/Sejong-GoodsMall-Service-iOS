@@ -62,19 +62,24 @@ struct SignInView: View {
             } label: {
                 HStack {
                     Spacer()
-                    
-                    Text("로그인")
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding()
+                    if loginViewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .padding()
+                    } else {
+                        Text("로그인")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                    }
                     
                     Spacer()
                 }
             }
-            .disabled(email == "" || password == "")
+            .disabled((email == "" || password == "") || loginViewModel.isLoading)
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor(email != "" && password != "" ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                    .foregroundColor((email != "" && password != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
             }
             .padding(.bottom, 20)
         }

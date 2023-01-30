@@ -13,15 +13,42 @@ struct AppView: View {
     @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
-    @State private var showLoginView: Bool = true
+    @State var showMessage: Bool = false
+    @State var message: String = ""
     
     var body: some View {
-        if showLoginView {
-            LoginView()
-                .environmentObject(loginViewModel)
-        } else {
+        if loginViewModel.isSignUpComplete || loginViewModel.isAuthenticate {
             HomeView()
+                .environmentObject(loginViewModel)
+                .onChange(of: loginViewModel.message, perform: { newValue in
+                    if let msg = newValue {
+                        message = msg
+                        showMessage = true
+                    }
+                    
+                    print(message)
+                })
+                .alert(message, isPresented: $showMessage) {
+                    Button("확인") {
+                        loginViewModel.message = nil
+                    }
+                }
+        } else {
+            LoginView()
                 .environmentObject(sampleGoodsViewModel)
+                .onChange(of: loginViewModel.message, perform: { newValue in
+                    if let msg = newValue {
+                        message = msg
+                        showMessage = true
+                    }
+                    
+                    print(message)
+                })
+                .alert(message, isPresented: $showMessage) {
+                    Button("확인") {
+                        loginViewModel.message = nil
+                    }
+                }
         }
     }
 }
