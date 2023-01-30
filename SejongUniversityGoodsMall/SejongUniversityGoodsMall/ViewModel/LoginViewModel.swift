@@ -27,13 +27,13 @@ class LoginViewModel: ObservableObject {
                         case .invalidResponse(let error):
                             switch error.code {
                                 case .badServerResponse:
-                                    print("서버 응답 오류")
+                                    print("서버 응답 오류 \(error.errorCode)")
                                     break
                                 case .badURL:
                                     print("잘못된 url")
                                     break
                                 default:
-                                    print("알 수 없는 오류 url")
+                                    print("알 수 없는 오류")
                                     break
                             }
                         case .jsonDecodeError:
@@ -65,7 +65,7 @@ class LoginViewModel: ObservableObject {
                         case .invalidResponse(let error):
                             switch error.code {
                                 case .badServerResponse:
-                                    print("서버 응답 오류")
+                                    print("서버 응답 오류 \(error.errorCode)")
                                     break
                                 case .badURL:
                                     print("잘못된 url")
@@ -102,7 +102,7 @@ class LoginViewModel: ObservableObject {
                         case .invalidResponse(let error):
                             switch error.code {
                                 case .badServerResponse:
-                                    print("서버 응답 오류")
+                                    print("서버 응답 오류 \(error.errorCode)")
                                     break
                                 case .badURL:
                                     print("잘못된 url")

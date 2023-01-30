@@ -8,5 +8,9 @@
 import Foundation
 
 struct UserRequest: Codable {
-    let email, password, username, birth: String
+    let email, password, userName, birth: String
+    
+    enum CodingKeys: String, CodingKey {
+        case email, password, userName = "username", birth
+    }
 }

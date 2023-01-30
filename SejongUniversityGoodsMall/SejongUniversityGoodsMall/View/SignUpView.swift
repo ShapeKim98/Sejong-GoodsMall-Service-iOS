@@ -14,7 +14,7 @@ struct SignUpView: View {
         if #available(iOS 16.0, *) {
 
         } else {
-            Self.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
+            SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
         }
         
         self.dateFormatter.locale = Locale(identifier: "ko_kr")
@@ -22,10 +22,13 @@ struct SignUpView: View {
     }
     
     var body: some View {
-        VStack {
+        ScrollView {
+            registeredUserPage()
+            
             termsPage()
+            
+            signUpButton()
         }
-        .navigationTitle("")
     }
     
     @State private var fullAgreement: Bool = false
@@ -35,30 +38,31 @@ struct SignUpView: View {
     
     @ViewBuilder
     func termsPage() -> some View {
-        VStack {
-            HStack {
-                Button {
-                    withAnimation {
-                        if !fullAgreement {
-                            agreeTermsOfUse = true
-                            agreePersonalInfo = true
-                            agreeMarketingInfo = true
-                        }
-                        fullAgreement = true
+        VStack(spacing: 0) {
+            Button {
+                withAnimation {
+                    if !fullAgreement {
+                        agreeTermsOfUse = true
+                        agreePersonalInfo = true
+                        agreeMarketingInfo = true
                     }
-                } label: {
+                    fullAgreement = true
+                }
+            } label: {
+                HStack {
                     Label("동의", systemImage: "checkmark.circle.fill")
                         .font(.title2)
                         .labelStyle(.iconOnly)
                         .foregroundColor(fullAgreement ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                    
+                    Text("약관에 전체 동의합니다.")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("main-text-color"))
+                    
+                    Spacer()
                 }
-                
-                Text("약관에 전체 동의합니다.")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color("main-text-color"))
-                
-                Spacer()
+                .padding()
             }
             
             Rectangle()
@@ -118,29 +122,11 @@ struct SignUpView: View {
                     }
                 }
             }
-            
-            Spacer()
-            
-            NavigationLink {
-                registeredUserPage()
-            } label: {
-                HStack {
-                    Spacer()
-                    
-                    Text("동의하고 가입하기")
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                    Spacer()
-                }
-            }
-            .background {
-                RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor(agreeTermsOfUse && agreePersonalInfo ? Color("main-highlight-color") : Color("shape-bkg-color"))
-            }
-            .disabled(!agreeTermsOfUse && !agreePersonalInfo)
-            .padding(.bottom, 50)
+            .padding(.bottom)
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color("shape-bkg-color"))
         }
         .padding()
     }
@@ -158,6 +144,7 @@ struct SignUpView: View {
             NavigationLink(destination: destination) {
                 HStack {
                     Text(title)
+                        .font(.subheadline)
                         .fontWeight(.bold)
                     
                     Spacer()
@@ -168,7 +155,7 @@ struct SignUpView: View {
                 .foregroundColor(Color("main-text-color"))
             }
         }
-        .padding(.top)
+        .padding([.horizontal, .top])
     }
     
     @State private var email: String = ""
@@ -188,14 +175,13 @@ struct SignUpView: View {
     func registeredUserPage() -> some View {
         VStack {
             HStack {
-                Text("계정 등록")
-                    .font(.title3)
+                Text("이메일 등록")
+                    .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(Color("main-text-color"))
                 
                 Spacer()
             }
-            .padding(.bottom)
             
             VStack {
                 TextField("사용하실 이메일을 입력해주세요.", text: $email, prompt: Text("사용하실 이메일을 입력해주세요."))
@@ -214,10 +200,20 @@ struct SignUpView: View {
                             isValidEmail = false
                         }
                     }
+                    .overlay {
+                        if isValidEmail && email != "" {
+                            HStack {
+                                Spacer()
+                                
+                                DrawingCheckmarkView()
+                            }
+                            .padding()
+                        }
+                    }
                 
                 HStack {
                     Text(!isValidEmail && email != "" ? "올바르지 않는 이메일 주소입니다." : " ")
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(Color("main-highlight-color"))
                     
                     Spacer()
@@ -238,6 +234,16 @@ struct SignUpView: View {
                         isValidPassword = newValue.count >= 8 ? true : false
                         if newValue == "" {
                             verifyPassword = ""
+                        }
+                    }
+                    .overlay {
+                        if isValidPassword && password != "" && isSamePassword {
+                            HStack {
+                                Spacer()
+                                
+                                DrawingCheckmarkView()
+                            }
+                            .padding()
                         }
                     }
                 
@@ -263,10 +269,20 @@ struct SignUpView: View {
                     .onChange(of: verifyPassword) { newValue in
                         isSamePassword = newValue == password ? true : false
                     }
+                    .overlay {
+                        if isValidEmail && verifyPassword != "" && isSamePassword {
+                            HStack {
+                                Spacer()
+                                
+                                DrawingCheckmarkView()
+                            }
+                            .padding()
+                        }
+                    }
                 
                 HStack {
                     Text(!isSamePassword && verifyPassword != "" ? "비밀번호가 일치하지 않습니다." : " ")
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(Color("main-highlight-color"))
                     
                     Spacer()
@@ -276,13 +292,13 @@ struct SignUpView: View {
             
             HStack {
                 Text("프로필 정보")
-                    .font(.title3)
+                    .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(Color("main-text-color"))
                 
                 Spacer()
             }
-            .padding(.vertical)
+            .padding(.top)
             
             VStack {
                 TextField("이름", text: $userName, prompt: Text("이름"))
@@ -297,7 +313,7 @@ struct SignUpView: View {
                 
                 HStack {
                     Text(" ")
-                        .font(.caption)
+                        .font(.caption2)
                     
                     Spacer()
                 }
@@ -339,10 +355,11 @@ struct SignUpView: View {
                         DatePicker(selection: $userBirthday, in: ...Date.now, displayedComponents: .date) {
                             
                         }
-                        .datePickerStyle(.graphical)
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
                     }
                     .padding()
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.height(300)])
                 } else {
                     HalfSheet {
                         VStack {
@@ -362,63 +379,51 @@ struct SignUpView: View {
                             DatePicker(selection: $userBirthday, in: ...Date.now, displayedComponents: .date) {
                                 
                             }
-                            .datePickerStyle(.graphical)
+                            .datePickerStyle(.wheel)
+                            .labelsHidden()
+                            
+                            Spacer()
                         }
                         .padding()
-                        .datePickerStyle(.wheel)
                     }
                 }
             }
-            
-            Spacer()
-            
-            Button {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy-MM-dd"
-                
-                loginViewModel.signUp(email: email, password: password, userName: userName, birth: formatter.string(from: userBirthday))
-            } label: {
-                HStack {
-                    Spacer()
-                    
-                    Text("회원가입 완료")
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                    Spacer()
-                }
-            }
-            .background {
-                RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor(isValidEmail && isSamePassword && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "" ? Color("main-highlight-color") : Color("shape-bkg-color"))
-            }
-            .disabled(!(isValidEmail && isSamePassword && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != ""))
-            .padding(.bottom, 50)
         }
         .padding()
+    }
+    
+    @ViewBuilder
+    func signUpButton() -> some View {
+        Button {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            
+            loginViewModel.signUp(email: email, password: password, userName: userName, birth: formatter.string(from: userBirthday))
+        } label: {
+            HStack {
+                Spacer()
+                
+                Text("회원가입 완료")
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding()
+                
+                Spacer()
+            }
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .foregroundColor(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "" ? Color("main-highlight-color") : Color("shape-bkg-color"))
+        }
+        .disabled(!(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != ""))
+        .padding()
+        .padding(.bottom, 20)
     }
     
     @ViewBuilder
     func textFieldBackground(isValidInput: Bool, input: String) -> some View {
         RoundedRectangle(cornerRadius: 10)
             .stroke(isValidInput || input == "" ? Color("shape-bkg-color") : Color("main-highlight-color"))
-    }
-    
-    static func navigationBarColors(background : UIColor?, titleColor : UIColor? = nil, tintColor : UIColor? = nil ){
-        
-        let navigationAppearance = UINavigationBarAppearance()
-        navigationAppearance.configureWithOpaqueBackground()
-        navigationAppearance.backgroundColor = background ?? .clear
-        
-        navigationAppearance.titleTextAttributes = [.foregroundColor: titleColor ?? .black]
-        navigationAppearance.largeTitleTextAttributes = [.foregroundColor: titleColor ?? .black]
-        
-        UINavigationBar.appearance().standardAppearance = navigationAppearance
-        UINavigationBar.appearance().compactAppearance = navigationAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = navigationAppearance
-        
-        UINavigationBar.appearance().tintColor = tintColor ?? titleColor ?? .black
     }
 }
 

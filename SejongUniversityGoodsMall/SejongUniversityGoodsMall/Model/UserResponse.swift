@@ -7,7 +7,12 @@
 
 import Foundation
 
-struct UserResponse: Codable {
+struct UserResponse: Codable{
     let id: Int
-    let email, password, username, birth: String
+    let email, password, userName, birth: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case email, password, userName = "username", birth
+    }
 }

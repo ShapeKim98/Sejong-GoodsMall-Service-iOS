@@ -60,8 +60,9 @@ struct LoginView: View {
         VStack {
             NavigationLink {
                 SignUpView()
-                    .navigationTitle("")
+                    .navigationTitle("이메일로 가입하기")
                     .navigationBarTitleDisplayMode(.inline)
+                    .modifier(NavigationColorModifier())
                     .environmentObject(loginViewModel)
             } label: {
                 HStack {
@@ -81,7 +82,10 @@ struct LoginView: View {
             }
             
             NavigationLink {
-                
+                SignInView()
+                    .navigationTitle("기존 계정으로 로그인")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .environmentObject(loginViewModel)
             } label: {
                 HStack {
                     Spacer()
@@ -100,7 +104,7 @@ struct LoginView: View {
             }
         }
         .padding()
-        .padding(.bottom, 50)
+        .padding(.bottom, 20)
     }
 }
 

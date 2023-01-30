@@ -10,4 +10,8 @@ import Foundation
 struct FindEmailRequest: Codable {
     let userName: String
     let birth: String
+    
+    enum CodingKeys: String, CodingKey {
+        case userName = "username", birth
+    }
 }

@@ -53,7 +53,7 @@ enum ApiError: Error {
 
 enum ApiService {
     static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, ApiError> {
-        let body = UserRequest(email: email, password: password, username: userName, birth: birth)
+        let body = UserRequest(email: email, password: password, userName: userName, birth: birth)
         
         var request = URLRequest(url: ApiURL.fetchSignUp.url)
         request.httpMethod = "POST"
@@ -144,7 +144,7 @@ enum ApiService {
     }
     
     static func fetchGoodsList() -> AnyPublisher<GoodsList, ApiError> {
-        var request = URLRequest(url: ApiURL.FetchGoodsList.url)
+        let request = URLRequest(url: ApiURL.FetchGoodsList.url)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
