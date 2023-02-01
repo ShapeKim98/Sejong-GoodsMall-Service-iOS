@@ -196,15 +196,16 @@ class LoginViewModel: ObservableObject {
                             print("알 수 없는 오류")
                             break
                     }
-                case .finished:
                     DispatchQueue.main.async {
-                        self.message = "이메일 찾기 성공"
+                        self.isLoading = false
                     }
+                case .finished:
                     print("이메일 찾기 성공")
                     break
             }
         } receiveValue: { findEmailResponse in
             DispatchQueue.main.async {
+                self.message = "이메일 찾기 성공!!\n\(findEmailResponse.email)"
                 self.isLoading = false
             }
             print(findEmailResponse)

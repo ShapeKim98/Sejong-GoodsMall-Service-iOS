@@ -10,15 +10,14 @@ import SwiftUI
 struct SignUpView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     
+    @State var userBirthday: Date = .now
+    
     init() {
         if #available(iOS 16.0, *) {
 
         } else {
             SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
         }
-        
-        self.dateFormatter.locale = Locale(identifier: "ko_kr")
-        self.dateFormatter.dateFormat = "yyyy/MM/dd"
     }
     
     var body: some View {
@@ -39,7 +38,7 @@ struct SignUpView: View {
                 VStack {
                     Spacer()
                     
-                    dataPickerSheet()
+                    DatePickerSheetView(userBirthday: $userBirthday, userBirthdayString: $userBirthdayString, showDatePicker: $showDatePicker)
                 }
                 .ignoresSafeArea()
                 .transition(.move(edge: .bottom))
@@ -182,10 +181,7 @@ struct SignUpView: View {
     @State private var isSamePassword: Bool = false
     @State private var userName: String = ""
     @State private var userBirthdayString: String = ""
-    @State private var userBirthday: Date = .now
     @State private var showDatePicker: Bool = false
-    
-    let dateFormatter: DateFormatter = DateFormatter()
     
     @ViewBuilder
     func registeredUserPage() -> some View {
@@ -201,6 +197,7 @@ struct SignUpView: View {
             
             VStack {
                 TextField("사용하실 이메일을 입력해주세요.", text: $email, prompt: Text("사용하실 이메일을 입력해주세요."))
+                    .font(.subheadline.bold())
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
@@ -239,6 +236,7 @@ struct SignUpView: View {
             
             VStack {
                 SecureField("비밀번호(8자리 이상)", text: $password, prompt: Text("비밀번호(8자리 이상)"))
+                    .font(.subheadline.bold())
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .textContentType(.newPassword)
@@ -275,6 +273,7 @@ struct SignUpView: View {
             
             VStack {
                 SecureField("비밀번호 확인", text: $verifyPassword, prompt: Text("비밀번호 확인"))
+                    .font(.subheadline.bold())
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .textContentType(.newPassword)
@@ -318,6 +317,7 @@ struct SignUpView: View {
             
             VStack {
                 TextField("이름", text: $userName, prompt: Text("이름"))
+                    .font(.subheadline.bold())
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .textContentType(.name)
@@ -343,6 +343,7 @@ struct SignUpView: View {
             } label: {
                 HStack {
                     TextField("생년월일", text: $userBirthdayString, prompt: Text("생년월일"))
+                        .font(.subheadline.bold())
                     
                     Spacer()
                 }
@@ -361,10 +362,7 @@ struct SignUpView: View {
     @ViewBuilder
     func signUpButton() -> some View {
         Button {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            
-            loginViewModel.signUp(email: email, password: password, userName: userName, birth: formatter.string(from: userBirthday))
+            loginViewModel.signUp(email: email, password: password, userName: userName, birth: userBirthdayString)
         } label: {
             HStack {
                 Spacer()
@@ -373,6 +371,7 @@ struct SignUpView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
                         .padding()
+                        .tint(Color("main-highlight-color"))
                 } else {
                     Text("회원가입 완료")
                         .fontWeight(.bold)
@@ -392,52 +391,6 @@ struct SignUpView: View {
         .padding(.bottom, 20)
     }
     
-    @State private var datePickerSheetDrag: CGFloat = .zero
-    
-    @ViewBuilder
-    func dataPickerSheet() -> some View {
-        VStack {
-            HStack {
-                Button {
-                    withAnimation(.spring()) {
-                        showDatePicker = false
-                    }
-                } label: {
-                    Text("취소")
-                        .fontWeight(.bold)
-                        .foregroundColor(Color("main-text-color"))
-                }
-                
-                Spacer()
-                
-                Button {
-                    userBirthdayString = dateFormatter.string(from: userBirthday)
-                    withAnimation(.spring()) {
-                        showDatePicker = false
-                    }
-                } label: {
-                    Text("확인")
-                        .fontWeight(.bold)
-                        .foregroundColor(Color("main-highlight-color"))
-                }
-            }
-            .padding()
-            .background(Color("shape-bkg-color"))
-            
-            DatePicker(selection: $userBirthday, in: ...Date.now, displayedComponents: .date) {
-                
-            }
-            .datePickerStyle(.wheel)
-            .labelsHidden()
-            .padding(.bottom)
-        }
-        .background {
-            RoundedRectangle(cornerRadius: 10)
-                .foregroundColor(.white)
-                .ignoresSafeArea()
-                .shadow(color: .black.opacity(0.2), radius: 5)
-        }
-    }
     
     @ViewBuilder
     func textFieldBackground(isValidInput: Bool, input: String) -> some View {

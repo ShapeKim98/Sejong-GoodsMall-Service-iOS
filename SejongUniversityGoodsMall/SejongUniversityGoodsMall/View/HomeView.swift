@@ -17,13 +17,14 @@ enum Category: Int {
 
 struct HomeView: View {
     @Namespace var heroEffect
-    @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
+//    @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
+    @EnvironmentObject var goodsViewModel: GoodsViewModel
     
-    @State var selectedGoods: SampleGoodsModel?
+    @State var selectedGoods: Goods?
     @State private var searchText: String = ""
     @State private var isSearching: Bool = false
     @State private var category: Category = .allProduct
-    @State private var filteredGoods = [SampleGoodsModel]()
+//    @State private var filteredGoods = [SampleGoodsModel]()
     
     @FocusState private var searchingFocused: Bool
     
@@ -44,14 +45,14 @@ struct HomeView: View {
                             goodList()
                         }
                         .onAppear() {
-                            filteredGoods = sampleGoodsViewModel.goodsList
+//                            filteredGoods = sampleGoodsViewModel.goodsList
                         }
                     }
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()
                     .overlay {
                         if isSearching {
-                            searchView(popularKewords: sampleGoodsViewModel.popularKeywords)
+                            searchView(popularKewords: [""])
                         }
                     }
                 }
@@ -67,14 +68,14 @@ struct HomeView: View {
                             goodList()
                         }
                         .onAppear() {
-                            filteredGoods = sampleGoodsViewModel.goodsList
+//                            filteredGoods = sampleGoodsViewModel.goodsList
                         }
                     }
                     .navigationTitle("")
                     .navigationBarHidden(true)
                     .overlay {
                         if isSearching {
-                            searchView(popularKewords: sampleGoodsViewModel.popularKeywords)
+                            searchView(popularKewords: [""])
                         }
                     }
                 }
@@ -133,43 +134,43 @@ struct HomeView: View {
                     categotyButton("전체 상품", .allProduct) {
                         withAnimation {
                             category = .allProduct
-                            filteredGoods = sampleGoodsViewModel.goodsList
+//                            filteredGoods = sampleGoodsViewModel.goodsList
                         }
                     }
                     
                     categotyButton("문구", .phrases) {
                         withAnimation {
                             category = .phrases
-                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-                                return item.category == .phrases
-                            })
+//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
+//                                return item.category == .phrases
+//                            })
                         }
                     }
                     
                     categotyButton("의류", .clothing) {
                         withAnimation {
                             category = .clothing
-                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-                                return item.category == .clothing
-                            })
+//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
+//                                return item.category == .clothing
+//                            })
                         }
                     }
                     
                     categotyButton("뱃지&키링", .badgeAndKeyring) {
                         withAnimation {
                             category = .badgeAndKeyring
-                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-                                return item.category == .badgeAndKeyring
-                            })
+//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
+//                                return item.category == .badgeAndKeyring
+//                            })
                         }
                     }
                     
                     categotyButton("선물용", .forGift) {
                         withAnimation {
                             category = .forGift
-                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-                                return item.category == .forGift
-                            })
+//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
+//                                return item.category == .forGift
+//                            })
                         }
                     }
                 }
@@ -210,17 +211,18 @@ struct HomeView: View {
     func goodList() -> some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                ForEach(filteredGoods) { item in
+                ForEach(goodsViewModel.goodsList, id: \.title) { item in
                     subGoodsView(item)
                         .coordinateSpace(name: "goods-list")
                 }
+                .redacted(reason: goodsViewModel.isLoading ? .placeholder : [])
             }
             .padding(.top)
         }
     }
     
     @ViewBuilder
-    func subGoodsView(_ goods: SampleGoodsModel) -> some View {
+    func subGoodsView(_ goods: Goods) -> some View {
         NavigationLink {
             GoodsDetailView(goods: goods)
                 .navigationTitle("")
@@ -229,7 +231,7 @@ struct HomeView: View {
         } label: {
             VStack {
                 HStack(alignment: .top) {
-                    Image(goods.image)
+                    Image("sample-image1")
                         .resizable()
                         .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -239,7 +241,7 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         VStack(alignment: .leading, spacing: 5) {
                             HStack {
-                                Text(goods.name)
+                                Text(goods.title)
                                     .foregroundColor(Color("main-text-color"))
                                     .font(.system(size: 15))
                                 
@@ -247,11 +249,16 @@ struct HomeView: View {
                             }
                             
                             HStack(spacing: 3) {
-                                ForEach(goods.tag, id: \.hashValue) {
-                                    Text($0)
-                                        .font(.system(size: 10))
-                                        .foregroundColor(Color("secondary-text-color"))
+                                if let description = goods.description {
+                                        Text(description)
+                                            .font(.caption)
+                                            .foregroundColor(Color("secondary-text-color"))
                                 }
+//                                ForEach(goods.description, id: \.hashValue) {
+//                                    Text($0)
+//                                        .font(.system(size: 10))
+//                                        .foregroundColor(Color("secondary-text-color"))
+//                                }
                             }
                         }
                         
@@ -377,6 +384,6 @@ struct HomeView: View {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
-            .environmentObject(SampleGoodsViewModel())
+            .environmentObject(GoodsViewModel())
     }
 }

@@ -10,7 +10,7 @@ import SwiftUI
 struct PurchaseBarView: View {
     @Binding var showOptionSheet: Bool
     
-    @State var selectedGoods: SampleGoodsModel
+    @State var selectedGoods: Goods
     
     var body: some View {
         VStack(spacing: 0) {
@@ -31,7 +31,7 @@ struct PurchaseBarView: View {
         .background(.clear)
     }
     
-    func purchaseMode(_ goods: SampleGoodsModel) -> some View {
+    func purchaseMode(_ goods: Goods) -> some View {
         HStack {
             if showOptionSheet {
                 ZStack {
@@ -82,6 +82,6 @@ struct PurchaseBarView: View {
 
 struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
-        PurchaseBarView(showOptionSheet: .constant(false), selectedGoods: SampleGoodsModel(name: "학과 잠바", price: 85_000, image: "sample-image1", tag: ["#새내기", "#종이"], category: .clothing))
+        PurchaseBarView(showOptionSheet: .constant(false), selectedGoods: Goods(id: JSONNull(), title: "", price: 0, description: ""))
     }
 }

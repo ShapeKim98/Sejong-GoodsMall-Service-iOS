@@ -16,7 +16,7 @@ enum Servie {
 struct GoodsDetailView: View {
     @Environment(\.dismiss) var dismiss
     
-    private let goods: SampleGoodsModel
+    private let goods: Goods
     
     @State var service: Servie = .goodsInformation
     @State var showOptionSheet: Bool = false
@@ -24,7 +24,7 @@ struct GoodsDetailView: View {
     @State var optionSheetDrag: CGFloat = .zero
     @State var isOptionSelected: Bool = false
     
-    init(goods: SampleGoodsModel) {
+    init(goods: Goods) {
         self.goods = goods
         
         if #available(iOS 16.0, *) {
@@ -104,7 +104,7 @@ struct GoodsDetailView: View {
     func imageView(height: CGFloat) -> some View {
         TabView(selection: $imagePage) {
             ForEach(1..<9) { page in
-                Image(goods.image)
+                Image("sample-image1")
                     .resizable()
                     .scaledToFit()
                     .tag(page)
@@ -128,7 +128,7 @@ struct GoodsDetailView: View {
     @ViewBuilder
     func nameAndTagView() -> some View {
         HStack {
-            Text(goods.name)
+            Text(goods.title)
                 .font(.system(size: 25).bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
@@ -137,8 +137,7 @@ struct GoodsDetailView: View {
         .padding(.horizontal)
         
         HStack {
-            ForEach(goods.tag, id: \.hashValue) {
-                Text($0)
+                Text("#test")
                     .font(.system(size: 10))
                     .foregroundColor(Color("main-text-color"))
                     .padding(.horizontal, 10)
@@ -147,7 +146,17 @@ struct GoodsDetailView: View {
                         RoundedRectangle(cornerRadius: 40)
                             .foregroundColor(Color("shape-bkg-color"))
                     }
-            }
+//            ForEach(goods.tag, id: \.hashValue) {
+//                Text($0)
+//                    .font(.system(size: 10))
+//                    .foregroundColor(Color("main-text-color"))
+//                    .padding(.horizontal, 10)
+//                    .padding(.vertical, 5)
+//                    .background {
+//                        RoundedRectangle(cornerRadius: 40)
+//                            .foregroundColor(Color("shape-bkg-color"))
+//                    }
+//            }
             
             Spacer()
         }
@@ -237,7 +246,7 @@ struct GoodsDetailView: View {
     @ViewBuilder
     func goodsInformationPage() -> some View {
         HStack {
-            Text(goods.goodsInfo)
+            Text(goods.description)
                 .font(.system(size: 12))
                 .fontWeight(.bold)
                 .foregroundColor(Color("main-text-color"))
@@ -263,6 +272,6 @@ struct GoodsDetailView: View {
 
 struct Previews_GoodsDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        GoodsDetailView(goods: SampleGoodsModel(name: "학과 잠바", price: 85_000, image: "sample-image1", tag: ["#새내기", "#종이"], category: .clothing))
+        GoodsDetailView(goods: Goods(id: JSONNull(), title: "", price: 0, description: ""))
     }
 }

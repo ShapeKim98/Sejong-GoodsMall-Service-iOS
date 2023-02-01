@@ -25,6 +25,7 @@ struct SignInView: View {
     var body: some View {
         VStack {
             TextField("이메일", text: $email, prompt: Text("이메일"))
+                .font(.subheadline.bold())
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .keyboardType(.emailAddress)
@@ -36,6 +37,7 @@ struct SignInView: View {
                 .padding(.vertical)
             
             SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
+                .font(.subheadline.bold())
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .textContentType(.password)
@@ -45,8 +47,10 @@ struct SignInView: View {
                 }
                 .padding(.bottom)
             
-            Button {
-                
+            NavigationLink {
+                FindEmailPasswordView().navigationTitle("이메일로 찾기")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .modifier(NavigationColorModifier())
             } label: {
                 Text("이메일/비밀번호 찾기")
                     .font(.footnote)
@@ -66,6 +70,7 @@ struct SignInView: View {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle())
                             .padding()
+                            .tint(Color("main-highlight-color"))
                     } else {
                         Text("로그인")
                             .fontWeight(.bold)

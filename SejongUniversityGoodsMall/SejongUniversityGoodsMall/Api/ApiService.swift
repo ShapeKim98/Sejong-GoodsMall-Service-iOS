@@ -62,7 +62,7 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw URLError(.badURL)
             }
             
             guard httpResponse.statusCode == 200 else {
@@ -93,7 +93,7 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw URLError(.badURL)
             }
             
             guard httpResponse.statusCode == 200 else {
@@ -123,7 +123,7 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw URLError(.badURL)
             }
             
             guard httpResponse.statusCode == 200 else {
@@ -155,6 +155,7 @@ enum ApiService {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
+                    print(httpResponse.statusCode)
                     throw URLError(.badServerResponse)
                 }
             }

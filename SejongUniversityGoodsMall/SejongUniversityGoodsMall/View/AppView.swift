@@ -10,7 +10,8 @@ import SwiftUI
 struct AppView: View {
     @Namespace var heroTransition
     
-    @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
+//    @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
+    @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
     @State var showMessage: Bool = false
@@ -19,30 +20,40 @@ struct AppView: View {
     var body: some View {
         if loginViewModel.isSignUpComplete || loginViewModel.isAuthenticate {
             HomeView()
-                .environmentObject(loginViewModel)
+                .onAppear() {
+                    goodsViewModel.fetchGoodsList()
+                }
+                .refreshable {
+                    goodsViewModel.fetchGoodsList()
+                }
                 .onChange(of: loginViewModel.message, perform: { newValue in
                     if let msg = newValue {
                         message = msg
                         showMessage = true
                     }
-                    
-                    print(message)
+                })
+                .onChange(of: goodsViewModel.message, perform: { newValue in
+                    if let msg = newValue {
+                        message = msg
+                        showMessage = true
+                    }
                 })
                 .alert(message, isPresented: $showMessage) {
                     Button("확인") {
                         loginViewModel.message = nil
+                        if goodsViewModel.message != nil {
+                            goodsViewModel.message = nil
+                            goodsViewModel.fetchGoodsList()
+                        }
                     }
                 }
         } else {
             LoginView()
-                .environmentObject(sampleGoodsViewModel)
                 .onChange(of: loginViewModel.message, perform: { newValue in
                     if let msg = newValue {
                         message = msg
                         showMessage = true
                     }
-                    
-                    print(message)
                 })
                 .alert(message, isPresented: $showMessage) {
                     Button("확인") {
@@ -56,7 +67,6 @@ struct AppView: View {
 struct AppView_Previews: PreviewProvider {
     static var previews: some View {
         AppView()
-            .environmentObject(SampleGoodsViewModel())
             .environmentObject(LoginViewModel())
     }
 }
