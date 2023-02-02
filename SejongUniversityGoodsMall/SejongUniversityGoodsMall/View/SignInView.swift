@@ -10,54 +10,44 @@ import SwiftUI
 struct SignInView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     
-    @State private var isAuthenticate: Bool = false
+    @FocusState private var currentField: FocusedTextField?
+    
     @State private var email: String = ""
     @State private var password: String = ""
-    
-    init() {
-        if #available(iOS 16.0, *) {
-
-        } else {
-            SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
-        }
-    }
+    @State private var isFindView: Bool = false
     
     var body: some View {
         VStack {
             TextField("이메일", text: $email, prompt: Text("이메일"))
-                .font(.subheadline.bold())
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .keyboardType(.emailAddress)
-                .textContentType(.emailAddress)
-                .padding()
-                .background {
-                    textFieldBackground(input: email)
+                .modifier(TextFieldModifier(text: $email, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
+                .onTapGesture {
+                    currentField = .emailField
+                }
+                .onSubmit {
+                    currentField = .passwordField
                 }
                 .padding(.vertical)
             
             SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
-                .font(.subheadline.bold())
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .textContentType(.password)
-                .padding()
-                .background {
-                    textFieldBackground(input: email)
+                .modifier(TextFieldModifier(text: $email, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .emailAddress, focusedTextField: .passwordField, submitLabel: .done))
+                .onTapGesture {
+                    currentField = .passwordField
+                }
+                .onSubmit {
+                    if email != "" && password != "" {
+                        loginViewModel.signIn(email: email, password: password)
+                    }
                 }
                 .padding(.bottom)
             
-            NavigationLink {
-                FindEmailPasswordView().navigationTitle("이메일로 찾기")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .modifier(NavigationColorModifier())
+            NavigationLink(isActive: $isFindView) {
+                FindEmailPasswordView()
             } label: {
                 Text("이메일/비밀번호 찾기")
                     .font(.footnote)
                     .fontWeight(.bold)
             }
             .foregroundColor(Color("main-highlight-color"))
-
             
             Spacer()
             
@@ -89,13 +79,14 @@ struct SignInView: View {
             .padding(.bottom, 20)
         }
         .padding()
+        .background(.white)
+        .onTapGesture {
+            currentField = nil
+        }
+        .modifier(FindEmailCompleteSheetModifer(isFindView: $isFindView))
     }
     
-    @ViewBuilder
-    func textFieldBackground(input: String) -> some View {
-        RoundedRectangle(cornerRadius: 10)
-            .stroke(Color("shape-bkg-color"))
-    }
+    
 }
 
 struct SignInView_Previews: PreviewProvider {

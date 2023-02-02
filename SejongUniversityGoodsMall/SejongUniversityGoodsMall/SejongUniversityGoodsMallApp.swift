@@ -9,7 +9,6 @@ import SwiftUI
 
 @main
 struct SejongUniversityGoodsMallApp: App {
-//    @StateObject var sampleGoodsViewModel: SampleGoodsViewModel = SampleGoodsViewModel()
     @StateObject var goodsViewModel: GoodsViewModel = GoodsViewModel()
     @StateObject var loginViewModel: LoginViewModel = LoginViewModel()
     

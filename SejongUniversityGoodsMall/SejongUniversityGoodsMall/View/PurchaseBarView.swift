@@ -45,14 +45,14 @@ struct PurchaseBarView: View {
                         }
                     } label: {
                         Text("장바구니 담기")
-                            .font(.system(size: 15).bold())
+                            .font(.subheadline.bold())
                             .foregroundColor(Color("main-highlight-color"))
                             .padding(.vertical, 8)
                     }
                 }
             } else {
                 Text("\(goods.price)원")
-                    .font(.system(size: 20))
+                    .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(Color("main-text-color"))
             }
@@ -71,7 +71,7 @@ struct PurchaseBarView: View {
                     }
                 } label: {
                     Text("구매하기")
-                        .font(.system(size: 15).bold())
+                        .font(.subheadline.bold())
                         .foregroundColor(.white)
                         .padding(.vertical, 8)
                 }
@@ -82,6 +82,6 @@ struct PurchaseBarView: View {
 
 struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
-        PurchaseBarView(showOptionSheet: .constant(false), selectedGoods: Goods(id: JSONNull(), title: "", price: 0, description: ""))
+        PurchaseBarView(showOptionSheet: .constant(false), selectedGoods: Goods(id: 0, categoryID: 1, title: "학잠", color: "BLACK, BLUE, WHITE", size: "S, M, L", price: 0, goodsImages: [], description: "학잠"))
     }
 }

@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		C5053705297C1E82003E808C /* PurchaseBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5053704297C1E82003E808C /* PurchaseBarView.swift */; };
 		C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */; };
+		C529B43D298BBC3700958B7D /* FocusedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43C298BBC3700958B7D /* FocusedTextField.swift */; };
+		C529B43F298BC48000958B7D /* TextFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43E298BC48000958B7D /* TextFieldModifier.swift */; };
+		C529B441298C140700958B7D /* FindEmailCompleteSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */; };
 		C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5324C9F29794AD20034C710 /* SejongUniversityGoodsMallApp.swift */; };
 		C5324CA429794AD30034C710 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA329794AD30034C710 /* Assets.xcassets */; };
 		C5324CA729794AD30034C710 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA629794AD30034C710 /* Preview Assets.xcassets */; };
@@ -41,6 +44,9 @@
 /* Begin PBXFileReference section */
 		C5053704297C1E82003E808C /* PurchaseBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseBarView.swift; sourceTree = "<group>"; };
 		C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationColorModifier.swift; sourceTree = "<group>"; };
+		C529B43C298BBC3700958B7D /* FocusedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextField.swift; sourceTree = "<group>"; };
+		C529B43E298BC48000958B7D /* TextFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldModifier.swift; sourceTree = "<group>"; };
+		C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailCompleteSheetModifier.swift; sourceTree = "<group>"; };
 		C5324C9C29794AD20034C710 /* SejongUniversityGoodsMall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SejongUniversityGoodsMall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5324C9F29794AD20034C710 /* SejongUniversityGoodsMallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SejongUniversityGoodsMallApp.swift; sourceTree = "<group>"; };
 		C5324CA329794AD30034C710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -104,6 +110,8 @@
 			isa = PBXGroup;
 			children = (
 				C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */,
+				C529B43E298BC48000958B7D /* TextFieldModifier.swift */,
+				C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */,
 			);
 			path = Modifier;
 			sourceTree = "<group>";
@@ -157,6 +165,7 @@
 			children = (
 				C5C73B032987A11700D42719 /* SetNavigationBarColor.swift */,
 				C5C73B052987C12C00D42719 /* DrawingCheckmark.swift */,
+				C529B43C298BBC3700958B7D /* FocusedTextField.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -265,7 +274,9 @@
 				C5C73AEE2986542B00D42719 /* Goods.swift in Sources */,
 				C5534D2F29892EF6006DBE09 /* FindEmailPasswordView.swift in Sources */,
 				C5C73B002986B91600D42719 /* UserResponse.swift in Sources */,
+				C529B43D298BBC3700958B7D /* FocusedTextField.swift in Sources */,
 				C5DF2FDF2979854A00642700 /* SampleGoodsModel.swift in Sources */,
+				C529B43F298BC48000958B7D /* TextFieldModifier.swift in Sources */,
 				C5DF2FE129798C7900642700 /* GoodsDetailView.swift in Sources */,
 				C5C73AF62986610000D42719 /* FindEmailRequest.swift in Sources */,
 				C595C74B297FC55600AF6E86 /* SampleGoodsViewModel.swift in Sources */,
@@ -275,6 +286,7 @@
 				C5C73AFA2986644100D42719 /* ApiService.swift in Sources */,
 				C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */,
 				C595C75129819A3C00AF6E86 /* SampleBasketItem:Model.swift in Sources */,
+				C529B441298C140700958B7D /* FindEmailCompleteSheetModifier.swift in Sources */,
 				C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */,
 				C5C73AF029865E4100D42719 /* UserRequest.swift in Sources */,
 				C5C73AFE2986B07000D42719 /* GoodsViewModel.swift in Sources */,

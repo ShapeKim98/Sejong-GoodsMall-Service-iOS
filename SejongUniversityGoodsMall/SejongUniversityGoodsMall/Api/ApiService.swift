@@ -8,22 +8,25 @@
 import Foundation
 import Combine
 
-enum ApiURL {
+enum APIURL {
+    case server
     case fetchSignUp
     case fetchSignIn
     case fetchFindEmail
-    case FetchGoodsList
+    case fetchGoodsList
     
-    var url: URL {
+    var url: URL? {
         switch self {
+            case .server:
+                return URL(string: "http://13.125.79.156:5763")
             case .fetchSignUp:
-                return URL(string: "http://13.125.79.156:5763/auth/signup")!
+                return URL(string: "auth/signup", relativeTo: APIURL.server.url)
             case .fetchSignIn:
-                return URL(string: "http://13.125.79.156:5763/auth/signin")!
+                return URL(string: "auth/signin", relativeTo: APIURL.server.url)
             case .fetchFindEmail:
-                return URL(string: "http://13.125.79.156:5763/auth/find/email")!
-            case .FetchGoodsList:
-                return URL(string: "http://13.125.79.156:5763/items/all")!
+                return URL(string: "auth/find/email", relativeTo: APIURL.server.url)
+            case .fetchGoodsList:
+                return URL(string: "items/all", relativeTo: APIURL.server.url)
         }
     }
 }
@@ -55,7 +58,7 @@ enum ApiService {
     static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, ApiError> {
         let body = UserRequest(email: email, password: password, userName: userName, birth: birth)
         
-        var request = URLRequest(url: ApiURL.fetchSignUp.url)
+        var request = URLRequest(url: APIURL.fetchSignUp.url!)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
@@ -86,7 +89,7 @@ enum ApiService {
     static func fetchSignIn(email: String, password: String) -> AnyPublisher<LoginResponse, ApiError> {
         let body = LoginRequest(email: email, password: password)
         
-        var request = URLRequest(url: ApiURL.fetchSignIn.url)
+        var request = URLRequest(url: APIURL.fetchSignIn.url!)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
@@ -116,7 +119,7 @@ enum ApiService {
     static func fetchFindEmail(userName: String, birth: String) -> AnyPublisher<FindEmailRespnose, ApiError> {
         let body = FindEmailRequest(userName: userName, birth: birth)
         
-        var request = URLRequest(url: ApiURL.fetchFindEmail.url)
+        var request = URLRequest(url: APIURL.fetchFindEmail.url!)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
@@ -144,7 +147,7 @@ enum ApiService {
     }
     
     static func fetchGoodsList() -> AnyPublisher<GoodsList, ApiError> {
-        let request = URLRequest(url: ApiURL.FetchGoodsList.url)
+        let request = URLRequest(url: APIURL.fetchGoodsList.url!)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {

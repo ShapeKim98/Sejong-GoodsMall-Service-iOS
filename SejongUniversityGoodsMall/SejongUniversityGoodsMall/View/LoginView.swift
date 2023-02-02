@@ -10,6 +10,16 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     
+    @State var showDatePicker: Bool = false
+    
+    init() {
+        if #available(iOS 16.0, *) {
+
+        } else {
+            SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
+        }
+    }
+    
     var body: some View {
         GeometryReader { reader in
             if #available(iOS 16.0, *) {
@@ -59,7 +69,7 @@ struct LoginView: View {
     func buttons() -> some View {
         VStack {
             NavigationLink {
-                SignUpView()
+                SignUpView(showDatePicker: $showDatePicker)
                     .navigationTitle("이메일로 가입하기")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
@@ -85,7 +95,7 @@ struct LoginView: View {
                 SignInView()
                     .navigationTitle("기존 계정으로 로그인")
                     .navigationBarTitleDisplayMode(.inline)
-                    .environmentObject(loginViewModel)
+                    .modifier(NavigationColorModifier())
             } label: {
                 HStack {
                     Spacer()

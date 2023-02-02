@@ -129,7 +129,7 @@ struct GoodsDetailView: View {
     func nameAndTagView() -> some View {
         HStack {
             Text(goods.title)
-                .font(.system(size: 25).bold())
+                .font(.title2.bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
             Spacer()
@@ -138,7 +138,7 @@ struct GoodsDetailView: View {
         
         HStack {
                 Text("#test")
-                    .font(.system(size: 10))
+                    .font(.caption2)
                     .foregroundColor(Color("main-text-color"))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
@@ -222,7 +222,7 @@ struct GoodsDetailView: View {
         Button(action: action) {
             VStack {
                 Text(title)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
                     .padding(.horizontal, 0)
@@ -247,7 +247,7 @@ struct GoodsDetailView: View {
     func goodsInformationPage() -> some View {
         HStack {
             Text(goods.description)
-                .font(.system(size: 12))
+                .font(.caption)
                 .fontWeight(.bold)
                 .foregroundColor(Color("main-text-color"))
             
@@ -272,6 +272,6 @@ struct GoodsDetailView: View {
 
 struct Previews_GoodsDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        GoodsDetailView(goods: Goods(id: JSONNull(), title: "", price: 0, description: ""))
+        GoodsDetailView(goods: Goods(id: 0, categoryID: 1, title: "학잠", color: "BLACK, BLUE, WHITE", size: "S, M, L", price: 0, goodsImages: [], description: "학잠"))
     }
 }

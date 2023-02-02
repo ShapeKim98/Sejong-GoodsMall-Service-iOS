@@ -53,9 +53,8 @@ struct DatePickerSheetView: View {
             .padding()
             .background(Color("shape-bkg-color"))
             
-            DatePicker(selection: $userBirthday, in: ...Date.now, displayedComponents: .date) {
-                
-            }
+            DatePicker("날짜 선택", selection: $userBirthday, in: ...Date.now, displayedComponents: .date)
+            .environment(\.locale, Locale(identifier: "ko_kr"))
             .datePickerStyle(.wheel)
             .labelsHidden()
             .padding(.bottom)
@@ -64,7 +63,6 @@ struct DatePickerSheetView: View {
             RoundedRectangle(cornerRadius: 10)
                 .foregroundColor(.white)
                 .ignoresSafeArea()
-                .shadow(color: .black.opacity(0.2), radius: 5)
         }
     }
 }

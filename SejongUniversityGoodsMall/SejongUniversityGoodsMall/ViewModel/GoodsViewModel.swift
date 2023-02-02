@@ -11,7 +11,7 @@ import Combine
 class GoodsViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     
-    @Published var goodsList: GoodsList = GoodsList.init(repeating: Goods(id: JSONNull(), title: "loading..", price: 99999, description: "loading.."), count: 4)
+    @Published var goodsList: GoodsList = GoodsList.init(repeating: Goods(id: 0, categoryID: 1, title: "loading...", color: "loading...", size: "loading...", price: 0, goodsImages: [], description: "loading..."), count: 4)
     @Published var isLoading: Bool = true
     @Published var message: String?
     

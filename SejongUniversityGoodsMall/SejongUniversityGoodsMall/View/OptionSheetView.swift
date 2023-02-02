@@ -38,7 +38,7 @@ struct OptionSheetView: View {
             
             VStack(spacing: 0) {
                 Image(systemName: "chevron.compact.down")
-                    .font(.system(size: 25))
+                    .font(.title2)
                     .foregroundColor(Color("secondary-text-color"))
                     .padding()
                 
@@ -93,7 +93,7 @@ struct OptionSheetView: View {
                     
                     HStack {
                         Text("상품 \(0)개")
-                            .font(.system(size: 18))
+                            .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
                             .padding()
@@ -101,7 +101,7 @@ struct OptionSheetView: View {
                         Spacer()
                         
                         Text("\(0)원")
-                            .font(.system(size: 18))
+                            .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
                             .padding()
@@ -237,7 +237,7 @@ struct OptionSheetView: View {
     @ViewBuilder
     func alertMessageView() -> some View {
         Text(message)
-            .font(.system(size: 12))
+            .font(.caption)
             .fontWeight(.bold)
             .foregroundColor(.white)
             .padding(2)
@@ -251,6 +251,6 @@ struct OptionSheetView: View {
 
 struct OptionSheetView_Previews: PreviewProvider {
     static var previews: some View {
-        OptionSheetView(isOptionSelected: .constant(false), currentGoods: Goods(id: JSONNull(), title: "", price: 0, description: ""))
+        OptionSheetView(isOptionSelected: .constant(false), currentGoods: Goods(id: 0, categoryID: 1, title: "학잠", color: "BLACK, BLUE, WHITE", size: "S, M, L", price: 0, goodsImages: [], description: "학잠"))
     }
 }

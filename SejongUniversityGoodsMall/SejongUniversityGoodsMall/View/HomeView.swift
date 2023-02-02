@@ -7,24 +7,22 @@
 
 import SwiftUI
 
-enum Category: Int {
-    case allProduct
-    case phrases
-    case clothing
-    case badgeAndKeyring
-    case forGift
-}
-
 struct HomeView: View {
+    enum Category: Int {
+        case allProduct
+        case phrases
+        case clothing
+        case badgeAndKeyring
+        case forGift
+    }
+    
     @Namespace var heroEffect
-//    @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State var selectedGoods: Goods?
     @State private var searchText: String = ""
     @State private var isSearching: Bool = false
     @State private var category: Category = .allProduct
-//    @State private var filteredGoods = [SampleGoodsModel]()
     
     @FocusState private var searchingFocused: Bool
     
@@ -195,7 +193,7 @@ struct HomeView: View {
         Button(action: action) {
             VStack {
                 Text(title)
-                    .font(.system(size: 15))
+                    .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
                 
@@ -231,19 +229,35 @@ struct HomeView: View {
         } label: {
             VStack {
                 HStack(alignment: .top) {
-                    Image("sample-image1")
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .frame(width: 130, height: 130)
-                        .shadow(radius: 1)
+                    if let image = goods.representativeImage() {
+                        AsyncImage(url: URL(string: image.oriImgName)) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .frame(width: 130, height: 130)
+                                .shadow(radius: 1)
+                        } placeholder: {
+                            ZStack {
+                                Image("sample-image1")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .frame(width: 130, height: 130)
+                                    .shadow(radius: 1)
+                                    .redacted(reason: .placeholder)
+                                ProgressView()
+                                    .tint(Color("main-highlight-color"))
+                            }
+                        }
+                    }
                     
                     VStack(alignment: .leading, spacing: 10) {
                         VStack(alignment: .leading, spacing: 5) {
                             HStack {
                                 Text(goods.title)
                                     .foregroundColor(Color("main-text-color"))
-                                    .font(.system(size: 15))
+                                    .font(.subheadline)
                                 
                                 Spacer()
                             }
@@ -263,7 +277,7 @@ struct HomeView: View {
                         }
                         
                         Text("\(goods.price)원")
-                            .font(.system(size: 18))
+                            .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
                     }

@@ -10,7 +10,6 @@ import SwiftUI
 struct AppView: View {
     @Namespace var heroTransition
     
-//    @EnvironmentObject var sampleGoodsViewModel: SampleGoodsViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     

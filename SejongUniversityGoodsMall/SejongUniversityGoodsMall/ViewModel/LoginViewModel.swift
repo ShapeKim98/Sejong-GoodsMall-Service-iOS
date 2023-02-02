@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 
 class LoginViewModel: ObservableObject {
@@ -13,8 +14,10 @@ class LoginViewModel: ObservableObject {
     
     @Published var isSignUpComplete: Bool = false
     @Published var isAuthenticate: Bool = false
+    @Published var findComplete: Bool = false
     @Published var isLoading: Bool = false
     @Published var message: String?
+    @Published var findEmail: String = ""
     
     func signUp(email: String, password: String, userName: String, birth: String) {
         self.isLoading = true
@@ -76,10 +79,12 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { user in
             DispatchQueue.main.async {
-                self.isSignUpComplete = true
                 self.isLoading = false
+                withAnimation(.easeInOut) {
+                    self.isSignUpComplete = true
+                }
+                print(user)
             }
-            print(user)
         }
         .store(in: &subscriptions)
     }
@@ -144,8 +149,10 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { loginResponse in
             DispatchQueue.main.async {
-                self.isAuthenticate = true
                 self.isLoading = false
+                withAnimation(.easeInOut) {
+                    self.isAuthenticate = true
+                }
             }
             print(loginResponse)
         }
@@ -205,8 +212,12 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { findEmailResponse in
             DispatchQueue.main.async {
-                self.message = "이메일 찾기 성공!!\n\(findEmailResponse.email)"
+                self.findEmail = findEmailResponse.email
                 self.isLoading = false
+                
+                withAnimation(.spring()) {
+                    self.findComplete = true
+                }
             }
             print(findEmailResponse)
         }

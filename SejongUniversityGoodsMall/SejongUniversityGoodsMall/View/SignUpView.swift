@@ -10,15 +10,9 @@ import SwiftUI
 struct SignUpView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     
-    @State var userBirthday: Date = .now
+    @Binding var showDatePicker: Bool
     
-    init() {
-        if #available(iOS 16.0, *) {
-
-        } else {
-            SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
-        }
-    }
+    @State var userBirthday: Date = .now
     
     var body: some View {
         ScrollView {
@@ -29,8 +23,17 @@ struct SignUpView: View {
             signUpButton()
         }
         .onTapGesture {
-            withAnimation(.spring()) {
-                showDatePicker = false
+            currentField = nil
+        }
+        .overlay {
+            if showDatePicker {
+                Color(.black).opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            showDatePicker = false
+                        }
+                    }
             }
         }
         .overlay {
@@ -181,7 +184,8 @@ struct SignUpView: View {
     @State private var isSamePassword: Bool = false
     @State private var userName: String = ""
     @State private var userBirthdayString: String = ""
-    @State private var showDatePicker: Bool = false
+    
+    @FocusState private var currentField: FocusedTextField?
     
     @ViewBuilder
     func registeredUserPage() -> some View {
@@ -197,14 +201,13 @@ struct SignUpView: View {
             
             VStack {
                 TextField("사용하실 이메일을 입력해주세요.", text: $email, prompt: Text("사용하실 이메일을 입력해주세요."))
-                    .font(.subheadline.bold())
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.emailAddress)
-                    .textContentType(.emailAddress)
-                    .padding()
-                    .background {
-                        textFieldBackground(isValidInput: isValidEmail, input: email)
+                    .modifier(TextFieldModifier(text: $email, isValidInput: $isValidEmail, currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
+                    .onTapGesture {
+                        currentField = .emailField
+                        showDatePicker = false
+                    }
+                    .onSubmit {
+                        currentField = .passwordField
                     }
                     .onChange(of: email) { newValue in
                         if(newValue.range(of:"^\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$", options: .regularExpression) != nil) {
@@ -236,13 +239,13 @@ struct SignUpView: View {
             
             VStack {
                 SecureField("비밀번호(8자리 이상)", text: $password, prompt: Text("비밀번호(8자리 이상)"))
-                    .font(.subheadline.bold())
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .textContentType(.newPassword)
-                    .padding()
-                    .background {
-                        textFieldBackground(isValidInput: isValidPassword, input: password)
+                    .modifier(TextFieldModifier(text: $password, isValidInput: $isValidPassword, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .newPassword, focusedTextField: .passwordField, submitLabel: .next))
+                    .onTapGesture {
+                        currentField = .passwordField
+                        showDatePicker = false
+                    }
+                    .onSubmit {
+                        currentField = .verifyPasswordField
                     }
                     .onChange(of: password) { newValue in
                         isValidPassword = newValue.count >= 8 ? true : false
@@ -273,13 +276,13 @@ struct SignUpView: View {
             
             VStack {
                 SecureField("비밀번호 확인", text: $verifyPassword, prompt: Text("비밀번호 확인"))
-                    .font(.subheadline.bold())
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .textContentType(.newPassword)
-                    .padding()
-                    .background {
-                        textFieldBackground(isValidInput: isSamePassword, input: verifyPassword)
+                    .modifier(TextFieldModifier(text: $verifyPassword, isValidInput: $isSamePassword, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .newPassword, focusedTextField: .verifyPasswordField, submitLabel: .next))
+                    .onTapGesture {
+                        currentField = .verifyPasswordField
+                        showDatePicker = false
+                    }
+                    .onSubmit {
+                        currentField = .nameField
                     }
                     .onChange(of: verifyPassword) { newValue in
                         isSamePassword = newValue == password ? true : false
@@ -317,14 +320,16 @@ struct SignUpView: View {
             
             VStack {
                 TextField("이름", text: $userName, prompt: Text("이름"))
-                    .font(.subheadline.bold())
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .textContentType(.name)
-                    .padding()
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color("shape-bkg-color"))
+                    .modifier(TextFieldModifier(text: $userName, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
+                    .onTapGesture {
+                        currentField = .nameField
+                        showDatePicker = false
+                    }
+                    .onSubmit {
+                        withAnimation(.spring()) {
+                            currentField = nil
+                            showDatePicker = true
+                        }
                     }
                 
                 HStack {
@@ -338,6 +343,7 @@ struct SignUpView: View {
             
             Button {
                 withAnimation(.spring()) {
+                    currentField = nil
                     showDatePicker = true
                 }
             } label: {
@@ -349,7 +355,7 @@ struct SignUpView: View {
                 }
                 .disabled(true)
                 .multilineTextAlignment(.leading)
-                .padding()
+                .padding(10)
             }
             .background {
                 RoundedRectangle(cornerRadius: 10)
@@ -403,12 +409,12 @@ struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
         if #available(iOS 16.0, *) {
             NavigationStack {
-                SignUpView()
+                SignUpView(showDatePicker: .constant(false))
                     .environmentObject(LoginViewModel())
             }
         } else {
             NavigationView {
-                SignUpView()
+                SignUpView(showDatePicker: .constant(false))
                     .environmentObject(LoginViewModel())
             }
         }
