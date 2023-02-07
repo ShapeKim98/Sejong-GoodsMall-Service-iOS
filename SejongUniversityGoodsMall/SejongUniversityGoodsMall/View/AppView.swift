@@ -22,9 +22,6 @@ struct AppView: View {
                 .onAppear() {
                     goodsViewModel.fetchGoodsList()
                 }
-                .refreshable {
-                    goodsViewModel.fetchGoodsList()
-                }
                 .onChange(of: loginViewModel.message, perform: { newValue in
                     if let msg = newValue {
                         message = msg

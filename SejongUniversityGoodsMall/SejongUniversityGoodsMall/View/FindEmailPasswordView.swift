@@ -209,7 +209,7 @@ struct FindEmailPasswordView: View {
                     Spacer()
                 }
             }
-            .disabled((userName == "" || userBirthdayString == "") || loginViewModel.isLoading)
+            .disabled(userName == "" || userBirthdayString == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
                     .foregroundColor((userName != "" && userBirthdayString != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
@@ -422,7 +422,7 @@ struct FindEmailPasswordView: View {
                     Spacer()
                 }
             }
-            .disabled((userName == "" || email == "") || loginViewModel.isLoading)
+            .disabled(userName == "" || email == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
                     .foregroundColor((userName != "" && email != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
@@ -494,7 +494,7 @@ struct FindEmailPasswordView: View {
                     Spacer()
                 }
             }
-            .disabled(verifyCode == "" || loginViewModel.isLoading)
+            .disabled(verifyCode == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
                     .foregroundColor(verifyCode != "" && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
@@ -612,7 +612,7 @@ struct FindEmailPasswordView: View {
                     Spacer()
                 }
             }
-            .disabled((password == "" || verifyPassword == "" || !isSamePassword) || loginViewModel.isLoading)
+            .disabled(password == "" || verifyPassword == "" || !isSamePassword)
             .background {
                 RoundedRectangle(cornerRadius: 10)
                     .foregroundColor((password != "" && verifyPassword != "" && isSamePassword) && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))

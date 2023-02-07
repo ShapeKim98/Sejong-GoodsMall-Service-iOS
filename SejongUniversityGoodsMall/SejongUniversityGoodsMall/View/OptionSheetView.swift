@@ -8,23 +8,26 @@
 import SwiftUI
 
 struct OptionSheetView: View {
+    enum OptionType: String {
+        case color = "색상"
+        case size = "사이즈"
+    }
+    
     @Namespace var optionTransition
+    
+    @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var isOptionSelected: Bool
     
-    @State var addedGoods: [SampleBasketItemModel]?
-    @State var currentOptions: [String]?
     @State var optionChevronDegree: Double = 180
     @State var selectedGoods: Goods?
     @State var message: String = ""
     @State var showMessage: Bool = false
-    
-    private let currentGoods: Goods
-    
-    init(isOptionSelected: Binding<Bool>, currentGoods: Goods) {
-        self._isOptionSelected = isOptionSelected
-        self.currentGoods = currentGoods
-    }
+    @State var selectedSize: String?
+    @State var extendSizeOptions: Bool = false
+    @State var selectedColor: String?
+    @State var extendColorOptions: Bool = false
+    @State var totalPrice: Int = 0
     
     var body: some View {
         VStack(spacing: 0) {
@@ -42,57 +45,35 @@ struct OptionSheetView: View {
                     .foregroundColor(Color("secondary-text-color"))
                     .padding()
                 
-//                if let list = currentGoods.options {
-//                    Group {
-//                        if !isOptionSelected {
-//                            ForEach(list, id: \.hashValue) {
-//                                if let index = list.firstIndex(of: $0) {
-//                                    if let specifiedOption = selectedGoods?.specifiedOption, specifiedOption.count > index {
-//                                        optionView(selectedOption: specifiedOption[index], options: $0, index: index)
-//                                            .matchedGeometryEffect(id: "옵션\(index)글자", in: optionTransition)
-//                                            .background {
-//                                                RoundedRectangle(cornerRadius: 10)
-//                                                    .stroke(Color("main-text-color"))
-//                                                    .matchedGeometryEffect(id: "옵션\(index)배경", in: optionTransition)
-//                                            }
-//                                    } else {
-//                                        optionView(selectedOption: nil, options: $0, index: index)
-//                                            .matchedGeometryEffect(id: "옵션\(index)글자", in: optionTransition)
-//                                            .background {
-//                                                RoundedRectangle(cornerRadius: 10)
-//                                                    .stroke(Color("secondary-text-color"))
-//                                                    .matchedGeometryEffect(id: "옵션\(index)배경", in: optionTransition)
-//                                            }
-//                                    }
-//                                }
-//                            }
-//                        } else {
-//                            if let options = currentOptions, let index = list.firstIndex(of: options) {
-//                                VStack(spacing: 0) {
-//                                    optionView(selectedOption: nil, options: options, index: index)
-//                                        .matchedGeometryEffect(id: "옵션\(index)글자", in: optionTransition)
-//
-//                                    extendedOptionView(options: options, index: index)
-//                                }
-//                                .background {
-//                                    RoundedRectangle(cornerRadius: 10)
-//                                        .stroke(Color("secondary-text-color"))
-//                                        .matchedGeometryEffect(id: "옵션\(index)배경", in: optionTransition)
-//                                }
-//                            }
-//                        }
-//                    }
-//                    .padding(.horizontal)
-//                    .padding(.vertical, 5)
-//                } else {
-                    Spacer()
-//                }
+                if !extendSizeOptions {
+                    if let colorOptions = goodsViewModel.goodsDetail.color?.components(separatedBy: ", ") {
+                        optionSelectionList(options: colorOptions, selectedOptions: selectedColor, isExtended: extendColorOptions, optionType: .color) {
+                            withAnimation(.spring()) {
+                                extendColorOptions.toggle()
+                                isOptionSelected.toggle()
+                                optionChevronDegree = extendColorOptions ? 0 : 180
+                            }
+                        }
+                    }
+                }
                 
-                if !isOptionSelected {
-                    Spacer()
-                    
+                if !extendColorOptions {
+                    if let sizeOptions = goodsViewModel.goodsDetail.size?.components(separatedBy: ", ") {
+                        optionSelectionList(options: sizeOptions, selectedOptions: selectedSize, isExtended: extendSizeOptions, optionType: .size) {
+                            withAnimation(.spring()) {
+                                extendSizeOptions.toggle()
+                                isOptionSelected.toggle()
+                                optionChevronDegree = extendSizeOptions ? 0 : 180
+                            }
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                if !extendSizeOptions && !extendColorOptions {
                     HStack {
-                        Text("상품 \(0)개")
+                        Text("상품 \(goodsViewModel.cart.count)개")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
@@ -100,11 +81,16 @@ struct OptionSheetView: View {
                         
                         Spacer()
                         
-                        Text("\(0)원")
+                        Text("\(totalPrice)원")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
                             .padding()
+                            .onAppear() {
+                                goodsViewModel.cart.forEach { cartGoods in
+                                    totalPrice += cartGoods.price
+                                }
+                            }
                     }
                     .background(Color("shape-bkg-color"))
                     .padding(.bottom)
@@ -113,13 +99,6 @@ struct OptionSheetView: View {
                 }
             }
             .background(.white)
-            .onSubmit {
-//                if let goods = selectedGoods, let currentGoodsOptions = currentGoods.options, goods.specifiedOption.count == currentGoodsOptions.count {
-//                    if let adg = addedGoods, adg.contains{$0.specifiedOption == goods.specifiedOption} {
-//
-//                    }
-//                }
-            }
             .overlay {
                 if showMessage {
                     alertMessageView()
@@ -135,104 +114,108 @@ struct OptionSheetView: View {
         }
     }
     
-//    @ViewBuilder
-//    func optionView(selectedOption: String?, options: [String], index: Int) -> some View {
-//        Button {
-//            withAnimation(.spring()) {
-//                if let goods = selectedGoods {
-//                    if goods.specifiedOption.count < index {
-//                        message = "옵션\(goods.specifiedOption.count) 먼저 선택해주세요."
-//                        showMessage = true
-//                    } else {
-//                        currentOptions = options
-//                        isOptionSelected.toggle()
-//                        optionChevronDegree = isOptionSelected ? 0 : 180
-//                    }
-//                } else {
-//                    selectedGoods = currentGoods
-//                    if let count = selectedGoods?.specifiedOption.count, count < index {
-//                        message = "옵션1 먼저 선택해주세요."
-//                        selectedGoods = nil
-//                        showMessage = true
-//                    } else {
-//                        currentOptions = options
-//                        isOptionSelected.toggle()
-//                        optionChevronDegree = isOptionSelected ? 0 : 180
-//                    }
-//                }
-//            }
-//        } label: {
-//            if let option = selectedOption {
-//                HStack {
-//                    Text(option)
-//                        .font(.system(size: 15))
-//                    
-//                    Spacer()
-//                    
-//                    Image(systemName: "chevron.up")
-//                        .font(.system(size: 15))
-//                        .rotationEffect(.degrees(optionChevronDegree))
-//                }
-//                .foregroundColor(Color("main-text-color"))
-//                .padding()
-//            } else {
-//                HStack {
-//                    Text("옵션\(index + 1) 선택하기")
-//                        .font(.system(size: 15))
-//                    
-//                    Spacer()
-//                    
-//                    Image(systemName: "chevron.up")
-//                        .font(.system(size: 15))
-//                        .rotationEffect(.degrees(optionChevronDegree))
-//                }
-//                .foregroundColor(Color("secondary-text-color"))
-//                .padding()
-//            }
-//        }
-//    }
-//    
-//    @ViewBuilder
-//    func extendedOptionView(options: [String], index: Int) -> some View {
-//        ScrollView {
-//            ForEach(options, id: \.hashValue) { option in
-//                Button {
-//                    withAnimation(.easeInOut) {
-//                        if let goods = selectedGoods {
-//                        if goods.specifiedOption.count == index {
-//                                selectedGoods?.specifiedOption.append(option)
-//                            } else {
-//                                selectedGoods?.specifiedOption[index] = option
-//                            }
-//                        } else {
-//                            selectedGoods?.specifiedOption.append(option)
-//                        }
-//                        
-//                        isOptionSelected = false
-//                    }
-//                } label: {
-//                    HStack {
-//                        Text(option)
-//                            .font(.system(size: 15))
-//                            .fontWeight(.bold)
-//                            .foregroundColor(Color("main-text-color"))
-//                        
-//                        Spacer()
-//                    }
-//                    .padding()
-//                    .background {
-//                        VStack {
-//                            Rectangle()
-//                                .frame(height: 1)
-//                                .foregroundColor(Color("secondary-text-color"))
-//                            
-//                            Spacer()
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @ViewBuilder
+    func optionSelectionList(options: [String], selectedOptions: String?, isExtended: Bool, optionType: OptionType, titleClickAction: @escaping () -> Void) -> some View {
+        VStack {
+            if isExtended {
+                Button(action: titleClickAction) {
+                    HStack {
+                        Text("\(optionType.rawValue) 선택하기")
+                            .font(.system(size: 15))
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 15))
+                            .rotationEffect(.degrees(optionChevronDegree))
+                    }
+                    .foregroundColor(Color("secondary-text-color"))
+                    .padding()
+                }
+                .matchedGeometryEffect(id: "옵션\(optionType.rawValue)텍스트", in: optionTransition)
+                
+                ScrollView {
+                    ForEach(options, id: \.hashValue) { option in
+                        Button {
+                            withAnimation(.spring()) {
+                                if optionType == .size {
+                                    selectedSize = option
+                                    extendSizeOptions = false
+                                } else {
+                                    selectedColor = option
+                                    extendColorOptions = false
+                                }
+                                
+                                isOptionSelected = false
+                                optionChevronDegree = 180
+                            }
+                        } label: {
+                            HStack {
+                                Text(option)
+                                    .font(.system(size: 15))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color("main-text-color"))
+                                
+                                Spacer()
+                            }
+                            .padding()
+                            .background {
+                                VStack {
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundColor(Color("secondary-text-color"))
+                                    
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                Button(action: titleClickAction) {
+                    if let option = selectedOptions {
+                        HStack {
+                            Text(option)
+                                .font(.system(size: 15))
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.up")
+                                .font(.system(size: 15))
+                                .rotationEffect(.degrees(optionChevronDegree))
+                        }
+                        .foregroundColor(Color("main-text-color"))
+                        .padding()
+                    } else {
+                        HStack {
+                            Text("\(optionType.rawValue) 선택하기")
+                                .font(.system(size: 15))
+                            Spacer()
+                            
+                            Image(systemName: "chevron.up")
+                                .font(.system(size: 15))
+                                .rotationEffect(.degrees(optionChevronDegree))
+                        }
+                        .foregroundColor(Color("secondary-text-color"))
+                        .padding()
+                    }
+                }
+                .matchedGeometryEffect(id: "옵션\(optionType.rawValue)텍스트", in: optionTransition)
+
+            }
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .foregroundColor(.white)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(selectedOptions == nil ? Color("secondary-text-color") : Color("main-text-color"))
+                        .matchedGeometryEffect(id: "옵션\(optionType.rawValue)배경", in: optionTransition)
+                }
+        }
+        .padding(.horizontal)
+        .padding(.bottom)
+    }
     
     @ViewBuilder
     func alertMessageView() -> some View {
@@ -251,6 +234,7 @@ struct OptionSheetView: View {
 
 struct OptionSheetView_Previews: PreviewProvider {
     static var previews: some View {
-        OptionSheetView(isOptionSelected: .constant(false), currentGoods: Goods(id: 0, categoryID: 1, title: "학잠", color: "BLACK, BLUE, WHITE", size: "S, M, L", price: 0, goodsImages: [], description: "학잠"))
+        OptionSheetView(isOptionSelected: .constant(false))
+            .environmentObject(GoodsViewModel())
     }
 }

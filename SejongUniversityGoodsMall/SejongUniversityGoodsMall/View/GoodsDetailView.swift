@@ -16,23 +16,15 @@ enum Servie {
 struct GoodsDetailView: View {
     @Environment(\.dismiss) var dismiss
     
-    private let goods: Goods
+    @Namespace var heroEffect
+    
+    @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State var service: Servie = .goodsInformation
     @State var showOptionSheet: Bool = false
     @State var imagePage: Int = 1
     @State var optionSheetDrag: CGFloat = .zero
     @State var isOptionSelected: Bool = false
-    
-    init(goods: Goods) {
-        self.goods = goods
-        
-        if #available(iOS 16.0, *) {
-
-        } else {
-            SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
-        }
-    }
     
     var body: some View {
         GeometryReader { reader in
@@ -42,7 +34,7 @@ struct GoodsDetailView: View {
                         VStack(spacing: 10) {
                             imageView(height: reader.size.width)
                             
-                            nameAndTagView()
+                            nameAndPriceView()
                         }
                         .padding(.bottom)
                         
@@ -54,7 +46,7 @@ struct GoodsDetailView: View {
                     VStack {
                         Spacer()
                         
-                        OptionSheetView(isOptionSelected: $isOptionSelected, currentGoods: goods)
+                        OptionSheetView(isOptionSelected: $isOptionSelected)
                             .frame(width: reader.size.width, height: reader.size.height - reader.size.width + 5)
                     }
                     .coordinateSpace(name: "Contents")
@@ -70,6 +62,7 @@ struct GoodsDetailView: View {
                                     if optionSheetDrag > 100 {
                                         optionSheetDrag = .zero
                                         showOptionSheet = false
+                                        isOptionSelected = false
                                     } else {
                                         optionSheetDrag = .zero
                                     }
@@ -82,19 +75,24 @@ struct GoodsDetailView: View {
                     VStack {
                         Spacer()
                         
-                        PurchaseBarView(showOptionSheet: $showOptionSheet, selectedGoods: goods)
+                        PurchaseBarView(showOptionSheet: $showOptionSheet)
                             .frame(height: 53)
                     }
                 }
             }
-            .toolbar {
-                ToolbarItem {
-                    Button {
+            .navigationBarBackButtonHidden(isExtendedImage)
+            .onDisappear() {
+                goodsViewModel.goodsDetail = Goods(id: 0, categoryID: nil, title: "loading...", color: nil, size: nil, price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
+            }
+            .overlay {
+                if isExtendedImage {
+                    ZStack {
+                        Color(.black)
+                            .opacity(1.0 - (extendedImageOffset / 500))
                         
-                    } label: {
-                        Image(systemName: "ellipsis")
+                        extendedImageView()
                     }
-                    .foregroundColor(Color("main-text-color"))
+                    .ignoresSafeArea()
                 }
             }
         }
@@ -103,11 +101,32 @@ struct GoodsDetailView: View {
     @ViewBuilder
     func imageView(height: CGFloat) -> some View {
         TabView(selection: $imagePage) {
-            ForEach(1..<9) { page in
-                Image("sample-image1")
-                    .resizable()
-                    .scaledToFit()
-                    .tag(page)
+            ForEach(goodsViewModel.goodsDetail.goodsImages, id: \.id) { image in
+                AsyncImage(url: URL(string: image.oriImgName)) { img in
+                    if !isExtendedImage {
+                        img
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: height, height: height)
+                            .matchedGeometryEffect(id: "\(image.oriImgName)", in: heroEffect)
+                    }
+                } placeholder: {
+                    ZStack {
+                        Image("sample-image1")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: height, height: height)
+                            .redacted(reason: .placeholder)
+                        ProgressView()
+                            .tint(Color("main-highlight-color"))
+                    }
+                }
+                .tag(image.id - goodsViewModel.goodsDetail.id)
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        isExtendedImage = true
+                    }
+                }
             }
         }
         .frame(height: height)
@@ -116,19 +135,100 @@ struct GoodsDetailView: View {
         HStack(spacing: 0) {
             Text("\(imagePage) ")
                 .foregroundColor(Color("main-text-color"))
-            Text("/ 8")
+            Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
                 .foregroundColor(Color("secondary-text-color"))
             
             Spacer()
         }
-        .font(.system(size: 13))
+        .font(.footnote)
         .padding(.horizontal)
     }
     
+    @State private var isExtendedImage: Bool = false
+    @State private var extendedImageOffset: CGFloat = .zero
+    
     @ViewBuilder
-    func nameAndTagView() -> some View {
+    func extendedImageView() -> some View {
+        TabView(selection: $imagePage) {
+            ForEach(goodsViewModel.goodsDetail.goodsImages, id: \.id) { image in
+                AsyncImage(url: URL(string: image.oriImgName)) { img in
+                    img
+                        .resizable()
+                        .scaledToFit()
+                        .matchedGeometryEffect(id: "\(image.oriImgName)", in: heroEffect)
+                } placeholder: {
+                    ZStack {
+                        Image("sample-image1")
+                            .resizable()
+                            .scaledToFit()
+                            .redacted(reason: .placeholder)
+                        ProgressView()
+                            .tint(Color("main-highlight-color"))
+                    }
+                }
+                .tag(image.id - goodsViewModel.goodsDetail.id)
+                .overlay {
+                    HStack {
+                        if imagePage != 1 {
+                            Button {
+                                withAnimation {
+                                    imagePage -= 1
+                                }
+                            } label: {
+                                Label("이전페이지", systemImage: "chevron.compact.left")
+                                    .font(.largeTitle.bold())
+                                    .labelStyle(.iconOnly)
+                                    .foregroundColor(Color("main-text-color").opacity(0.7))
+                                    .padding()
+                            }
+                            .shadow(radius: 15)
+                            
+                        }
+                        
+                        Spacer()
+                        
+                        if imagePage != goodsViewModel.goodsDetail.goodsImages.count {
+                            Button {
+                                withAnimation {
+                                    imagePage += 1
+                                }
+                            } label: {
+                                Label("다음페이지", systemImage: "chevron.compact.right")
+                                    .font(.largeTitle.bold())
+                                    .labelStyle(.iconOnly)
+                                    .foregroundColor(Color("main-text-color").opacity(0.7))
+                                    .padding()
+                            }
+                            .shadow(radius: 15)
+                        }
+                    }
+                }
+            }
+            .opacity(1.0 - (extendedImageOffset / 500))
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .offset(y: extendedImageOffset)
+        .gesture(
+            DragGesture()
+                .onChanged({ drag in
+                    extendedImageOffset = drag.translation.height
+                })
+                .onEnded({ drag in
+                    if extendedImageOffset > 100 || extendedImageOffset < -100 {
+                        withAnimation(.spring()) {
+                            isExtendedImage = false
+                        }
+                    }
+                    
+                    extendedImageOffset = .zero
+                })
+        )
+    }
+    
+    @ViewBuilder
+    func nameAndPriceView() -> some View {
         HStack {
-            Text(goods.title)
+            Text(goodsViewModel.goodsDetail.title)
                 .font(.title2.bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
@@ -137,31 +237,14 @@ struct GoodsDetailView: View {
         .padding(.horizontal)
         
         HStack {
-                Text("#test")
-                    .font(.caption2)
-                    .foregroundColor(Color("main-text-color"))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background {
-                        RoundedRectangle(cornerRadius: 40)
-                            .foregroundColor(Color("shape-bkg-color"))
-                    }
-//            ForEach(goods.tag, id: \.hashValue) {
-//                Text($0)
-//                    .font(.system(size: 10))
-//                    .foregroundColor(Color("main-text-color"))
-//                    .padding(.horizontal, 10)
-//                    .padding(.vertical, 5)
-//                    .background {
-//                        RoundedRectangle(cornerRadius: 40)
-//                            .foregroundColor(Color("shape-bkg-color"))
-//                    }
-//            }
-            
+            Text("\(goodsViewModel.goodsDetail.price)원")
+                .font(.title.bold())
+                .foregroundColor(Color("main-text-color"))
+                .padding(.horizontal, 5)
             Spacer()
         }
         .padding(.horizontal)
-        .padding(.horizontal, 5)
+        
     }
     
     @ViewBuilder
@@ -245,16 +328,11 @@ struct GoodsDetailView: View {
     
     @ViewBuilder
     func goodsInformationPage() -> some View {
-        HStack {
-            Text(goods.description)
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(Color("main-text-color"))
-            
-            Spacer()
+        LazyVStack {
+            ForEach(goodsViewModel.goodsDetail.goodsInfos, id: \.infoURL) { info in
+                AsyncImage(url: URL(string: info.infoURL, relativeTo: APIURL.server.url()))
+            }
         }
-        .padding()
-        .padding(.horizontal, 5)
     }
     
     @ViewBuilder
@@ -268,10 +346,9 @@ struct GoodsDetailView: View {
     }
 }
 
-
-
 struct Previews_GoodsDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        GoodsDetailView(goods: Goods(id: 0, categoryID: 1, title: "학잠", color: "BLACK, BLUE, WHITE", size: "S, M, L", price: 0, goodsImages: [], description: "학잠"))
+        GoodsDetailView()
+            .environmentObject(GoodsViewModel())
     }
 }

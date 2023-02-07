@@ -11,6 +11,7 @@ import Combine
 
 class LoginViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
+    private var token: String = ""
     
     @Published var isSignUpComplete: Bool = false
     @Published var isAuthenticate: Bool = false
@@ -154,6 +155,7 @@ class LoginViewModel: ObservableObject {
                     self.isAuthenticate = true
                 }
             }
+            self.token = loginResponse.token
             print(loginResponse)
         }
         .store(in: &subscriptions)

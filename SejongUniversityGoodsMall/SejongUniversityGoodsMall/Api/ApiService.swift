@@ -14,19 +14,33 @@ enum APIURL {
     case fetchSignIn
     case fetchFindEmail
     case fetchGoodsList
+    case fetchGoodsDetail
+    case fetchGoodsListFromCategory
     
-    var url: URL? {
+    func url(id: Int? = nil) -> URL? {
         switch self {
             case .server:
                 return URL(string: "http://13.125.79.156:5763")
             case .fetchSignUp:
-                return URL(string: "auth/signup", relativeTo: APIURL.server.url)
+                return URL(string: "auth/signup", relativeTo: APIURL.server.url())
             case .fetchSignIn:
-                return URL(string: "auth/signin", relativeTo: APIURL.server.url)
+                return URL(string: "auth/signin", relativeTo: APIURL.server.url())
             case .fetchFindEmail:
-                return URL(string: "auth/find/email", relativeTo: APIURL.server.url)
+                return URL(string: "auth/find/email", relativeTo: APIURL.server.url())
             case .fetchGoodsList:
-                return URL(string: "items/all", relativeTo: APIURL.server.url)
+                return URL(string: "items/all", relativeTo: APIURL.server.url())
+            case .fetchGoodsDetail:
+                guard let id = id else {
+                    return nil
+                }
+                
+                return URL(string: "items/detail/\(id)", relativeTo: APIURL.server.url())
+            case .fetchGoodsListFromCategory:
+                guard let id = id else {
+                    return nil
+                }
+                
+                return URL(string: "items?categoryId=\(id)", relativeTo: APIURL.server.url())
         }
     }
 }
@@ -58,7 +72,7 @@ enum ApiService {
     static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, ApiError> {
         let body = UserRequest(email: email, password: password, userName: userName, birth: birth)
         
-        var request = URLRequest(url: APIURL.fetchSignUp.url!)
+        var request = URLRequest(url: APIURL.fetchSignUp.url()!)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
@@ -89,7 +103,7 @@ enum ApiService {
     static func fetchSignIn(email: String, password: String) -> AnyPublisher<LoginResponse, ApiError> {
         let body = LoginRequest(email: email, password: password)
         
-        var request = URLRequest(url: APIURL.fetchSignIn.url!)
+        var request = URLRequest(url: APIURL.fetchSignIn.url()!)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
@@ -119,7 +133,7 @@ enum ApiService {
     static func fetchFindEmail(userName: String, birth: String) -> AnyPublisher<FindEmailRespnose, ApiError> {
         let body = FindEmailRequest(userName: userName, birth: birth)
         
-        var request = URLRequest(url: APIURL.fetchFindEmail.url!)
+        var request = URLRequest(url: APIURL.fetchFindEmail.url()!)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
@@ -147,7 +161,60 @@ enum ApiService {
     }
     
     static func fetchGoodsList() -> AnyPublisher<GoodsList, ApiError> {
-        let request = URLRequest(url: APIURL.fetchGoodsList.url!)
+        let request = URLRequest(url: APIURL.fetchGoodsList.url()!)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ApiError.invalidResponse(URLError(.badURL))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    print(httpResponse.statusCode)
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: GoodsList.self, decoder: JSONDecoder())
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func fetchGoodsDetail(id: Int) -> AnyPublisher<Goods, ApiError> {
+        let request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ApiError.invalidResponse(URLError(.badURL))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    print(httpResponse.statusCode)
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: Goods.self, decoder: JSONDecoder())
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func fetchGoodsListFromCategory(id: Int) -> AnyPublisher<GoodsList, ApiError> {
+        let request = URLRequest(url: APIURL.fetchGoodsListFromCategory.url(id: id)!)
+        print(request.url)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {

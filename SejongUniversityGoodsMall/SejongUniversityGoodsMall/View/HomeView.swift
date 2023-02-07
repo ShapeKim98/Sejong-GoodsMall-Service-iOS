@@ -9,11 +9,11 @@ import SwiftUI
 
 struct HomeView: View {
     enum Category: Int {
-        case allProduct
-        case phrases
-        case clothing
-        case badgeAndKeyring
-        case forGift
+        case allProduct = 0
+        case clothing = 1
+        case office = 2
+        case badgeAndKeyring = 3
+        case forGift = 4
     }
     
     @Namespace var heroEffect
@@ -30,6 +30,14 @@ struct HomeView: View {
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
     
+    init() {
+        if #available(iOS 16.0, *) {
+            
+        } else {
+            SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
+        }
+    }
+    
     var body: some View {
         GeometryReader { reader in
             if #available(iOS 16.0, *) {
@@ -42,15 +50,12 @@ struct HomeView: View {
                             
                             goodList()
                         }
-                        .onAppear() {
-//                            filteredGoods = sampleGoodsViewModel.goodsList
-                        }
                     }
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()
                     .overlay {
                         if isSearching {
-                            searchView(popularKewords: [""])
+                            searchView()
                         }
                     }
                 }
@@ -65,15 +70,12 @@ struct HomeView: View {
                             
                             goodList()
                         }
-                        .onAppear() {
-//                            filteredGoods = sampleGoodsViewModel.goodsList
-                        }
                     }
                     .navigationTitle("")
                     .navigationBarHidden(true)
                     .overlay {
                         if isSearching {
-                            searchView(popularKewords: [""])
+                            searchView()
                         }
                     }
                 }
@@ -97,7 +99,7 @@ struct HomeView: View {
             } label: {
                 if !isSearching {
                     Label("검색", systemImage: "magnifyingglass")
-                        .font(.title2.bold())
+                        .font(.title)
                         .labelStyle(.iconOnly)
                         .matchedGeometryEffect(id: "검색", in: heroEffect)
                 }
@@ -107,15 +109,15 @@ struct HomeView: View {
                 
             } label: {
                 Label("장바구니", systemImage: "cart")
-                    .font(.title2.bold())
+                    .font(.title)
                     .labelStyle(.iconOnly)
             }
             
             Button {
                 
             } label: {
-                Label("내정보", systemImage: "person.circle.fill")
-                    .font(.title2.bold())
+                Label("내정보", systemImage: "person")
+                    .font(.title)
                     .labelStyle(.iconOnly)
             }
         }
@@ -132,43 +134,35 @@ struct HomeView: View {
                     categotyButton("전체 상품", .allProduct) {
                         withAnimation {
                             category = .allProduct
-//                            filteredGoods = sampleGoodsViewModel.goodsList
+                            goodsViewModel.fetchGoodsList()
                         }
                     }
                     
-                    categotyButton("문구", .phrases) {
+                    categotyButton("문구", .office) {
                         withAnimation {
-                            category = .phrases
-//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-//                                return item.category == .phrases
-//                            })
+                            category = .office
+                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
                     }
                     
                     categotyButton("의류", .clothing) {
                         withAnimation {
                             category = .clothing
-//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-//                                return item.category == .clothing
-//                            })
+                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
                     }
                     
                     categotyButton("뱃지&키링", .badgeAndKeyring) {
                         withAnimation {
                             category = .badgeAndKeyring
-//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-//                                return item.category == .badgeAndKeyring
-//                            })
+                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
                     }
                     
                     categotyButton("선물용", .forGift) {
                         withAnimation {
                             category = .forGift
-//                            filteredGoods = sampleGoodsViewModel.goodsList.filter({ item in
-//                                return item.category == .forGift
-//                            })
+//                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
                     }
                 }
@@ -194,7 +188,7 @@ struct HomeView: View {
             VStack {
                 Text(title)
                     .font(.subheadline)
-                    .fontWeight(.bold)
+                    .fontWeight(isSelected ? .bold : nil)
                     .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
                 
                 Rectangle()
@@ -209,7 +203,7 @@ struct HomeView: View {
     func goodList() -> some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                ForEach(goodsViewModel.goodsList, id: \.title) { item in
+                ForEach(goodsViewModel.goodsList) { item in
                     subGoodsView(item)
                         .coordinateSpace(name: "goods-list")
                 }
@@ -217,13 +211,19 @@ struct HomeView: View {
             }
             .padding(.top)
         }
+        .refreshable {
+            goodsViewModel.fetchGoodsList()
+        }
     }
     
     @ViewBuilder
     func subGoodsView(_ goods: Goods) -> some View {
         NavigationLink {
-            GoodsDetailView(goods: goods)
-                .navigationTitle("")
+            GoodsDetailView()
+                .onAppear(){
+                    goodsViewModel.fetchGoodsDetail(id: goods.id)
+                }
+                .navigationTitle("상품 정보")
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
         } label: {
@@ -264,15 +264,15 @@ struct HomeView: View {
                             
                             HStack(spacing: 3) {
                                 if let description = goods.description {
-                                        Text(description)
-                                            .font(.caption)
-                                            .foregroundColor(Color("secondary-text-color"))
+                                    Text(description)
+                                        .font(.caption)
+                                        .foregroundColor(Color("secondary-text-color"))
                                 }
-//                                ForEach(goods.description, id: \.hashValue) {
-//                                    Text($0)
-//                                        .font(.system(size: 10))
-//                                        .foregroundColor(Color("secondary-text-color"))
-//                                }
+                                //                                ForEach(goods.description, id: \.hashValue) {
+                                //                                    Text($0)
+                                //                                        .font(.system(size: 10))
+                                //                                        .foregroundColor(Color("secondary-text-color"))
+                                //                                }
                             }
                         }
                         
@@ -300,36 +300,40 @@ struct HomeView: View {
     }
     
     @ViewBuilder
-    func searchView(popularKewords: [String]) -> some View {
+    func searchView() -> some View {
         VStack(alignment: .leading) {
             HStack() {
                 HStack {
                     Label("검색", systemImage: "magnifyingglass")
-                        .font(.headline.bold())
                         .labelStyle(.iconOnly)
-                        .foregroundColor(Color("secondary-text-color"))
+                        .foregroundColor(Color("main-text-color").opacity(0.7))
                     
-                    TextField("검색", text: $searchText, prompt: Text("종이의 취향을 검색해보세요."))
+                    TextField("검색", text: $searchText, prompt: Text("상품을 검색해주세요").font(.footnote).foregroundColor(Color("main-text-color").opacity(0.7)))
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
-                        .focused($searchingFocused)
-                    
-                    if searchText != "" {
-                        Button {
-                            withAnimation {
-                                searchText = ""
-                            }
-                        } label: {
-                            Label("삭제", systemImage: "xmark.circle.fill")
-                                .font(.headline.bold())
-                                .labelStyle(.iconOnly)
-                                .foregroundColor(Color("secondary-text-color"))
+                        .keyboardType(.default)
+                        .submitLabel(.search)
+                        .onSubmit {
+//                            recentSearches.insert(searchText, at: 0)
                         }
+                        .focused($searchingFocused)
                         
-                    }
+                        if searchText != "" {
+                            Button {
+                                withAnimation {
+                                    searchText = ""
+                                }
+                            } label: {
+                                Label("삭제", systemImage: "xmark.circle.fill")
+                                    .font(.headline.bold())
+                                    .labelStyle(.iconOnly)
+                                    .foregroundColor(Color("secondary-text-color"))
+                            }
+                        }
                 }
                 .matchedGeometryEffect(id: "검색", in: heroEffect)
-                .padding()
+                .padding(.horizontal)
+                .padding(.vertical, 8)
                 .background {
                     RoundedRectangle(cornerRadius: 10)
                         .foregroundColor(Color("shape-bkg-color"))
@@ -346,6 +350,7 @@ struct HomeView: View {
                     }
                 }
                 .padding(.horizontal, 5)
+                .foregroundColor(Color("secondary-text-color"))
             }
             .padding()
             .background {
@@ -358,30 +363,56 @@ struct HomeView: View {
                 }
             }
             
-            Text("인기 검색어")
-                .fontWeight(.bold)
-                .foregroundColor(Color("main-text-color"))
-                .padding()
-                .padding(.horizontal, 5)
-            
             HStack {
-                VStack {
-                    ForEach(popularKewords.indices) { rank in
-                        Text("\(rank + 1)")
-                            .padding()
-                    }
-                }
+                Text("최근 검색어")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color("main-text-color"))
                 
-                VStack(alignment: .leading) {
-                    ForEach(popularKewords, id: \.hashValue) { keyword in
-                        Button(keyword) {
-                            withAnimation {
-                                searchText = keyword
-                            }
-                        }
-                        .padding(.vertical)
-                    }
+                Spacer()
+                
+                Button("전체삭제", role: .destructive) {
+//                    recentSearches.removeAll()
                 }
+                .font(.footnote)
+                .foregroundColor(Color("main-highlight-color"))
+            }
+            .padding()
+            .padding(.horizontal, 5)
+            
+            VStack {
+//                ForEach(recentSearches, id: \.hashValue) { keyword in
+//                    HStack {
+//                        Button {
+//
+//                        } label: {
+//                            HStack(spacing: 20) {
+//                                Label("검색어", systemImage: "magnifyingglass")
+//                                    .labelStyle(.iconOnly)
+//                                    .foregroundColor(Color("main-text-color").opacity(0.7))
+//                                    .padding(8)
+//                                    .background {
+//                                        Circle()
+//                                            .foregroundColor(Color("shape-bkg-color"))
+//                                    }
+//
+//                                Text(keyword)
+//                                    .foregroundColor(Color("main-text-color"))
+//
+//                                Spacer()
+//                            }
+//                        }
+//
+//                        Button(role: .destructive) {
+//
+//                        } label: {
+//                            Label("삭제", systemImage: "xmark")
+//                                .labelStyle(.iconOnly)
+//                        }
+//                    }
+//                    .padding(.horizontal)
+//                    .padding(.vertical, 5)
+//                }
             }
             .foregroundColor(Color("main-text-color"))
             .padding(.horizontal, 5)

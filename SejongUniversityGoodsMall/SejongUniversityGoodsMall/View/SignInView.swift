@@ -29,7 +29,7 @@ struct SignInView: View {
                 .padding(.vertical)
             
             SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
-                .modifier(TextFieldModifier(text: $email, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .emailAddress, focusedTextField: .passwordField, submitLabel: .done))
+                .modifier(TextFieldModifier(text: $password, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .password, focusedTextField: .passwordField, submitLabel: .done))
                 .onTapGesture {
                     currentField = .passwordField
                 }
@@ -71,7 +71,7 @@ struct SignInView: View {
                     Spacer()
                 }
             }
-            .disabled((email == "" || password == "") || loginViewModel.isLoading)
+            .disabled(email == "" || password == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
                     .foregroundColor((email != "" && password != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))

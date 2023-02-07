@@ -9,5 +9,5 @@ import Foundation
 
 struct LoginResponse: Codable {
     var id: Int
-    var email: String
+    var token, email: String
 }

@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct PurchaseBarView: View {
-    @Binding var showOptionSheet: Bool
+    @EnvironmentObject var goodsViewModel: GoodsViewModel
     
-    @State var selectedGoods: Goods
+    @Binding var showOptionSheet: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -23,58 +23,82 @@ struct PurchaseBarView: View {
             .opacity(0.3)
             .background(.clear)
             
-            purchaseMode(selectedGoods)
-                .padding(.vertical, 7.3)
-                .padding(.horizontal, 20)
+            purchaseMode()
+                .padding(.vertical, 8)
+                .padding(.horizontal, 25)
                 .background(.white)
         }
         .background(.clear)
     }
     
-    func purchaseMode(_ goods: Goods) -> some View {
-        HStack {
+    @State private var isWished: Bool = false
+    
+    func purchaseMode() -> some View {
+        HStack(spacing: 20) {
             if showOptionSheet {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 40)
-                        .stroke(Color("main-highlight-color"))
-                        .frame(width: 160)
-                    
-                    Button {
-                        withAnimation(.spring()) {
-                            
-                        }
-                    } label: {
+                Button {
+                    withAnimation(.spring()) {
+                        
+                    }
+                } label: {
+                    HStack {
+                        Spacer()
+                        
                         Text("장바구니 담기")
                             .font(.subheadline.bold())
                             .foregroundColor(Color("main-highlight-color"))
-                            .padding(.vertical, 8)
+                            .padding(.vertical)
+                        
+                        Spacer()
                     }
+                }
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color("main-highlight-color"))
                 }
             } else {
-                Text("\(goods.price)원")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color("main-text-color"))
-            }
-            
-            Spacer()
-            
-            ZStack {
-                RoundedRectangle(cornerRadius: 40)
-                    .foregroundColor(Color("main-highlight-color"))
-                    .frame(width: 160)
-                
                 Button {
-                    
-                    withAnimation(.spring()) {
-                        showOptionSheet = true
+                    withAnimation {
+                        isWished.toggle()
                     }
                 } label: {
-                    Text("구매하기")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.white)
-                        .padding(.vertical, 8)
+                    VStack(spacing: 0) {
+                        if isWished {
+                            Image(systemName: "heart.fill")
+                                .font(.title2)
+                                .foregroundColor(Color("main-highlight-color"))
+                        } else {
+                            Image(systemName: "heart")
+                                .font(.title2)
+                        }
+                        
+                        Text("찜하기")
+                            .font(.caption2)
+                    }
                 }
+                .foregroundColor(Color("main-text-color"))
+            }
+            
+            Button {
+                withAnimation(.spring()) {
+                    showOptionSheet = true
+                }
+            } label: {
+                HStack {
+                    Spacer()
+                    
+                    Text("구매하기")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.vertical)
+                    
+                    Spacer()
+                }
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 10)
+                    .foregroundColor(Color("main-highlight-color"))
             }
         }
     }
@@ -82,6 +106,7 @@ struct PurchaseBarView: View {
 
 struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
-        PurchaseBarView(showOptionSheet: .constant(false), selectedGoods: Goods(id: 0, categoryID: 1, title: "학잠", color: "BLACK, BLUE, WHITE", size: "S, M, L", price: 0, goodsImages: [], description: "학잠"))
+        PurchaseBarView(showOptionSheet: .constant(false))
+            .environmentObject(GoodsViewModel())
     }
 }
