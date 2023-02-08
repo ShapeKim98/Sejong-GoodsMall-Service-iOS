@@ -214,7 +214,6 @@ enum ApiService {
     
     static func fetchGoodsListFromCategory(id: Int) -> AnyPublisher<GoodsList, ApiError> {
         let request = URLRequest(url: APIURL.fetchGoodsListFromCategory.url(id: id)!)
-        print(request.url)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {

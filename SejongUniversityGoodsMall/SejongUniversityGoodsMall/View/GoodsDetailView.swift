@@ -32,7 +32,26 @@ struct GoodsDetailView: View {
                 ScrollView {
                     VStack {
                         VStack(spacing: 10) {
-                            imageView(height: reader.size.width)
+                            if !isExtendedImage {
+                                imageView(height: reader.size.width)
+                                    .matchedGeometryEffect(id: "이미지", in: heroEffect)
+                            } else {
+                                Image("sample-image1")
+                                    .resizable()
+                                    .frame(height: reader.size.width)
+                                    .redacted(reason: .placeholder)
+                            }
+                            
+                            HStack(spacing: 0) {
+                                Text("\(imagePage) ")
+                                    .foregroundColor(Color("main-text-color"))
+                                Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
+                                    .foregroundColor(Color("secondary-text-color"))
+                                
+                                Spacer()
+                            }
+                            .font(.footnote)
+                            .padding(.horizontal)
                             
                             nameAndPriceView()
                         }
@@ -89,8 +108,9 @@ struct GoodsDetailView: View {
                     ZStack {
                         Color(.black)
                             .opacity(1.0 - (extendedImageOffset / 500))
-                        
-                        extendedImageView()
+
+                        extendedImageView(width: reader.size.width)
+                            .matchedGeometryEffect(id: "이미지", in: heroEffect)
                     }
                     .ignoresSafeArea()
                 }
@@ -103,13 +123,10 @@ struct GoodsDetailView: View {
         TabView(selection: $imagePage) {
             ForEach(goodsViewModel.goodsDetail.goodsImages, id: \.id) { image in
                 AsyncImage(url: URL(string: image.oriImgName)) { img in
-                    if !isExtendedImage {
                         img
                             .resizable()
                             .scaledToFit()
                             .frame(width: height, height: height)
-                            .matchedGeometryEffect(id: "\(image.oriImgName)", in: heroEffect)
-                    }
                 } placeholder: {
                     ZStack {
                         Image("sample-image1")
@@ -131,76 +148,65 @@ struct GoodsDetailView: View {
         }
         .frame(height: height)
         .tabViewStyle(.page(indexDisplayMode: .never))
-        
-        HStack(spacing: 0) {
-            Text("\(imagePage) ")
-                .foregroundColor(Color("main-text-color"))
-            Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
-                .foregroundColor(Color("secondary-text-color"))
-            
-            Spacer()
-        }
-        .font(.footnote)
-        .padding(.horizontal)
     }
     
     @State private var isExtendedImage: Bool = false
     @State private var extendedImageOffset: CGFloat = .zero
     
     @ViewBuilder
-    func extendedImageView() -> some View {
+    func extendedImageView(width: CGFloat) -> some View {
         TabView(selection: $imagePage) {
             ForEach(goodsViewModel.goodsDetail.goodsImages, id: \.id) { image in
                 AsyncImage(url: URL(string: image.oriImgName)) { img in
                     img
                         .resizable()
                         .scaledToFit()
-                        .matchedGeometryEffect(id: "\(image.oriImgName)", in: heroEffect)
                 } placeholder: {
                     ZStack {
                         Image("sample-image1")
                             .resizable()
                             .scaledToFit()
+                            .frame(width: width)
                             .redacted(reason: .placeholder)
                         ProgressView()
                             .tint(Color("main-highlight-color"))
                     }
                 }
                 .tag(image.id - goodsViewModel.goodsDetail.id)
-                .overlay {
-                    HStack {
-                        if imagePage != 1 {
-                            Button {
-                                withAnimation {
-                                    imagePage -= 1
-                                }
-                            } label: {
-                                Label("이전페이지", systemImage: "chevron.compact.left")
-                                    .font(.largeTitle.bold())
-                                    .labelStyle(.iconOnly)
-                                    .foregroundColor(Color("main-text-color").opacity(0.7))
-                                    .padding()
+            }
+            .overlay {
+                HStack {
+                    if imagePage != 1 {
+                        Button {
+                            withAnimation {
+                                imagePage -= 1
                             }
-                            .shadow(radius: 15)
-                            
+                        } label: {
+                            Label("이전페이지", systemImage: "chevron.compact.left")
+                                .font(.largeTitle.bold())
+                                .labelStyle(.iconOnly)
+                                .foregroundColor(Color("main-text-color").opacity(0.7))
+                                .padding()
                         }
-                        
-                        Spacer()
-                        
-                        if imagePage != goodsViewModel.goodsDetail.goodsImages.count {
-                            Button {
-                                withAnimation {
-                                    imagePage += 1
-                                }
-                            } label: {
-                                Label("다음페이지", systemImage: "chevron.compact.right")
-                                    .font(.largeTitle.bold())
-                                    .labelStyle(.iconOnly)
-                                    .foregroundColor(Color("main-text-color").opacity(0.7))
-                                    .padding()
+                        .shadow(radius: 15)
+
+                    }
+
+                    Spacer()
+
+                    if imagePage != goodsViewModel.goodsDetail.goodsImages.count {
+                        Button {
+                            withAnimation {
+                                imagePage += 1
                             }
-                            .shadow(radius: 15)
+                        } label: {
+                            Label("다음페이지", systemImage: "chevron.compact.right")
+                                .font(.largeTitle.bold())
+                                .labelStyle(.iconOnly)
+                                .foregroundColor(Color("main-text-color").opacity(0.7))
+                                .padding()
                         }
+                        .shadow(radius: 15)
                     }
                 }
             }
@@ -219,7 +225,7 @@ struct GoodsDetailView: View {
                             isExtendedImage = false
                         }
                     }
-                    
+
                     extendedImageOffset = .zero
                 })
         )
@@ -330,7 +336,24 @@ struct GoodsDetailView: View {
     func goodsInformationPage() -> some View {
         LazyVStack {
             ForEach(goodsViewModel.goodsDetail.goodsInfos, id: \.infoURL) { info in
-                AsyncImage(url: URL(string: info.infoURL, relativeTo: APIURL.server.url()))
+                AsyncImage(url: URL(string: info.infoURL.trimmingCharacters(in: CharacterSet(charactersIn: "/images/info/")))) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                    
+                } placeholder: {
+                    ZStack {
+                        Image("sample-image1")
+                            .resizable()
+                            .scaledToFit()
+                            .redacted(reason: .placeholder)
+                        ProgressView()
+                            .tint(Color("main-highlight-color"))
+                    }
+                }
+                    .onAppear() {
+                        print(URL(string: info.infoURL.trimmingCharacters(in: CharacterSet(charactersIn: "/images/info/"))))
+                    }
             }
         }
     }
