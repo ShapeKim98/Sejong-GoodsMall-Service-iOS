@@ -13,6 +13,8 @@ struct FindEmailPasswordView: View {
         case passwordPage
     }
     
+    @Namespace var heroEffect
+    
     @EnvironmentObject var loginViewModel: LoginViewModel
     
     let dateFormatter: DateFormatter = DateFormatter()
@@ -92,7 +94,7 @@ struct FindEmailPasswordView: View {
         VStack {
             HStack {
                 pageButton("이메일", .emailPage) {
-                    withAnimation {
+                    withAnimation(.spring()) {
                         page = .emailPage
                         email = ""
                         userName = ""
@@ -103,7 +105,7 @@ struct FindEmailPasswordView: View {
                 Spacer()
                 
                 pageButton("비밀번호", .passwordPage) {
-                    withAnimation {
+                    withAnimation(.spring()) {
                         page = .passwordPage
                         email = ""
                         userName = ""
@@ -135,13 +137,12 @@ struct FindEmailPasswordView: View {
                 .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
                 .padding(.vertical)
         }
-        .background {
-            VStack {
-                Spacer()
-                
+        .overlay(alignment: .bottom) {
+            if isSelected {
                 Rectangle()
-                    .foregroundColor(isSelected ? Color("main-highlight-color") : .clear)
+                    .foregroundColor(Color("main-highlight-color"))
                     .frame(height: 3)
+                    .matchedGeometryEffect(id: "선택", in: heroEffect)
             }
         }
     }
@@ -180,7 +181,7 @@ struct FindEmailPasswordView: View {
                 }
                 .disabled(true)
                 .multilineTextAlignment(.leading)
-                .padding()
+                .padding(10)
             }
             .background {
                 RoundedRectangle(cornerRadius: 10)

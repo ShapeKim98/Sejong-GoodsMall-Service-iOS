@@ -7,14 +7,12 @@
 
 import SwiftUI
 
-enum Servie {
-    case goodsInformation
-    case goodsReview
-    case contactUs
-}
-
 struct GoodsDetailView: View {
-    @Environment(\.dismiss) var dismiss
+    enum Servie {
+        case goodsInformation
+        case goodsReview
+        case contactUs
+    }
     
     @Namespace var heroEffect
     
@@ -35,11 +33,10 @@ struct GoodsDetailView: View {
                             if !isExtendedImage {
                                 imageView(height: reader.size.width)
                                     .matchedGeometryEffect(id: "이미지", in: heroEffect)
+                                    .unredacted()
                             } else {
-                                Image("sample-image1")
-                                    .resizable()
-                                    .frame(height: reader.size.width)
-                                    .redacted(reason: .placeholder)
+                                Color("shape-bkg-color")
+                                    .frame(width: reader.size.width, height: reader.size.width)
                             }
                             
                             HStack(spacing: 0) {
@@ -57,7 +54,18 @@ struct GoodsDetailView: View {
                         }
                         .padding(.bottom)
                         
-                        goodsInformationView()
+                        Rectangle()
+                            .foregroundColor(Color("shape-bkg-color"))
+                            .frame(height: 10)
+                        
+                        switch service {
+                            case .goodsInformation:
+                                goodsInformationPage()
+                            case .goodsReview:
+                                goodReviewPage()
+                            case .contactUs:
+                                contactUsPage()
+                        }
                     }
                 }
                 
@@ -108,9 +116,10 @@ struct GoodsDetailView: View {
                     ZStack {
                         Color(.black)
                             .opacity(1.0 - (extendedImageOffset / 500))
-
+                        
                         extendedImageView(width: reader.size.width)
                             .matchedGeometryEffect(id: "이미지", in: heroEffect)
+                            .unredacted()
                     }
                     .ignoresSafeArea()
                 }
@@ -123,21 +132,19 @@ struct GoodsDetailView: View {
         TabView(selection: $imagePage) {
             ForEach(goodsViewModel.goodsDetail.goodsImages, id: \.id) { image in
                 AsyncImage(url: URL(string: image.oriImgName)) { img in
-                        img
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: height, height: height)
+                    img
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: height, height: height)
                 } placeholder: {
                     ZStack {
-                        Image("sample-image1")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: height, height: height)
-                            .redacted(reason: .placeholder)
+                        Color("shape-bkg-color")
+                        
                         ProgressView()
                             .tint(Color("main-highlight-color"))
                     }
                 }
+                .frame(width: height, height: height)
                 .tag(image.id - goodsViewModel.goodsDetail.id)
                 .onTapGesture {
                     withAnimation(.spring()) {
@@ -163,15 +170,13 @@ struct GoodsDetailView: View {
                         .scaledToFit()
                 } placeholder: {
                     ZStack {
-                        Image("sample-image1")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: width)
-                            .redacted(reason: .placeholder)
+                        Color("shape-bkg-color")
+                        
                         ProgressView()
                             .tint(Color("main-highlight-color"))
                     }
                 }
+                .frame(width: width)
                 .tag(image.id - goodsViewModel.goodsDetail.id)
             }
             .overlay {
@@ -189,11 +194,11 @@ struct GoodsDetailView: View {
                                 .padding()
                         }
                         .shadow(radius: 15)
-
+                        
                     }
-
+                    
                     Spacer()
-
+                    
                     if imagePage != goodsViewModel.goodsDetail.goodsImages.count {
                         Button {
                             withAnimation {
@@ -225,7 +230,7 @@ struct GoodsDetailView: View {
                             isExtendedImage = false
                         }
                     }
-
+                    
                     extendedImageOffset = .zero
                 })
         )
@@ -255,53 +260,44 @@ struct GoodsDetailView: View {
     
     @ViewBuilder
     func goodsInformationView() -> some View {
-        Rectangle()
-            .foregroundColor(Color("shape-bkg-color"))
-            .frame(height: 10)
-        
-        HStack {
-            serviceButton("상품정보", .goodsInformation) {
-                withAnimation {
-                    service = .goodsInformation
+        VStack {
+            HStack {
+                serviceButton("상품정보", .goodsInformation) {
+                    withAnimation(.spring()) {
+                        service = .goodsInformation
+                    }
                 }
-            }
-            
-            Spacer()
-            
-            serviceButton("상품후기", .goodsReview) {
-                withAnimation {
-                    service = .goodsReview
-                }
-            }
-            
-            Spacer()
-            
-            serviceButton("문의하기", .contactUs) {
-                withAnimation {
-                    service = .contactUs
-                }
-            }
-        }
-        .padding(.horizontal)
-        .padding(.horizontal)
-        .background {
-            VStack {
+                
                 Spacer()
                 
-                Rectangle()
-                    .foregroundColor(Color("shape-bkg-color"))
-                    .frame(height: 1)
+                serviceButton("상품후기", .goodsReview) {
+                    withAnimation(.spring()) {
+                        service = .goodsReview
+                    }
+                }
+                
+                Spacer()
+                
+                serviceButton("문의하기", .contactUs) {
+                    withAnimation(.spring()) {
+                        service = .contactUs
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.horizontal)
+            .padding(.top, 10)
+            .background {
+                VStack {
+                    Spacer()
+                    
+                    Rectangle()
+                        .foregroundColor(Color("shape-bkg-color"))
+                        .frame(height: 1)
+                }
             }
         }
-        
-        switch service {
-            case .goodsInformation:
-                goodsInformationPage()
-            case .goodsReview:
-                goodReviewPage()
-            case .contactUs:
-                contactUsPage()
-        }
+        .background(.white)
     }
     
     @ViewBuilder
@@ -312,7 +308,7 @@ struct GoodsDetailView: View {
             VStack {
                 Text(title)
                     .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .fontWeight(isSelected ? .bold : .light)
                     .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
                     .padding(.horizontal, 0)
                 
@@ -320,13 +316,12 @@ struct GoodsDetailView: View {
                     .foregroundColor(.clear)
                     .frame(width: 0, height: 3)
             }
-            .background {
-                VStack {
-                    Spacer()
-                    
+            .overlay(alignment: .bottom) {
+                if isSelected {
                     Rectangle()
-                        .foregroundColor(isSelected ? Color("main-highlight-color") : .clear)
+                        .foregroundColor(Color("main-highlight-color"))
                         .frame(height: 3)
+                        .matchedGeometryEffect(id: "선택", in: heroEffect)
                 }
             }
         }
@@ -334,38 +329,51 @@ struct GoodsDetailView: View {
     
     @ViewBuilder
     func goodsInformationPage() -> some View {
-        LazyVStack {
-            ForEach(goodsViewModel.goodsDetail.goodsInfos, id: \.infoURL) { info in
-                AsyncImage(url: URL(string: info.infoURL.trimmingCharacters(in: CharacterSet(charactersIn: "/images/info/")))) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                    
-                } placeholder: {
-                    ZStack {
-                        Image("sample-image1")
+        LazyVStack(pinnedViews: [.sectionHeaders]) {
+            Section {
+                ForEach(goodsViewModel.goodsDetail.goodsInfos, id: \.infoURL) { info in
+                    AsyncImage(url: URL(string: info.infoURL.replacingOccurrences(of: "/images/info/", with: ""))) { image in
+                        image
                             .resizable()
                             .scaledToFit()
-                            .redacted(reason: .placeholder)
-                        ProgressView()
-                            .tint(Color("main-highlight-color"))
+                        
+                    } placeholder: {
+                        ZStack {
+                            Color("shape-bkg-color")
+                            
+                            ProgressView()
+                                .tint(Color("main-highlight-color"))
+                        }
                     }
                 }
-                    .onAppear() {
-                        print(URL(string: info.infoURL.trimmingCharacters(in: CharacterSet(charactersIn: "/images/info/"))))
-                    }
+            } header: {
+                goodsInformationView()
             }
         }
     }
     
     @ViewBuilder
     func goodReviewPage() -> some View {
-        
+        LazyVStack(pinnedViews: [.sectionHeaders]) {
+            Section {
+                
+            } header: {
+                goodsInformationView()
+            }
+            
+        }
     }
     
     @ViewBuilder
     func contactUsPage() -> some View {
-        
+        LazyVStack(pinnedViews: [.sectionHeaders]) {
+            Section {
+                
+            } header: {
+                goodsInformationView()
+            }
+            
+        }
     }
 }
 

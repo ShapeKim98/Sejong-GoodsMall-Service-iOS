@@ -132,35 +132,35 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     categotyButton("전체 상품", .allProduct) {
-                        withAnimation {
+                        withAnimation(.spring()) {
                             category = .allProduct
                             goodsViewModel.fetchGoodsList()
                         }
                     }
                     
                     categotyButton("문구", .office) {
-                        withAnimation {
+                        withAnimation(.spring()) {
                             category = .office
                             goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
                     }
                     
                     categotyButton("의류", .clothing) {
-                        withAnimation {
+                        withAnimation(.spring()) {
                             category = .clothing
                             goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
                     }
                     
                     categotyButton("뱃지&키링", .badgeAndKeyring) {
-                        withAnimation {
+                        withAnimation(.spring()) {
                             category = .badgeAndKeyring
                             goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
                     }
                     
                     categotyButton("선물용", .forGift) {
-                        withAnimation {
+                        withAnimation(.spring()) {
                             category = .forGift
 //                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
                         }
@@ -185,17 +185,20 @@ struct HomeView: View {
         let isSelected = category == seleted
         
         Button(action: action) {
-            VStack {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(isSelected ? .bold : nil)
-                    .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
-                
-                Rectangle()
-                    .foregroundColor(isSelected ? Color("main-highlight-color") : .clear)
-                    .frame(height: 3)
-            }
-            .padding(.horizontal)
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(isSelected ? .bold : nil)
+                .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
+                .padding(.bottom)
+                .overlay(alignment: .bottom) {
+                    if isSelected {
+                        Rectangle()
+                            .foregroundColor(Color("main-highlight-color"))
+                            .frame(height: 3)
+                            .matchedGeometryEffect(id: "선택", in: heroEffect)
+                    }
+                }
+                .padding(.horizontal)
         }
     }
     
@@ -205,7 +208,6 @@ struct HomeView: View {
             LazyVGrid(columns: columns) {
                 ForEach(goodsViewModel.goodsList) { item in
                     subGoodsView(item)
-                        .coordinateSpace(name: "goods-list")
                 }
                 .redacted(reason: goodsViewModel.isLoading ? .placeholder : [])
             }
@@ -226,6 +228,7 @@ struct HomeView: View {
                 .navigationTitle("상품 정보")
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
+                .redacted(reason: goodsViewModel.isLoading ? .placeholder : [])
         } label: {
             VStack {
                 HStack(alignment: .top) {
@@ -235,21 +238,17 @@ struct HomeView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .frame(width: 130, height: 130)
-                                .shadow(radius: 1)
                         } placeholder: {
                             ZStack {
-                                Image("sample-image1")
-                                    .resizable()
-                                    .scaledToFit()
+                                Color("shape-bkg-color")
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    .frame(width: 130, height: 130)
-                                    .shadow(radius: 1)
-                                    .redacted(reason: .placeholder)
+                                
                                 ProgressView()
                                     .tint(Color("main-highlight-color"))
                             }
                         }
+                        .frame(width: 130, height: 130)
+                        .shadow(radius: 1)
                     }
                     
                     VStack(alignment: .leading, spacing: 10) {
@@ -268,11 +267,6 @@ struct HomeView: View {
                                         .font(.caption)
                                         .foregroundColor(Color("secondary-text-color"))
                                 }
-                                //                                ForEach(goods.description, id: \.hashValue) {
-                                //                                    Text($0)
-                                //                                        .font(.system(size: 10))
-                                //                                        .foregroundColor(Color("secondary-text-color"))
-                                //                                }
                             }
                         }
                         
