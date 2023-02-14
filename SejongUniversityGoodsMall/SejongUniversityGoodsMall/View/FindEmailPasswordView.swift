@@ -213,7 +213,7 @@ struct FindEmailPasswordView: View {
             .disabled(userName == "" || userBirthdayString == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor((userName != "" && userBirthdayString != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                    .foregroundColor((userName != "" && userBirthdayString != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
             
@@ -426,7 +426,7 @@ struct FindEmailPasswordView: View {
             .disabled(userName == "" || email == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor((userName != "" && email != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                    .foregroundColor((userName != "" && email != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
         }
@@ -498,7 +498,7 @@ struct FindEmailPasswordView: View {
             .disabled(verifyCode == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor(verifyCode != "" && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                    .foregroundColor(verifyCode != "" && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
         }
@@ -616,7 +616,7 @@ struct FindEmailPasswordView: View {
             .disabled(password == "" || verifyPassword == "" || !isSamePassword)
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor((password != "" && verifyPassword != "" && isSamePassword) && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                    .foregroundColor((password != "" && verifyPassword != "" && isSamePassword) && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
         }

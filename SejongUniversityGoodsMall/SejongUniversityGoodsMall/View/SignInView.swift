@@ -74,7 +74,7 @@ struct SignInView: View {
             .disabled(email == "" || password == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor((email != "" && password != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                    .foregroundColor((email != "" && password != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
         }

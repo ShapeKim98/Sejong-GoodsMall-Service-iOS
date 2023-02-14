@@ -16,6 +16,7 @@
 		C5324CA429794AD30034C710 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA329794AD30034C710 /* Assets.xcassets */; };
 		C5324CA729794AD30034C710 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA629794AD30034C710 /* Preview Assets.xcassets */; };
 		C53D7A282991518E00F4DB67 /* CartGoodsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53D7A272991518E00F4DB67 /* CartGoodsResponse.swift */; };
+		C5515ECB299BD1CF00A3B850 /* MessageBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */; };
 		C5534D2F29892EF6006DBE09 /* FindEmailPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */; };
 		C5534D312989409D006DBE09 /* DatePickerSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D302989409D006DBE09 /* DatePickerSheetView.swift */; };
 		C592F3162998EBEC003CF15E /* AddingCartModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F3152998EBEC003CF15E /* AddingCartModifier.swift */; };
@@ -59,6 +60,7 @@
 		C5324CA329794AD30034C710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C5324CA629794AD30034C710 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C53D7A272991518E00F4DB67 /* CartGoodsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartGoodsResponse.swift; sourceTree = "<group>"; };
+		C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBoxView.swift; sourceTree = "<group>"; };
 		C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailPasswordView.swift; sourceTree = "<group>"; };
 		C5534D302989409D006DBE09 /* DatePickerSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerSheetView.swift; sourceTree = "<group>"; };
 		C592F3152998EBEC003CF15E /* AddingCartModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddingCartModifier.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 				C5534D302989409D006DBE09 /* DatePickerSheetView.swift */,
 				C592F317299A2857003CF15E /* CartView.swift */,
 				C592F31B299B4D17003CF15E /* UserInformationView.swift */,
+				C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */,
 				C592F31D299B51E2003CF15E /* WishListView.swift */,
 			);
 			path = View;
@@ -292,6 +295,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5515ECB299BD1CF00A3B850 /* MessageBoxView.swift in Sources */,
 				C5C5402A2997BC4E00EF9AEC /* CartGoodsRequest.swift in Sources */,
 				C5C73AEE2986542B00D42719 /* Goods.swift in Sources */,
 				C5534D2F29892EF6006DBE09 /* FindEmailPasswordView.swift in Sources */,

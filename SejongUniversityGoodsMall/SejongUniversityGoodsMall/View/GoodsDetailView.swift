@@ -176,7 +176,7 @@ struct GoodsDetailView: View {
                         .scaledToFit()
                 } placeholder: {
                     ZStack {
-                        Color("shape-bkg-color")
+                        Color("main-shape-bkg-color")
                         
                         ProgressView()
                             .tint(Color("main-highlight-color"))
@@ -345,7 +345,7 @@ struct GoodsDetailView: View {
                         
                     } placeholder: {
                         ZStack {
-                            Color("shape-bkg-color")
+                            Color("main-shape-bkg-color")
                             
                             ProgressView()
                                 .tint(Color("main-highlight-color"))

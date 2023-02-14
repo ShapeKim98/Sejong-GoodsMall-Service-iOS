@@ -390,7 +390,7 @@ struct SignUpView: View {
         }
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .foregroundColor((agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                .foregroundColor((agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
         }
         .disabled((!(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirthdayString != "")) || loginViewModel.isLoading)
         .padding()

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct UserInformationView: View {
+    @State private var showMessageBox: Bool = false
+    
     var body: some View {
         VStack {
             wishListButton()
@@ -22,6 +24,16 @@ struct UserInformationView: View {
             Spacer()
         }
         .background(.white)
+        .overlay {
+            if showMessageBox {
+                MessageBoxView(showMessageBox: $showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                    
+                } secondaryButtonAction: {
+                    
+                }
+                .transition(.move(edge: .bottom))
+            }
+        }
     }
     
     @ViewBuilder
@@ -35,7 +47,8 @@ struct UserInformationView: View {
             } label: {
                 Text("💖 찜한 상품 보러가기")
                     .foregroundColor(Color("main-text-color"))
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.vertical, 25)
             }
             
             Spacer()
@@ -53,18 +66,20 @@ struct UserInformationView: View {
             HStack {
                 Text("계정")
                     .font(.headline)
-                    .padding(.vertical)
+                    .padding(.top, 25)
                 
                 Spacer()
             }
             
-            NavigationLink {
-                
+            Button {
+                withAnimation(.spring()) {
+                    showMessageBox = true
+                }
             } label: {
                 HStack {
                     Text("내 정보 변경")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
                     
                     Spacer()
                 }
@@ -76,7 +91,7 @@ struct UserInformationView: View {
                 HStack {
                     Text("주문 내역")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
                     
                     Spacer()
                 }
@@ -88,7 +103,7 @@ struct UserInformationView: View {
                 HStack {
                     Text("로그아웃")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
                     
                     Spacer()
                 }
@@ -100,7 +115,8 @@ struct UserInformationView: View {
                 HStack {
                     Text("회원탈퇴")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
+                        .padding(.bottom, 25)
                     
                     Spacer()
                 }
@@ -117,10 +133,9 @@ struct UserInformationView: View {
     func helpArea() -> some View {
         VStack {
             HStack {
-                Text("계정")
+                Text("도움말")
                     .font(.headline)
-                    .foregroundColor(Color("main-text-color"))
-                    .padding(.vertical)
+                    .padding(.top, 25)
                 
                 Spacer()
             }
@@ -129,9 +144,9 @@ struct UserInformationView: View {
                 
             } label: {
                 HStack {
-                    Text("내 정보 변경")
+                    Text("공지사항")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
                     
                     Spacer()
                 }
@@ -141,9 +156,9 @@ struct UserInformationView: View {
                 
             } label: {
                 HStack {
-                    Text("주문 내역")
+                    Text("고객센터")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
                     
                     Spacer()
                 }
@@ -153,9 +168,9 @@ struct UserInformationView: View {
                 
             } label: {
                 HStack {
-                    Text("로그아웃")
+                    Text("개인정보 처리 방침")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
                     
                     Spacer()
                 }
@@ -165,9 +180,10 @@ struct UserInformationView: View {
                 
             } label: {
                 HStack {
-                    Text("회원탈퇴")
+                    Text("이용약관 확인")
                         .foregroundColor(Color("main-text-color"))
-                        .padding(.bottom)
+                        .padding(.top)
+                        .padding(.bottom, 25)
                     
                     Spacer()
                 }

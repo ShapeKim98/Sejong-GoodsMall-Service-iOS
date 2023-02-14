@@ -56,7 +56,7 @@ struct WishListView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         } placeholder: {
                             ZStack {
-                                Color("shape-bkg-color")
+                                Color("main-shape-bkg-color")
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                                 
                                 ProgressView()

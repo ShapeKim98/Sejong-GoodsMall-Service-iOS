@@ -48,7 +48,7 @@ struct CartView: View {
                 }
                 .background {
                     RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(selectedGoodsPrice != 0 && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                        .foregroundColor(selectedGoodsPrice != 0 && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                 }
             }
             .disabled(selectedGoodsPrice == 0 || loginViewModel.isLoading)
@@ -94,7 +94,7 @@ struct CartView: View {
                     Label("선택", systemImage: "checkmark.circle.fill")
                         .font(.title2)
                         .labelStyle(.iconOnly)
-                        .foregroundColor(seletedCount > 0 ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                        .foregroundColor(seletedCount > 0 ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                     
                     HStack(spacing: 0) {
                         Text("전체 ")
@@ -174,7 +174,7 @@ struct CartView: View {
                         Label("선택", systemImage: "checkmark.circle.fill")
                             .font(.title2)
                             .labelStyle(.iconOnly)
-                            .foregroundColor(goodsSelections[goods.id] ?? false ? Color("main-highlight-color") : Color("shape-bkg-color"))
+                            .foregroundColor(goodsSelections[goods.id] ?? false ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                     }
                     
                     AsyncImage(url: URL(string: goods.repImage?.oriImgName ?? "")) { image in
@@ -184,7 +184,7 @@ struct CartView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     } placeholder: {
                         ZStack {
-                            Color("shape-bkg-color")
+                            Color("main-shape-bkg-color")
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                             
                             ProgressView()
