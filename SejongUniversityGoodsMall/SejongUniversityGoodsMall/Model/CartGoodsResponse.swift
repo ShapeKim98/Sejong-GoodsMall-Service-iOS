@@ -11,7 +11,7 @@ struct CartGoodsResponse: Codable {
     let id, memberID, goodsID: Int
     var quantity: Int
     let color, size: String?
-    let price: Int?
+    var price: Int
     let title: String?
     let repImage: RepImage?
 

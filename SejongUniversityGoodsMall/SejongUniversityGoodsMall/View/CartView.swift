@@ -66,7 +66,7 @@ struct CartView: View {
                 }
                 
                 goodsViewModel.cart.forEach { goods in
-                    selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? ((goods.price ?? 0) * goods.quantity) : 0
+                    selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? goods.price : 0
                 }
             }
         }
@@ -122,6 +122,7 @@ struct CartView: View {
                     }
                     
                     goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
+                    goodsSelections.removeAll()
                 }
             } label: {
                 Text("선택 삭제")
@@ -236,7 +237,7 @@ struct CartView: View {
                                     goodsViewModel.subtractCart(color: goods.color, size: goods.size)
                                     selectedGoodsPrice = 0
                                     goodsViewModel.cart.forEach { goods in
-                                        selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? ((goods.price ?? 0) * goods.quantity) : 0
+                                        selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? goods.price : 0
                                     }
                                 }
                             } label: {
@@ -258,7 +259,7 @@ struct CartView: View {
                                     goodsViewModel.addCart(color: goods.color, size: goods.size)
                                     selectedGoodsPrice = 0
                                     goodsViewModel.cart.forEach { goods in
-                                        selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? ((goods.price ?? 0) * goods.quantity) : 0
+                                        selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? goods.price : 0
                                     }
                                 }
                             } label: {
@@ -272,7 +273,7 @@ struct CartView: View {
                             
                             Spacer()
                             
-                            Text("\((goods.price ?? 0) * goods.quantity)원")
+                            Text("\(goods.price)원")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(Color("main-text-color"))
@@ -280,9 +281,7 @@ struct CartView: View {
                     }
                     .padding(.top, 5)
                     .padding(.horizontal, 5)
-                    .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
-                    
-                    
+                    .redacted(reason: goodsViewModel.isCartGoodsListLoading ? .placeholder : [])
                 }
                 .padding(.vertical)
                 

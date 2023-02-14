@@ -469,6 +469,7 @@ class GoodsViewModel: ObservableObject {
     
     func addCart(color: String?, size: String?) {
         if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
+            cart[index].price += (cart[index].price / cart[index].quantity)
             cart[index].quantity += 1
         } else {
             message = "장바구니에 없는 상품입니다."
@@ -477,6 +478,7 @@ class GoodsViewModel: ObservableObject {
     
     func subtractCart(color: String?, size: String?) {
         if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
+            cart[index].price -= (cart[index].price / cart[index].quantity)
             cart[index].quantity -= 1
         } else {
             message = "장바구니에 없는 상품입니다."
