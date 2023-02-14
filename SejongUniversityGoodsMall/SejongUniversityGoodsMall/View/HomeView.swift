@@ -8,21 +8,14 @@
 import SwiftUI
 
 struct HomeView: View {
-    enum Category: Int {
-        case allProduct = 0
-        case clothing = 1
-        case office = 2
-        case badgeAndKeyring = 3
-        case forGift = 4
-    }
-    
     @Namespace var heroEffect
+    
+    @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
-    @State var selectedGoods: Goods?
     @State private var searchText: String = ""
     @State private var isSearching: Bool = false
-    @State private var category: Category = .allProduct
+    @State private var currentCategory: Category = Category(id: 0, name: "ALLPRODUCT")
     
     @FocusState private var searchingFocused: Bool
     
@@ -105,16 +98,26 @@ struct HomeView: View {
                 }
             }
             
-            Button {
-                
+            NavigationLink {
+                CartView()
+                    .onAppear(){
+                        goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
+                    }
+                    .navigationTitle("장바구니")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .modifier(NavigationColorModifier())
+                    .redacted(reason: goodsViewModel.isCartGoodsListLoading ? .placeholder : [])
             } label: {
                 Label("장바구니", systemImage: "cart")
                     .font(.title)
                     .labelStyle(.iconOnly)
             }
             
-            Button {
-                
+            NavigationLink {
+                UserInformationView()
+                    .navigationTitle("내 정보")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .modifier(NavigationColorModifier())
             } label: {
                 Label("내정보", systemImage: "person")
                     .font(.title)
@@ -131,39 +134,19 @@ struct HomeView: View {
         VStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    categotyButton("전체 상품", .allProduct) {
-                        withAnimation(.spring()) {
-                            category = .allProduct
-                            goodsViewModel.fetchGoodsList()
+                    ForEach(goodsViewModel.categoryList) { category in
+                        categotyButton(category.categoryName, category: category) {
+                            if category.id == 0, category.name == "ALLPRODUCT" {
+                                goodsViewModel.fetchGoodsList()
+                            } else {
+                                goodsViewModel.fetchGoodsListFromCatefory(id: category.id)
+                            }
+                            
+                            withAnimation(.spring()) {
+                                currentCategory = category
+                            }
                         }
-                    }
-                    
-                    categotyButton("문구", .office) {
-                        withAnimation(.spring()) {
-                            category = .office
-                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
-                        }
-                    }
-                    
-                    categotyButton("의류", .clothing) {
-                        withAnimation(.spring()) {
-                            category = .clothing
-                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
-                        }
-                    }
-                    
-                    categotyButton("뱃지&키링", .badgeAndKeyring) {
-                        withAnimation(.spring()) {
-                            category = .badgeAndKeyring
-                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
-                        }
-                    }
-                    
-                    categotyButton("선물용", .forGift) {
-                        withAnimation(.spring()) {
-                            category = .forGift
-//                            goodsViewModel.fetchGoodsListFromCatefory(id: category.rawValue)
-                        }
+                        .redacted(reason: goodsViewModel.isCategoryLoading ? .placeholder : [])
                     }
                 }
                 .padding(.horizontal)
@@ -181,8 +164,8 @@ struct HomeView: View {
     }
     
     @ViewBuilder
-    func categotyButton(_ title: String, _ seleted: Category, _ action: @escaping () -> Void) -> some View {
-        let isSelected = category == seleted
+    func categotyButton(_ title: String, category: Category, _ action: @escaping () -> Void) -> some View {
+        let isSelected = (category.id == currentCategory.id && category.name == currentCategory.name)
         
         Button(action: action) {
             Text(title)
@@ -209,12 +192,17 @@ struct HomeView: View {
                 ForEach(goodsViewModel.goodsList) { item in
                     subGoodsView(item)
                 }
-                .redacted(reason: goodsViewModel.isLoading ? .placeholder : [])
+                .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
             }
             .padding(.top)
         }
         .refreshable {
-            goodsViewModel.fetchGoodsList()
+            if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
+                goodsViewModel.fetchGoodsList()
+            } else {
+                goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+            }
+            goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
         }
     }
     
@@ -228,7 +216,7 @@ struct HomeView: View {
                 .navigationTitle("상품 정보")
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
-                .redacted(reason: goodsViewModel.isLoading ? .placeholder : [])
+                .redacted(reason: goodsViewModel.isGoodsDetailLoading ? .placeholder : [])
         } label: {
             VStack {
                 HStack(alignment: .top) {
@@ -247,7 +235,7 @@ struct HomeView: View {
                                     .tint(Color("main-highlight-color"))
                             }
                         }
-                        .frame(width: 130, height: 130)
+                        .frame(width: 115, height: 115)
                         .shadow(radius: 1)
                     }
                     
@@ -287,9 +275,6 @@ struct HomeView: View {
                     .padding(.vertical, 5)
             }
         }
-        .simultaneousGesture(TapGesture().onEnded({
-            selectedGoods = goods
-        }))
         .padding(.horizontal)
     }
     
@@ -423,6 +408,7 @@ struct HomeView: View {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
+            .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }
 }

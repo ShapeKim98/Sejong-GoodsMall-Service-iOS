@@ -225,4 +225,8 @@ class LoginViewModel: ObservableObject {
         }
         .store(in: &subscriptions)
     }
+    
+    func returnToken() -> String {
+        return self.token
+    }
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PurchaseBarView: View {
+    @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var showOptionSheet: Bool
@@ -37,9 +38,8 @@ struct PurchaseBarView: View {
         HStack(spacing: 20) {
             if showOptionSheet {
                 Button {
-                    withAnimation(.spring()) {
-                        
-                    }
+                    goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                    goodsViewModel.cartRequest.removeAll()
                 } label: {
                     HStack {
                         Spacer()
@@ -108,5 +108,6 @@ struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
         PurchaseBarView(showOptionSheet: .constant(false))
             .environmentObject(GoodsViewModel())
+            .environmentObject(LoginViewModel())
     }
 }

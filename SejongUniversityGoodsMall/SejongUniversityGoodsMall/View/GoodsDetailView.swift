@@ -68,60 +68,66 @@ struct GoodsDetailView: View {
                         }
                     }
                 }
-                
-                if showOptionSheet {
-                    VStack {
-                        Spacer()
-                        
-                        OptionSheetView(isOptionSelected: $isOptionSelected)
-                            .frame(width: reader.size.width, height: reader.size.height - reader.size.width + 5)
-                    }
-                    .coordinateSpace(name: "Contents")
-                    .transition(.move(edge: .bottom))
-                    .offset(y: optionSheetDrag)
-                    .gesture(
-                        DragGesture()
-                            .onChanged({ drag in
-                                optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
-                            })
-                            .onEnded({ drag in
-                                withAnimation(.spring()) {
-                                    if optionSheetDrag > 100 {
-                                        optionSheetDrag = .zero
-                                        showOptionSheet = false
-                                        isOptionSelected = false
-                                    } else {
-                                        optionSheetDrag = .zero
-                                    }
-                                }
-                            })
-                    )
-                }
-                
-                if !isOptionSelected {
-                    VStack {
-                        Spacer()
-                        
-                        PurchaseBarView(showOptionSheet: $showOptionSheet)
-                            .frame(height: 53)
-                    }
-                }
             }
             .navigationBarBackButtonHidden(isExtendedImage)
             .onDisappear() {
-                goodsViewModel.goodsDetail = Goods(id: 0, categoryID: nil, title: "loading...", color: nil, size: nil, price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
+                goodsViewModel.goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
+                goodsViewModel.cartRequest.removeAll()
             }
-            .overlay {
-                if isExtendedImage {
-                    ZStack {
-                        Color(.black)
-                            .opacity(1.0 - (extendedImageOffset / 500))
+            .overlay(alignment: .bottom) {
+                ZStack(alignment: .bottom) {
+                    if showOptionSheet {
+                        VStack(spacing: 0) {
+                            LinearGradient(colors: [.black.opacity(0),
+                                                    .black.opacity(0.1),
+                                                    .black.opacity(0.2),
+                                                    .black.opacity(0.3)
+                            ], startPoint: .top, endPoint: .bottom)
+                            .frame(height: 5)
+                            .opacity(0.3)
+                            
+                            OptionSheetView(isOptionSelected: $isOptionSelected)
+                                .frame(minHeight: reader.size.height - reader.size.width + 5)
+                                .background(.white)
+                                .transition(.move(edge: .bottom))
+                        }
+                        .offset(y: optionSheetDrag)
+                        .gesture(
+                            DragGesture()
+                                .onChanged({ drag in
+                                    optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
+                                })
+                                .onEnded({ drag in
+                                    withAnimation(.spring()) {
+                                        if optionSheetDrag > 100 {
+                                            optionSheetDrag = .zero
+                                            showOptionSheet = false
+                                            isOptionSelected = false
+                                        } else {
+                                            optionSheetDrag = .zero
+                                        }
+                                    }
+                                })
+                        )
                         
-                        extendedImageView(width: reader.size.width)
-                            .matchedGeometryEffect(id: "이미지", in: heroEffect)
-                            .unredacted()
                     }
-                    .ignoresSafeArea()
+                    
+                    if !isOptionSelected {
+                        PurchaseBarView(showOptionSheet: $showOptionSheet)
+                    }
+                    
+                    
+                    if isExtendedImage {
+                        ZStack {
+                            Color(.black)
+                                .opacity(1.0 - (extendedImageOffset / 500))
+                            
+                            extendedImageView(width: reader.size.width)
+                                .matchedGeometryEffect(id: "이미지", in: heroEffect)
+                                .unredacted()
+                        }
+                        .ignoresSafeArea()
+                    }
                 }
             }
         }

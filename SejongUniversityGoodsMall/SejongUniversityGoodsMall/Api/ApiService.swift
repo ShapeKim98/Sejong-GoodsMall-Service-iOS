@@ -15,7 +15,11 @@ enum APIURL {
     case fetchFindEmail
     case fetchGoodsList
     case fetchGoodsDetail
+    case fetchCategory
     case fetchGoodsListFromCategory
+    case sendCartGoods
+    case fetchCartGoods
+    case deleteCartGoods
     
     func url(id: Int? = nil) -> URL? {
         switch self {
@@ -35,12 +39,28 @@ enum APIURL {
                 }
                 
                 return URL(string: "items/detail/\(id)", relativeTo: APIURL.server.url())
+            case .fetchCategory:
+                return URL(string: "categories/all", relativeTo: APIURL.server.url())
             case .fetchGoodsListFromCategory:
                 guard let id = id else {
                     return nil
                 }
                 
                 return URL(string: "items?categoryId=\(id)", relativeTo: APIURL.server.url())
+            case .sendCartGoods:
+                guard let id = id else {
+                    return nil
+                }
+                
+                return URL(string: "cart/\(id)", relativeTo: APIURL.server.url())
+            case .fetchCartGoods:
+                return URL(string: "cart/all", relativeTo: APIURL.server.url())
+            case .deleteCartGoods:
+                guard let id = id else {
+                    return nil
+                }
+                
+                return URL(string: "cart/delete/\(id)", relativeTo: APIURL.server.url())
         }
     }
 }
@@ -48,6 +68,7 @@ enum APIURL {
 enum ApiError: Error {
     case alreadyEmail
     case authenticationFailure
+    case alreadyCartGoods
     case invalidResponse(URLError)
     case jsonDecodeError
     case unknown(Error)
@@ -60,6 +81,8 @@ enum ApiError: Error {
                 return .alreadyEmail
             case ApiError.authenticationFailure:
                 return .authenticationFailure
+            case ApiError.alreadyCartGoods:
+                return .alreadyCartGoods
             case is DecodingError:
                 return .jsonDecodeError
             default:
@@ -212,6 +235,33 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
+    static func fetchCategory(token: String) -> AnyPublisher<CategoryList, ApiError> {
+        var request = URLRequest(url: APIURL.fetchCategory.url()!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ApiError.invalidResponse(URLError(.badURL))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    print(httpResponse.statusCode)
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: CategoryList.self, decoder: JSONDecoder())
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
     static func fetchGoodsListFromCategory(id: Int) -> AnyPublisher<GoodsList, ApiError> {
         let request = URLRequest(url: APIURL.fetchGoodsListFromCategory.url(id: id)!)
         
@@ -232,6 +282,93 @@ enum ApiService {
             return data
         }
         .decode(type: GoodsList.self, decoder: JSONDecoder())
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func sendCartGoods(goods: CartGoodsRequest, goodsID: Int, token: String) -> AnyPublisher<CartGoodsResponse, ApiError> {
+        let body = goods
+        
+        var request = URLRequest(url: APIURL.sendCartGoods.url(id: goodsID)!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw URLError(.badURL)
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: CartGoodsResponse.self, decoder: JSONDecoder())
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func fetchCartGoods(token: String) -> AnyPublisher<CartGoodsList, ApiError> {
+        var request = URLRequest(url: APIURL.fetchCartGoods.url()!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ApiError.invalidResponse(URLError(.badURL))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    print(httpResponse.statusCode)
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: CartGoodsList.self, decoder: JSONDecoder())
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func deleteCartGoods(id: Int, token: String) -> AnyPublisher<CartGoodsList, ApiError> {
+        var request = URLRequest(url: APIURL.deleteCartGoods.url(id: id)!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "DELETE"
+        print(request)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ApiError.invalidResponse(URLError(.badURL))
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    print(httpResponse.statusCode)
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: CartGoodsList.self, decoder: JSONDecoder())
         .mapError { error in
             ApiError.convert(error: error)
         }

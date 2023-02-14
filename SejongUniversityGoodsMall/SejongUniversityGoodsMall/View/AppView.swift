@@ -21,6 +21,7 @@ struct AppView: View {
             HomeView()
                 .onAppear() {
                     goodsViewModel.fetchGoodsList()
+                    goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
                 }
                 .onChange(of: loginViewModel.message, perform: { newValue in
                     if let msg = newValue {

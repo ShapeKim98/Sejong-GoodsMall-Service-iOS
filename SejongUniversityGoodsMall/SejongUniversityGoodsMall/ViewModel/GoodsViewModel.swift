@@ -11,18 +11,30 @@ import Combine
 class GoodsViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     
-    @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 1, categoryID: 0, title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 2, categoryID: 0, title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 3, categoryID: 0, title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
+    @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading..."),
+                                           Goods(id: 1, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading..."),
+                                           Goods(id: 2, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading..."),
+                                           Goods(id: 3, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading...")
     ]
-    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: nil, title: "loading...", color: nil, size: nil, price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
-    @Published var isLoading: Bool = true
+    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: nil, size: nil, price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
+    @Published var isGoodsListLoading: Bool = true
+    @Published var isGoodsDetailLoading: Bool = true
+    @Published var isCategoryLoading: Bool = true
+    @Published var isCartGoodsListLoading: Bool = true
     @Published var message: String?
-    @Published var cart: Cart = Cart()
+    @Published var cart: CartGoodsList = [CartGoodsResponse(id: 0, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading...")),
+                                          CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading...")),
+                                          CartGoodsResponse(id: 2, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."))
+    ]
+    @Published var cartRequest: CartRequest = CartRequest()
+    @Published var categoryList: CategoryList = [Category(id: 0, name: "loading..."),
+                                                 Category(id: 1, name: "loading..."),
+                                                 Category(id: 2, name: "loading..."),
+                                                 Category(id: 3, name: "loading...")
+    ]
     
     func fetchGoodsList() {
-        self.isLoading = true
+        self.isGoodsListLoading = true
         ApiService.fetchGoodsList().receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -36,9 +48,9 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(let error):
                             switch error.code {
                                 case .badServerResponse:
-                                        DispatchQueue.main.async {
-                                            self.message = "서버 응답 오류 \(error.errorCode)"
-                                        }
+                                    DispatchQueue.main.async {
+                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                    }
                                     print("서버 응답 오류")
                                     break
                                 case .badURL:
@@ -74,14 +86,74 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { goodsList in
             DispatchQueue.main.async {
                 self.goodsList = goodsList
-                self.isLoading = false
+                self.isGoodsListLoading = false
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func fetchCategory(token: String) {
+        self.isCategoryLoading = true
+        ApiService.fetchCategory(token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.message = "접근 권한 없음"
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(let error):
+                            switch error.code {
+                                case .badServerResponse:
+                                    DispatchQueue.main.async {
+                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                    }
+                                    print("서버 응답 오류")
+                                    break
+                                case .badURL:
+                                    DispatchQueue.main.async {
+                                        self.message = "잘못된 url"
+                                    }
+                                    print("잘못된 url")
+                                    break
+                                default:
+                                    DispatchQueue.main.async {
+                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                    }
+                                    print("알 수 없는 오류")
+                                    break
+                            }
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.message = "알 수 없는 오류 \(error)"
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("패치 성공")
+                    break
+            }
+        } receiveValue: { categoryList in
+            DispatchQueue.main.async {
+                self.categoryList = categoryList
+                self.categoryList.insert(Category(id: 0, name: "ALLPRODUCT"), at: 0)
+                self.isCategoryLoading = false
             }
         }
         .store(in: &subscriptions)
     }
     
     func fetchGoodsListFromCatefory(id: Int) {
-        self.isLoading = true
+        self.isGoodsListLoading = true
         ApiService.fetchGoodsListFromCategory(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -95,9 +167,9 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(let error):
                             switch error.code {
                                 case .badServerResponse:
-                                        DispatchQueue.main.async {
-                                            self.message = "서버 응답 오류 \(error.errorCode)"
-                                        }
+                                    DispatchQueue.main.async {
+                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                    }
                                     print("서버 응답 오류")
                                     break
                                 case .badURL:
@@ -133,14 +205,14 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { goodsList in
             DispatchQueue.main.async {
                 self.goodsList = goodsList
-                self.isLoading = false
+                self.isGoodsListLoading = false
             }
         }
         .store(in: &subscriptions)
     }
     
     func fetchGoodsDetail(id: Int) {
-        self.isLoading = true
+        self.isGoodsDetailLoading = true
         ApiService.fetchGoodsDetail(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -154,9 +226,9 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(let error):
                             switch error.code {
                                 case .badServerResponse:
-                                        DispatchQueue.main.async {
-                                            self.message = "서버 응답 오류 \(error.errorCode)"
-                                        }
+                                    DispatchQueue.main.async {
+                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                    }
                                     print("서버 응답 오류")
                                     break
                                 case .badURL:
@@ -192,35 +264,230 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { goodsDetail in
             DispatchQueue.main.async {
                 self.goodsDetail = goodsDetail
-                self.isLoading = false
+                self.isGoodsDetailLoading = false
             }
         }
         .store(in: &subscriptions)
     }
     
-    func addingCart(memberID: Int, seletedColor: String?, seletedSize: String?) {
-        let index = cart.firstIndex { cartGoods in
-            return cartGoods.size == seletedSize && cartGoods.color == seletedColor
-        }
-        
-        if let i = index {
-            cart[i].quantity += 1
-            cart[i].price += goodsDetail.price
-        } else {
-            cart.append(CartGoods(memberID: memberID, goodsID: goodsDetail.id, quantity: 1, color: seletedColor, size: seletedSize, price: goodsDetail.price))
+    func sendCartGoodsRequest(token: String) {
+        cartRequest.forEach { goods in
+            ApiService.sendCartGoods(goods: goods, goodsID: goodsDetail.id, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+                switch completion {
+                    case .failure(let error):
+                        switch error {
+                            case .alreadyCartGoods:
+                                DispatchQueue.main.async {
+                                    self.message = "이미 장바구니에 있습니다."
+                                }
+                                print("접근 권한 없음")
+                                break
+                            case .invalidResponse(let error):
+                                switch error.code {
+                                    case .badServerResponse:
+                                        DispatchQueue.main.async {
+                                            self.message = "서버 응답 오류 \(error.errorCode)"
+                                        }
+                                        print("서버 응답 오류")
+                                        break
+                                    case .badURL:
+                                        DispatchQueue.main.async {
+                                            self.message = "잘못된 url"
+                                        }
+                                        print("잘못된 url")
+                                        break
+                                    default:
+                                        DispatchQueue.main.async {
+                                            self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        }
+                                        print("알 수 없는 오류")
+                                        break
+                                }
+                            case .jsonDecodeError:
+                                DispatchQueue.main.async {
+                                    self.message = "데이터 디코딩 에러"
+                                }
+                                print("데이터 디코딩 에러")
+                                break
+                            default:
+                                DispatchQueue.main.async {
+                                    self.message = "알 수 없는 오류 \(error)"
+                                }
+                                print("알 수 없는 오류")
+                                break
+                        }
+                    case .finished:
+                        print("보내기 성공")
+                        break
+                }
+            } receiveValue: { goodsList in
+                DispatchQueue.main.async {
+                    
+                }
+            }
+            .store(in: &subscriptions)
         }
     }
     
-    func removeCart(seletedColor: String?, seletedSize: String?) {
-        let index = cart.firstIndex { cartGoods in
-            return cartGoods.size == seletedSize && cartGoods.color == seletedColor
-        }
-        
-        if let i = index {
-            cart[i].quantity -= 1
-            if cart[i].quantity == 0 {
-                cart.remove(at: i)
+    func fetchCartGoods(token: String) {
+        self.isCartGoodsListLoading = true
+        ApiService.fetchCartGoods(token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.message = "접근 권한 없음"
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(let error):
+                            switch error.code {
+                                case .badServerResponse:
+                                    DispatchQueue.main.async {
+                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                    }
+                                    print("서버 응답 오류")
+                                    break
+                                case .badURL:
+                                    DispatchQueue.main.async {
+                                        self.message = "잘못된 url"
+                                    }
+                                    print("잘못된 url")
+                                    break
+                                default:
+                                    DispatchQueue.main.async {
+                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                    }
+                                    print("알 수 없는 오류")
+                                    break
+                            }
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.message = "알 수 없는 오류 \(error)"
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("패치 성공")
+                    break
             }
+        } receiveValue: { cartGoodsList in
+            DispatchQueue.main.async {
+                self.cart = cartGoodsList
+                self.isCartGoodsListLoading = false
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func deleteCartGoods(id: Int, token: String) {
+        ApiService.deleteCartGoods(id: id, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.message = "접근 권한 없음"
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(let error):
+                            switch error.code {
+                                case .badServerResponse:
+                                    DispatchQueue.main.async {
+                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                    }
+                                    print("서버 응답 오류")
+                                    break
+                                case .badURL:
+                                    DispatchQueue.main.async {
+                                        self.message = "잘못된 url"
+                                    }
+                                    print("잘못된 url")
+                                    break
+                                default:
+                                    DispatchQueue.main.async {
+                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                    }
+                                    print("알 수 없는 오류")
+                                    break
+                            }
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.message = "알 수 없는 오류 \(error)"
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("삭제 성공")
+                    break
+            }
+        } receiveValue: { cartGoods in
+            let _ = cartGoods
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func addRequestCart(quantity: Int, seletedColor: String?, seletedSize: String?) {
+        if let index = cartRequest.firstIndex(where: {$0.color == seletedColor && $0.size == seletedSize}) {
+            cartRequest[index].quantity += quantity
+        } else {
+            cartRequest.append(CartGoodsRequest(quantity: quantity, color: seletedColor, size: seletedSize))
+        }
+    }
+    
+    func subtractRequestCart(seletedColor: String?, seletedSize: String?) {
+        if let index = cartRequest.firstIndex(where: {$0.color == seletedColor && $0.size == seletedSize}) {
+            cartRequest[index].quantity -= 1
+        } else {
+            message = "선택하지 않은 상품입니다."
+        }
+    }
+    
+    func removeRequestCart(seletedColor: String?, seletedSize: String?) {
+        if let index = cartRequest.firstIndex(where: {$0.color == seletedColor && $0.size == seletedSize}) {
+            cartRequest.remove(at: index)
+        } else {
+            message = "선택하지 않은 상품입니다."
+        }
+    }
+    
+    func addCart(color: String?, size: String?) {
+        if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
+            cart[index].quantity += 1
+        } else {
+            message = "장바구니에 없는 상품입니다."
+        }
+    }
+    
+    func subtractCart(color: String?, size: String?) {
+        if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
+            cart[index].quantity -= 1
+        } else {
+            message = "장바구니에 없는 상품입니다."
+        }
+    }
+    
+    func removeCart(color: String?, size: String?) {
+        if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
+            cart.remove(at: index)
+        } else {
+            message = "장바구니에 없는 상품입니다."
         }
     }
 }
