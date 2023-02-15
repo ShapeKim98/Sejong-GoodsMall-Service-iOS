@@ -288,7 +288,7 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func sendCartGoods(goods: CartGoodsRequest, goodsID: Int, token: String) -> AnyPublisher<CartGoodsResponse, ApiError> {
+    static func sendCartGoods(goods: CartGoodsRequest, goodsID: Int, token: String) -> AnyPublisher<Data, ApiError> {
         let body = goods
         
         var request = URLRequest(url: APIURL.sendCartGoods.url(id: goodsID)!)
@@ -312,7 +312,7 @@ enum ApiService {
             
             return data
         }
-        .decode(type: CartGoodsResponse.self, decoder: JSONDecoder())
+//        .decode(type: CartGoodsResponse.self, decoder: JSONDecoder())
         .mapError { error in
             ApiError.convert(error: error)
         }
@@ -351,12 +351,12 @@ enum ApiService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
         print(request)
-        
+
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw ApiError.invalidResponse(URLError(.badURL))
             }
-            
+
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
@@ -365,7 +365,7 @@ enum ApiService {
                     throw URLError(.badServerResponse)
                 }
             }
-            
+
             return data
         }
         .decode(type: CartGoodsList.self, decoder: JSONDecoder())

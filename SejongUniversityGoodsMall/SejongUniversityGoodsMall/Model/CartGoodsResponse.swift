@@ -12,8 +12,8 @@ struct CartGoodsResponse: Codable {
     var quantity: Int
     let color, size: String?
     var price: Int
-    let title: String?
-    let repImage: RepImage?
+    let title: String
+    let repImage: RepImage
 
     enum CodingKeys: String, CodingKey {
         case id

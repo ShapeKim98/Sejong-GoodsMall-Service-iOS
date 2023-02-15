@@ -115,14 +115,19 @@ struct CartView: View {
             
             Button {
                 withAnimation(.spring()) {
+                    goodsViewModel.isCartGoodsListLoading = true
+                    
                     goodsViewModel.cart.forEach { goods in
                         if let isSeleted = goodsSelections[goods.id], isSeleted {
                             goodsViewModel.deleteCartGoods(id: goods.id, token: loginViewModel.returnToken())
                         }
                     }
                     
-                    goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
                     goodsSelections.removeAll()
+                    
+                    goodsViewModel.isCartGoodsListLoading = false
+                    
+//                    goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
                 }
             } label: {
                 Text("선택 삭제")
@@ -178,7 +183,7 @@ struct CartView: View {
                             .foregroundColor(goodsSelections[goods.id] ?? false ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                     }
                     
-                    AsyncImage(url: URL(string: goods.repImage?.oriImgName ?? "")) { image in
+                    AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
                         image
                             .resizable()
                             .scaledToFit()
@@ -198,7 +203,7 @@ struct CartView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         VStack(alignment: .leading, spacing: 5) {
                             HStack {
-                                Text(goods.title ?? "")
+                                Text(goods.title)
                                     .foregroundColor(Color("main-text-color"))
                                     .font(.subheadline)
                                 
