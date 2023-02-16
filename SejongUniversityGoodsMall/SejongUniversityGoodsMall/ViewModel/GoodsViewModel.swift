@@ -13,10 +13,10 @@ class GoodsViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
 
     
-    @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 1, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 2, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 3, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [GoodsImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: .y)], goodsInfos: [], description: "loading...")
+    @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
+                                           Goods(id: 1, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
+                                           Goods(id: 2, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
+                                           Goods(id: 3, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
     ]
     @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: nil, size: nil, price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
     @Published var isGoodsListLoading: Bool = true
@@ -414,7 +414,7 @@ class GoodsViewModel: ObservableObject {
 //            self.isCartGoodsListLoading = true
 //        }
         
-        ApiService.deleteCartGoods(id: id, token: token).receive(on: DispatchQueue.main).sink { completion in
+        ApiService.deleteCartGoods(id: id, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             print(Thread.current)
             switch completion {
                 case .failure(let error):
@@ -464,11 +464,11 @@ class GoodsViewModel: ObservableObject {
                     break
             }
         } receiveValue: { cartGoods in
-//            DispatchQueue.main.async {
+            DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.cart = cartGoods
                 }
-//            }
+            }
         }
         .store(in: &subscriptions)
     }

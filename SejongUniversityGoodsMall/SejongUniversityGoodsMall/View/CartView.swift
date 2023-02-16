@@ -183,22 +183,29 @@ struct CartView: View {
                             .foregroundColor(goodsSelections[goods.id] ?? false ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                     }
                     
-                    AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
+                    if goodsViewModel.isCartGoodsListLoading {
+                        Color("main-shape-bkg-color")
+                            .frame(width: 100, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
-                    } placeholder: {
-                        ZStack {
-                            Color("main-shape-bkg-color")
+                            .shadow(radius: 1)
+                    } else {
+                        AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                            
-                            ProgressView()
-                                .tint(Color("main-highlight-color"))
+                        } placeholder: {
+                            ZStack {
+                                Color("main-shape-bkg-color")
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
+                                ProgressView()
+                                    .tint(Color("main-highlight-color"))
+                            }
                         }
+                        .frame(width: 100, height: 100)
+                        .shadow(radius: 1)
                     }
-                    .frame(width: 100, height: 100)
-                    .shadow(radius: 1)
                     
                     VStack(alignment: .leading, spacing: 10) {
                         VStack(alignment: .leading, spacing: 5) {

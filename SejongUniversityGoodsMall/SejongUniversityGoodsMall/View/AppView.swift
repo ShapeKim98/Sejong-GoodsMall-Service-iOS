@@ -10,6 +10,7 @@ import SwiftUI
 struct AppView: View {
     @Namespace var heroTransition
     
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
@@ -44,6 +45,12 @@ struct AppView: View {
                         }
                     }
                 }
+                .overlay {
+                    if appViewModel.showAlertView {
+                        Color(.black).opacity(0.4)
+                            .ignoresSafeArea()
+                    }
+                }
         } else {
             LoginView()
                 .onChange(of: loginViewModel.message, perform: { newValue in
@@ -57,6 +64,12 @@ struct AppView: View {
                         loginViewModel.message = nil
                     }
                 }
+                .overlay {
+                    if appViewModel.showAlertView {
+                        Color(.black).opacity(0.4)
+                            .ignoresSafeArea()
+                    }
+                }
         }
     }
 }
@@ -64,6 +77,8 @@ struct AppView: View {
 struct AppView_Previews: PreviewProvider {
     static var previews: some View {
         AppView()
+            .environmentObject(AppViewModel())
+            .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
     }
 }

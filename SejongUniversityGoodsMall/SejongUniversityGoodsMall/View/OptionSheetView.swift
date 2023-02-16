@@ -9,6 +9,7 @@ import SwiftUI
 
 struct OptionSheetView: View {
     enum OptionType: String {
+        case none = "상품"
         case color = "색상"
         case size = "사이즈"
     }
@@ -19,18 +20,33 @@ struct OptionSheetView: View {
     
     @Binding var isOptionSelected: Bool
     
-    @State var optionChevronDegree: Double = 180
-    @State var selectedGoods: Goods?
-    @State var message: String = ""
-    @State var showMessage: Bool = false
-    @State var selectedSize: String?
-    @State var extendSizeOptions: Bool = false
-    @State var selectedColor: String?
-    @State var extendColorOptions: Bool = false
-    @State var totalPrice: Int = 0
-    @State var totalCount: Int = 0
+    @State private var optionChevronDegree: Double = 180
+    @State private var showMessage: Bool = false
+    @State private var extendSizeOptions: Bool = false
+    @State private var extendColorOptions: Bool = false
+    @State private var noneOption: String?
+    @State private var extendNoneOption: Bool = false
+    @State private var seletedCartGoods: CartGoodsRequest = CartGoodsRequest(quantity: 0)
     
     var body: some View {
+        VStack(spacing: 0) {
+            LinearGradient(colors: [.black.opacity(0),
+                                    .black.opacity(0.1),
+                                    .black.opacity(0.2),
+                                    .black.opacity(0.3)
+            ], startPoint: .top, endPoint: .bottom)
+            .frame(height: 5)
+            .opacity(0.3)
+            
+            optionsAndSelection()
+        }
+        .onAppear() {
+            print(UIDevice.current.name)
+        }
+    }
+    
+    @ViewBuilder
+    func optionsAndSelection() -> some View {
         VStack(spacing: 0) {
             Image(systemName: "chevron.compact.down")
                 .font(.title2)
@@ -39,7 +55,7 @@ struct OptionSheetView: View {
             
             if !extendSizeOptions {
                 if let colorOptions = goodsViewModel.goodsDetail.color?.components(separatedBy: ", ") {
-                    optionSelectionList(options: colorOptions, selectedOptions: selectedColor, isExtended: extendColorOptions, optionType: .color) {
+                    optionSelectionList(options: colorOptions, selectedOptions: seletedCartGoods.color, isExtended: extendColorOptions, optionType: .color) {
                         withAnimation(.spring()) {
                             extendColorOptions.toggle()
                             isOptionSelected.toggle()
@@ -51,7 +67,7 @@ struct OptionSheetView: View {
             
             if !extendColorOptions {
                 if let sizeOptions = goodsViewModel.goodsDetail.size?.components(separatedBy: ", ") {
-                    optionSelectionList(options: sizeOptions, selectedOptions: selectedSize, isExtended: extendSizeOptions, optionType: .size) {
+                    optionSelectionList(options: sizeOptions, selectedOptions: seletedCartGoods.size, isExtended: extendSizeOptions, optionType: .size) {
                         withAnimation(.spring()) {
                             extendSizeOptions.toggle()
                             isOptionSelected.toggle()
@@ -61,59 +77,58 @@ struct OptionSheetView: View {
                 }
             }
             
-            if !extendSizeOptions && !extendColorOptions {
-                VStack(spacing: 0) {
-                    HStack {
-                        Text("상품 \(totalCount)개")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color("main-text-color"))
-                            .onChange(of: goodsViewModel.cartRequest) { newValue in
-                                totalCount = 0
-                                goodsViewModel.cartRequest.forEach { goods in
-                                    totalCount += goods.quantity
-                                }
-                            }
-                        
-                        Spacer()
-                        
-                        Text("\(totalPrice)원")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color("main-text-color"))
-                            .onChange(of: totalCount) { newValue in
-                                totalPrice = goodsViewModel.goodsDetail.price
-                                totalPrice *= totalCount
-                            }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 10)
-                    
-                    VStack {
-                        ForEach(goodsViewModel.cartRequest, id: \.hashValue) { goods in
-                            selectedGoodsOptions(goods: goods)
-                        }
-                        
-                        Spacer()
-                            .frame(maxHeight: goodsViewModel.cartRequest.count == 0 ? 100 : 70)
+            if goodsViewModel.goodsDetail.color == nil && goodsViewModel.goodsDetail.size == nil {
+                optionSelectionList(options: [goodsViewModel.goodsDetail.title], selectedOptions: noneOption, isExtended: extendNoneOption, optionType: .none) {
+                    withAnimation(.spring()) {
+                        extendNoneOption.toggle()
+                        isOptionSelected.toggle()
+                        optionChevronDegree = extendNoneOption ? 0 : 180
                     }
                 }
-                .background(Color("shape-bkg-color"))
             }
-        }
-        .overlay {
-            if showMessage {
-                alertMessageView()
-                    .onAppear() {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            withAnimation {
-                                showMessage = false
+            
+            Spacer()
+            
+            if !extendSizeOptions && !extendColorOptions && !extendNoneOption {
+                VStack(spacing: 0) {
+                    if goodsViewModel.goodsDetail.color != nil && goodsViewModel.goodsDetail.size != nil {
+                        if seletedCartGoods.color == nil {
+                            alertMessageView(message: "색상 옵션을 선택해 주세요")
+                        } else if seletedCartGoods.size == nil {
+                            alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                        } else {
+                            selectedGoodsOptions()
+                        }
+                    } else {
+                        if goodsViewModel.goodsDetail.color != nil {
+                            if seletedCartGoods.color == nil {
+                                alertMessageView(message: "색상 옵션을 선택해 주세요")
+                            } else {
+                                selectedGoodsOptions()
+                            }
+                        } else if goodsViewModel.goodsDetail.size != nil {
+                            if seletedCartGoods.size == nil {
+                                alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                            } else {
+                                selectedGoodsOptions()
+                            }
+                        } else {
+                            if seletedCartGoods.quantity < 1 {
+                                alertMessageView(message: "상품을 선택해 주세요")
+                            } else {
+                                selectedGoodsOptions()
                             }
                         }
                     }
+                    
+                    Spacer()
+                }
+                .background(Color("shape-bkg-color"))
+                .frame(height: 140)
+                
             }
         }
-        .modifier(AddingCartModifier(goods: $goodsViewModel.goodsDetail, selectedColor: $selectedColor, seletedSize: $selectedSize))
+        .background(.white)
     }
     
     @ViewBuilder
@@ -136,35 +151,45 @@ struct OptionSheetView: View {
                 }
                 .matchedGeometryEffect(id: "옵션\(optionType.rawValue)텍스트", in: optionTransition)
                 
-                VStack {
-                    ForEach(options, id: \.hashValue) { option in
-                        Button {
-                            withAnimation(.spring()) {
-                                if optionType == .size {
-                                    selectedSize = option
-                                    extendSizeOptions = false
-                                } else {
-                                    selectedColor = option
-                                    extendColorOptions = false
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(options, id: \.hashValue) { option in
+                            Button {
+                                withAnimation(.spring()) {
+                                    switch optionType {
+                                        case .color:
+                                            seletedCartGoods.color = option
+                                            extendColorOptions = false
+                                            break
+                                        case .size:
+                                            seletedCartGoods.size = option
+                                            extendSizeOptions = false
+                                            break
+                                        case .none:
+                                            seletedCartGoods.quantity = 1
+                                            extendNoneOption = false
+                                            break
+                                    }
+                                    
+                                    seletedCartGoods.quantity = 1
+                                    isOptionSelected = false
+                                    optionChevronDegree = 180
                                 }
-                                
-                                isOptionSelected = false
-                                optionChevronDegree = 180
-                            }
-                        } label: {
-                            HStack {
-                                Text(option)
-                                    .font(.system(size: 15))
-                                    .fontWeight(.bold)
-                                    .foregroundColor(Color("main-text-color"))
-                                
-                                Spacer()
-                            }
-                            .padding()
-                            .background(alignment: .top) {
-                                Rectangle()
-                                    .frame(height: 1)
-                                    .foregroundColor(Color("secondary-text-color"))
+                            } label: {
+                                HStack {
+                                    Text(option)
+                                        .font(.system(size: 15))
+                                        .fontWeight(.bold)
+                                        .foregroundColor(Color("main-text-color"))
+                                    
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(alignment: .top) {
+                                    Rectangle()
+                                        .frame(height: 1)
+                                        .foregroundColor(Color("secondary-text-color"))
+                                }
                             }
                         }
                     }
@@ -216,15 +241,19 @@ struct OptionSheetView: View {
     }
     
     @ViewBuilder
-    func selectedGoodsOptions(goods: CartGoodsRequest) -> some View {
+    func selectedGoodsOptions() -> some View {
             HStack {
                 Group {
-                    if let color = goods.color, let size = goods.size {
+                    if let color = seletedCartGoods.color, let size = seletedCartGoods.size {
                         Text("\(color), \(size)")
                             .font(.footnote)
                             .fontWeight(.light)
+                    } else if seletedCartGoods.color == nil, seletedCartGoods.size == nil {
+                        Text(goodsViewModel.goodsDetail.title)
+                            .font(.footnote)
+                            .fontWeight(.light)
                     } else {
-                        Text("\(goods.color ?? "")\(goods.size ?? "")")
+                        Text("\(seletedCartGoods.color ?? "")\(seletedCartGoods.size ?? "")")
                             .font(.footnote)
                             .fontWeight(.light)
                     }
@@ -234,25 +263,25 @@ struct OptionSheetView: View {
                 Spacer()
                 
                 Button {
-                    withAnimation(.spring()) {
-                        goodsViewModel.subtractRequestCart(seletedColor: goods.color, seletedSize: goods.size)
+                    withAnimation {
+                        seletedCartGoods.quantity -= 1
                     }
                 } label: {
                     Label("마이너스", systemImage: "minus")
                         .labelStyle(.iconOnly)
                         .font(.caption2)
                 }
-                .disabled(goods.quantity == 1)
+                .disabled(seletedCartGoods.quantity == 1)
                 .frame(minWidth: 21, minHeight: 21)
                 .background(Circle().fill(Color("shape-bkg-color")))
                 
-                Text("\(goods.quantity)")
+                Text("\(seletedCartGoods.quantity)")
                     .font(.footnote)
                     .fontWeight(.light)
                 
                 Button {
-                    withAnimation(.spring()) {
-                        goodsViewModel.addRequestCart(quantity: 1, seletedColor: goods.color, seletedSize: goods.size)
+                    withAnimation {
+                        seletedCartGoods.quantity += 1
                     }
                 } label: {
                     Label("플러스", systemImage: "plus")
@@ -267,7 +296,9 @@ struct OptionSheetView: View {
                 
                 Button {
                     withAnimation(.spring()) {
-                        goodsViewModel.removeRequestCart(seletedColor: goods.color, seletedSize: goods.size)
+                        seletedCartGoods.color = nil
+                        seletedCartGoods.size = nil
+                        seletedCartGoods.quantity = 0
                     }
                 } label: {
                     Label("삭제", systemImage: "xmark")
@@ -286,21 +317,27 @@ struct OptionSheetView: View {
                     }
             }
             .padding(.horizontal)
-            .padding(.bottom, 5)
+            .frame(height: 70)
         }
     
     @ViewBuilder
-    func alertMessageView() -> some View {
-        Text(message)
-            .font(.caption)
-            .fontWeight(.bold)
-            .foregroundColor(.white)
-            .padding(2)
-            .background {
-                Rectangle()
-                    .foregroundColor(Color("main-text-color"))
-            }
-            .padding()
+    func alertMessageView(message: String) -> some View {
+        HStack {
+            Spacer()
+            
+            Text(message)
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding(2)
+                .background {
+                    Rectangle()
+                        .foregroundColor(Color("main-text-color"))
+                }
+            
+            Spacer()
+        }
+        .frame(height: 70)
     }
 }
 

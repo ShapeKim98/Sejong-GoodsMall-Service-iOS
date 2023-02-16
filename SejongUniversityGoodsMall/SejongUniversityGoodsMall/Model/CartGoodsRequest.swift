@@ -7,10 +7,16 @@
 
 import Foundation
  
-struct CartGoodsRequest: Codable, Hashable {
+struct CartGoodsRequest: Codable {
     var quantity: Int
-    let color: String?
-    let size: String?
+    var color: String?
+    var size: String?
+    
+    init(quantity: Int, color: String? = nil, size: String? = nil) {
+        self.quantity = quantity
+        self.color = color
+        self.size = size
+    }
 }
 
 typealias CartRequest = [CartGoodsRequest]

@@ -9,12 +9,14 @@ import SwiftUI
 
 @main
 struct SejongUniversityGoodsMallApp: App {
+    @StateObject var appViewModel: AppViewModel = AppViewModel()
     @StateObject var goodsViewModel: GoodsViewModel = GoodsViewModel()
     @StateObject var loginViewModel: LoginViewModel = LoginViewModel()
     
     var body: some Scene {
         WindowGroup {
             AppView()
+                .environmentObject(appViewModel)
                 .environmentObject(goodsViewModel)
                 .environmentObject(loginViewModel)
                 .preferredColorScheme(.light)

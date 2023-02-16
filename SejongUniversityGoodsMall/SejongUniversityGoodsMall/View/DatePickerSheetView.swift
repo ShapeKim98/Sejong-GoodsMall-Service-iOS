@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct DatePickerSheetView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+    
     @Binding var userBirthday: Date
     @Binding var userBirthdayString: String
     @Binding var showDatePicker: Bool
-    
     
     let dateFormatter = DateFormatter()
     
@@ -30,6 +31,7 @@ struct DatePickerSheetView: View {
                 Button {
                     withAnimation(.spring()) {
                         showDatePicker = false
+                        appViewModel.showAlertView = false
                     }
                 } label: {
                     Text("취소")
@@ -43,6 +45,7 @@ struct DatePickerSheetView: View {
                     userBirthdayString = dateFormatter.string(from: userBirthday)
                     withAnimation(.spring()) {
                         showDatePicker = false
+                        appViewModel.showAlertView = false
                     }
                 } label: {
                     Text("확인")
@@ -70,5 +73,6 @@ struct DatePickerSheetView: View {
 struct DatePickerSheetView_Previews: PreviewProvider {
     static var previews: some View {
         DatePickerSheetView(userBirthday: .constant(.now), userBirthdayString: .constant(""), showDatePicker: .constant(true))
+            .environmentObject(AppViewModel())
     }
 }

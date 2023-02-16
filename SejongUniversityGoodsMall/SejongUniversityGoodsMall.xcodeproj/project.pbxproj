@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C5053705297C1E82003E808C /* PurchaseBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5053704297C1E82003E808C /* PurchaseBarView.swift */; };
+		C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5167BB5299E7324006C5B23 /* AppViewModel.swift */; };
 		C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */; };
 		C529B43D298BBC3700958B7D /* FocusedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43C298BBC3700958B7D /* FocusedTextField.swift */; };
 		C529B43F298BC48000958B7D /* TextFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43E298BC48000958B7D /* TextFieldModifier.swift */; };
@@ -51,6 +52,7 @@
 
 /* Begin PBXFileReference section */
 		C5053704297C1E82003E808C /* PurchaseBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseBarView.swift; sourceTree = "<group>"; };
+		C5167BB5299E7324006C5B23 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationColorModifier.swift; sourceTree = "<group>"; };
 		C529B43C298BBC3700958B7D /* FocusedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextField.swift; sourceTree = "<group>"; };
 		C529B43E298BC48000958B7D /* TextFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldModifier.swift; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 		C5C73AEB298653EC00D42719 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				C5167BB5299E7324006C5B23 /* AppViewModel.swift */,
 				C5C73AFB298676C600D42719 /* LoginViewModel.swift */,
 				C5C73AFD2986B07000D42719 /* GoodsViewModel.swift */,
 			);
@@ -324,6 +327,7 @@
 				C5C73B042987A11700D42719 /* SetNavigationBarColor.swift in Sources */,
 				C53D7A282991518E00F4DB67 /* CartGoodsResponse.swift in Sources */,
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
+				C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
 				C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */,
 				C5D32C7929794C4A00644BFD /* AppView.swift in Sources */,
@@ -465,6 +469,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SejongUniversityGoodsMall/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "세종이의 집";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -495,6 +500,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SejongUniversityGoodsMall/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "세종이의 집";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

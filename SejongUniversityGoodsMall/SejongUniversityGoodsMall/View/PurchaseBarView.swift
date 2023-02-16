@@ -27,6 +27,7 @@ struct PurchaseBarView: View {
             purchaseMode()
                 .padding(.vertical, 8)
                 .padding(.horizontal, 25)
+                .frame(height: 70)
                 .background(.white)
         }
         .background(.clear)

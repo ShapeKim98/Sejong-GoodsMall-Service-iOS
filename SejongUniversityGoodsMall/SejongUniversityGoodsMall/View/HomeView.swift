@@ -79,7 +79,7 @@ struct HomeView: View {
     @ViewBuilder
     func navigationBar() -> some View {
         HStack(spacing: 15) {
-            Text("앱 이름")
+            Text("세종이의 집")
                 .font(.title.bold())
             
             Spacer()
@@ -187,22 +187,42 @@ struct HomeView: View {
     
     @ViewBuilder
     func goodList() -> some View {
-        ScrollView {
-            LazyVGrid(columns: columns) {
-                ForEach(goodsViewModel.goodsList) { item in
-                    subGoodsView(item)
+        if #available(iOS 16.0, *) {
+            ScrollView {
+                LazyVGrid(columns: columns) {
+                    ForEach(goodsViewModel.goodsList) { item in
+                        subGoodsView(item)
+                    }
+                    .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
                 }
+                .padding(.top)
+            }
+            .refreshable {
+                if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
+                    goodsViewModel.fetchGoodsList()
+                } else {
+                    goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                }
+                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+            }
+        } else {
+            List(goodsViewModel.goodsList) { item in
+                subGoodsView(item)
                 .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
+                .listRowSeparatorTint(.clear)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .padding(.top)
             }
-            .padding(.top)
-        }
-        .refreshable {
-            if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
-                goodsViewModel.fetchGoodsList()
-            } else {
-                goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+            .listStyle(.plain)
+            .refreshable {
+                if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
+                    goodsViewModel.fetchGoodsList()
+                } else {
+                    goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                }
+                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
             }
-            goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
         }
     }
     
@@ -237,6 +257,11 @@ struct HomeView: View {
                         }
                         .frame(width: 115, height: 115)
                         .shadow(radius: 1)
+                    } else {
+                        Color("main-shape-bkg-color")
+                            .frame(width: 115, height: 115)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .shadow(radius: 1)
                     }
                     
                     VStack(alignment: .leading, spacing: 10) {

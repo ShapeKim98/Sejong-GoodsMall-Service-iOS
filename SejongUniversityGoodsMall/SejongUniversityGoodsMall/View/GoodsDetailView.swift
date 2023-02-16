@@ -26,50 +26,47 @@ struct GoodsDetailView: View {
     
     var body: some View {
         GeometryReader { reader in
-            ZStack(alignment: .top) {
-                ScrollView {
-                    VStack {
-                        VStack(spacing: 10) {
-                            if !isExtendedImage {
-                                imageView(height: reader.size.width)
-                                    .matchedGeometryEffect(id: "이미지", in: heroEffect)
-                                    .unredacted()
-                            } else {
-                                Color("shape-bkg-color")
-                                    .frame(width: reader.size.width, height: reader.size.width)
-                            }
-                            
-                            HStack(spacing: 0) {
-                                Text("\(imagePage) ")
-                                    .foregroundColor(Color("main-text-color"))
-                                Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
-                                    .foregroundColor(Color("secondary-text-color"))
-                                
-                                Spacer()
-                            }
-                            .font(.footnote)
-                            .padding(.horizontal)
-                            
-                            nameAndPriceView()
-                        }
-                        .padding(.bottom)
-                        
-                        Rectangle()
-                            .foregroundColor(Color("shape-bkg-color"))
-                            .frame(height: 10)
-                        
-                        switch service {
-                            case .goodsInformation:
-                                goodsInformationPage()
-                            case .goodsReview:
-                                goodReviewPage()
-                            case .contactUs:
-                                contactUsPage()
-                        }
+            ScrollView {
+                VStack(spacing: 10) {
+                    if goodsViewModel.isGoodsDetailLoading {
+                            Color("main-shape-bkg-color")
+                            .frame(width: reader.size.width, height: reader.size.height)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .shadow(radius: 1)
+                    } else {
+                        imageView(height: reader.size.width)
+                            .matchedGeometryEffect(id: "이미지", in: heroEffect)
+                            .unredacted()
                     }
+                    
+                    HStack(spacing: 0) {
+                        Text("\(imagePage) ")
+                            .foregroundColor(Color("main-text-color"))
+                        Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
+                            .foregroundColor(Color("secondary-text-color"))
+                        
+                        Spacer()
+                    }
+                    .font(.footnote)
+                    .padding(.horizontal)
+                    
+                    nameAndPriceView()
+                }
+                .padding(.bottom)
+                
+                Rectangle()
+                    .foregroundColor(Color("shape-bkg-color"))
+                    .frame(height: 10)
+                
+                switch service {
+                    case .goodsInformation:
+                        goodsInformationPage()
+                    case .goodsReview:
+                        goodReviewPage()
+                    case .contactUs:
+                        contactUsPage()
                 }
             }
-            .navigationBarBackButtonHidden(isExtendedImage)
             .onDisappear() {
                 goodsViewModel.goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
                 goodsViewModel.cartRequest.removeAll()
@@ -77,56 +74,42 @@ struct GoodsDetailView: View {
             .overlay(alignment: .bottom) {
                 ZStack(alignment: .bottom) {
                     if showOptionSheet {
-                        VStack(spacing: 0) {
-                            LinearGradient(colors: [.black.opacity(0),
-                                                    .black.opacity(0.1),
-                                                    .black.opacity(0.2),
-                                                    .black.opacity(0.3)
-                            ], startPoint: .top, endPoint: .bottom)
-                            .frame(height: 5)
-                            .opacity(0.3)
-                            
-                            OptionSheetView(isOptionSelected: $isOptionSelected)
-                                .frame(minHeight: reader.size.height - reader.size.width + 5)
-                                .background(.white)
-                                .transition(.move(edge: .bottom))
-                        }
-                        .offset(y: optionSheetDrag)
-                        .gesture(
-                            DragGesture()
-                                .onChanged({ drag in
-                                    optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
-                                })
-                                .onEnded({ drag in
-                                    withAnimation(.spring()) {
-                                        if optionSheetDrag > 100 {
-                                            optionSheetDrag = .zero
-                                            showOptionSheet = false
-                                            isOptionSelected = false
-                                        } else {
-                                            optionSheetDrag = .zero
+                        let isSmallDisplayDevice = UIDevice.current.name == "iPhone 6s" ||
+                        UIDevice.current.name == "iPhone 7" ||
+                        UIDevice.current.name == "iPhone 8" ||
+                        UIDevice.current.name == "iPhone SE" ||
+                        UIDevice.current.name == "iPhone SE (2nd generation)" ||
+                        UIDevice.current.name == "iPhone SE (3nd generation)"
+                        
+                        let isMediumDisplayDevice = UIDevice.current.name == "iPhone 6s Plus" || UIDevice.current.name == "iPhone 7 Plus" || UIDevice.current.name == "iPhone 8 Plus"
+                        
+                        OptionSheetView(isOptionSelected: $isOptionSelected)
+                            .frame(height: reader.size.height - (isSmallDisplayDevice ? 270 : (isMediumDisplayDevice ? 350 : reader.size.width)) + 5)
+                            .transition(.move(edge: .bottom))
+                            .offset(y: optionSheetDrag)
+                            .gesture(
+                                DragGesture()
+                                    .onChanged({ drag in
+                                        optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
+                                    })
+                                    .onEnded({ drag in
+                                        withAnimation(.spring()) {
+                                            if optionSheetDrag > 100 {
+                                                optionSheetDrag = .zero
+                                                showOptionSheet = false
+                                                isOptionSelected = false
+                                            } else {
+                                                optionSheetDrag = .zero
+                                            }
                                         }
-                                    }
-                                })
-                        )
+                                    })
+                            )
                         
                     }
                     
                     if !isOptionSelected {
                         PurchaseBarView(showOptionSheet: $showOptionSheet)
-                    }
-                    
-                    
-                    if isExtendedImage {
-                        ZStack {
-                            Color(.black)
-                                .opacity(1.0 - (extendedImageOffset / 500))
-                            
-                            extendedImageView(width: reader.size.width)
-                                .matchedGeometryEffect(id: "이미지", in: heroEffect)
-                                .unredacted()
-                        }
-                        .ignoresSafeArea()
+                            .transition(.move(edge: .bottom))
                     }
                 }
             }
@@ -152,94 +135,10 @@ struct GoodsDetailView: View {
                 }
                 .frame(width: height, height: height)
                 .tag(image.id - goodsViewModel.goodsDetail.id)
-                .onTapGesture {
-                    withAnimation(.spring()) {
-                        isExtendedImage = true
-                    }
-                }
             }
         }
         .frame(height: height)
         .tabViewStyle(.page(indexDisplayMode: .never))
-    }
-    
-    @State private var isExtendedImage: Bool = false
-    @State private var extendedImageOffset: CGFloat = .zero
-    
-    @ViewBuilder
-    func extendedImageView(width: CGFloat) -> some View {
-        TabView(selection: $imagePage) {
-            ForEach(goodsViewModel.goodsDetail.goodsImages, id: \.id) { image in
-                AsyncImage(url: URL(string: image.oriImgName)) { img in
-                    img
-                        .resizable()
-                        .scaledToFit()
-                } placeholder: {
-                    ZStack {
-                        Color("main-shape-bkg-color")
-                        
-                        ProgressView()
-                            .tint(Color("main-highlight-color"))
-                    }
-                }
-                .frame(width: width)
-                .tag(image.id - goodsViewModel.goodsDetail.id)
-            }
-            .overlay {
-                HStack {
-                    if imagePage != 1 {
-                        Button {
-                            withAnimation {
-                                imagePage -= 1
-                            }
-                        } label: {
-                            Label("이전페이지", systemImage: "chevron.compact.left")
-                                .font(.largeTitle.bold())
-                                .labelStyle(.iconOnly)
-                                .foregroundColor(Color("main-text-color").opacity(0.7))
-                                .padding()
-                        }
-                        .shadow(radius: 15)
-                        
-                    }
-                    
-                    Spacer()
-                    
-                    if imagePage != goodsViewModel.goodsDetail.goodsImages.count {
-                        Button {
-                            withAnimation {
-                                imagePage += 1
-                            }
-                        } label: {
-                            Label("다음페이지", systemImage: "chevron.compact.right")
-                                .font(.largeTitle.bold())
-                                .labelStyle(.iconOnly)
-                                .foregroundColor(Color("main-text-color").opacity(0.7))
-                                .padding()
-                        }
-                        .shadow(radius: 15)
-                    }
-                }
-            }
-            .opacity(1.0 - (extendedImageOffset / 500))
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .offset(y: extendedImageOffset)
-        .gesture(
-            DragGesture()
-                .onChanged({ drag in
-                    extendedImageOffset = drag.translation.height
-                })
-                .onEnded({ drag in
-                    if extendedImageOffset > 100 || extendedImageOffset < -100 {
-                        withAnimation(.spring()) {
-                            isExtendedImage = false
-                        }
-                    }
-                    
-                    extendedImageOffset = .zero
-                })
-        )
     }
     
     @ViewBuilder

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SignUpView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
     @Binding var showDatePicker: Bool
@@ -27,7 +28,7 @@ struct SignUpView: View {
         }
         .overlay {
             if showDatePicker {
-                Color(.black).opacity(0.4)
+                EmptyView()
                     .ignoresSafeArea()
                     .onTapGesture {
                         withAnimation(.spring()) {
@@ -36,15 +37,11 @@ struct SignUpView: View {
                     }
             }
         }
-        .overlay {
+        .overlay(alignment: .bottom) {
             if showDatePicker {
-                VStack {
-                    Spacer()
-                    
-                    DatePickerSheetView(userBirthday: $userBirthday, userBirthdayString: $userBirthdayString, showDatePicker: $showDatePicker)
-                }
-                .ignoresSafeArea()
-                .transition(.move(edge: .bottom))
+                DatePickerSheetView(userBirthday: $userBirthday, userBirthdayString: $userBirthdayString, showDatePicker: $showDatePicker)
+                    .ignoresSafeArea()
+                    .transition(.move(edge: .bottom))
             }
         }
     }
@@ -344,6 +341,7 @@ struct SignUpView: View {
             Button {
                 withAnimation(.spring()) {
                     currentField = nil
+                    appViewModel.showAlertView = true
                     showDatePicker = true
                 }
             } label: {
@@ -415,6 +413,7 @@ struct SignUpView_Previews: PreviewProvider {
         } else {
             NavigationView {
                 SignUpView(showDatePicker: .constant(false))
+                    .environmentObject(AppViewModel())
                     .environmentObject(LoginViewModel())
             }
         }

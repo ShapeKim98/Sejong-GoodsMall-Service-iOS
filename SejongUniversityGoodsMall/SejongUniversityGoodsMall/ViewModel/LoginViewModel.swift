@@ -19,9 +19,12 @@ class LoginViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var message: String?
     @Published var findEmail: String = ""
+    @Published var userRequest: UserRequest = UserRequest(email: "", password: "", userName: "", birth: "")
     
     func signUp(email: String, password: String, userName: String, birth: String) {
-        self.isLoading = true
+        withAnimation {
+            self.isLoading = true
+        }
         
         ApiService.fetchSignUp(email: email, password: password, userName: userName, birth: birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
@@ -80,8 +83,8 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { user in
             DispatchQueue.main.async {
-                self.isLoading = false
                 withAnimation(.easeInOut) {
+                    self.isLoading = false
                     self.isSignUpComplete = true
                 }
                 print(user)
@@ -91,7 +94,9 @@ class LoginViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-        self.isLoading = true
+        withAnimation {
+            self.isLoading = true
+        }
         
         ApiService.fetchSignIn(email: email, password: password).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
@@ -150,8 +155,8 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { loginResponse in
             DispatchQueue.main.async {
-                self.isLoading = false
                 withAnimation(.easeInOut) {
+                    self.isLoading = false
                     self.isAuthenticate = true
                 }
             }
@@ -162,7 +167,9 @@ class LoginViewModel: ObservableObject {
     }
     
     func findEmail(userName: String, birth: String) {
-        self.isLoading = true
+        withAnimation {
+            self.isLoading = true
+        }
         
         ApiService.fetchFindEmail(userName: userName, birth: birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
@@ -215,9 +222,8 @@ class LoginViewModel: ObservableObject {
         } receiveValue: { findEmailResponse in
             DispatchQueue.main.async {
                 self.findEmail = findEmailResponse.email
-                self.isLoading = false
-                
                 withAnimation(.spring()) {
+                    self.isLoading = false
                     self.findComplete = true
                 }
             }

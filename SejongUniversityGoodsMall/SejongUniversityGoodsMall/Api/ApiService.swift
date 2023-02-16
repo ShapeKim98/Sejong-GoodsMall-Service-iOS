@@ -351,8 +351,9 @@ enum ApiService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
         print(request)
-
-        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+        
+        return URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main).dataTaskPublisher(for: request).tryMap { data, response in
+            print(Thread.current)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw ApiError.invalidResponse(URLError(.badURL))
             }

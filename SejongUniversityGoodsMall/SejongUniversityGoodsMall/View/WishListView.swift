@@ -65,6 +65,11 @@ struct WishListView: View {
                         }
                         .frame(width: 115, height: 115)
                         .shadow(radius: 1)
+                    } else {
+                        Color("main-shape-bkg-color")
+                            .frame(width: 115, height: 115)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .shadow(radius: 1)
                     }
                     
                     VStack(alignment: .leading, spacing: 10) {
