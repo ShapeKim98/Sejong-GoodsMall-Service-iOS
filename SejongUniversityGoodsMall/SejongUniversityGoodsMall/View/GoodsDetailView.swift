@@ -10,8 +10,7 @@ import SwiftUI
 struct GoodsDetailView: View {
     enum Servie {
         case goodsInformation
-        case goodsReview
-        case contactUs
+        case sellerInformation
     }
     
     @Namespace var heroEffect
@@ -30,8 +29,7 @@ struct GoodsDetailView: View {
                 VStack(spacing: 10) {
                     if goodsViewModel.isGoodsDetailLoading {
                             Color("main-shape-bkg-color")
-                            .frame(width: reader.size.width, height: reader.size.height)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .frame(width: reader.size.width, height: reader.size.width)
                                 .shadow(radius: 1)
                     } else {
                         imageView(height: reader.size.width)
@@ -61,15 +59,12 @@ struct GoodsDetailView: View {
                 switch service {
                     case .goodsInformation:
                         goodsInformationPage()
-                    case .goodsReview:
-                        goodReviewPage()
-                    case .contactUs:
-                        contactUsPage()
+                    case .sellerInformation:
+                        sellerInformationPage()
                 }
             }
             .onDisappear() {
                 goodsViewModel.goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
-                goodsViewModel.cartRequest.removeAll()
             }
             .overlay(alignment: .bottom) {
                 ZStack(alignment: .bottom) {
@@ -167,30 +162,24 @@ struct GoodsDetailView: View {
     func goodsInformationView() -> some View {
         VStack {
             HStack {
+                Spacer()
+                
                 serviceButton("상품정보", .goodsInformation) {
                     withAnimation(.spring()) {
                         service = .goodsInformation
                     }
                 }
                 
-                Spacer()
+                Spacer(minLength: 120)
                 
-                serviceButton("상품후기", .goodsReview) {
+                serviceButton("판매자 정보", .sellerInformation) {
                     withAnimation(.spring()) {
-                        service = .goodsReview
+                        service = .sellerInformation
                     }
                 }
                 
                 Spacer()
-                
-                serviceButton("문의하기", .contactUs) {
-                    withAnimation(.spring()) {
-                        service = .contactUs
-                    }
-                }
             }
-            .padding(.horizontal)
-            .padding(.horizontal)
             .padding(.top, 10)
             .background {
                 VStack {
@@ -258,19 +247,7 @@ struct GoodsDetailView: View {
     }
     
     @ViewBuilder
-    func goodReviewPage() -> some View {
-        LazyVStack(pinnedViews: [.sectionHeaders]) {
-            Section {
-                
-            } header: {
-                goodsInformationView()
-            }
-            
-        }
-    }
-    
-    @ViewBuilder
-    func contactUsPage() -> some View {
+    func sellerInformationPage() -> some View {
         LazyVStack(pinnedViews: [.sectionHeaders]) {
             Section {
                 

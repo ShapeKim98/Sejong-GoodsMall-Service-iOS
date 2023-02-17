@@ -8,7 +8,7 @@
 import Foundation
 
 struct UserRequest: Codable {
-    let email, password, userName, birth: String
+    var email, password, userName, birth: String
     
     enum CodingKeys: String, CodingKey {
         case email, password, userName = "username", birth

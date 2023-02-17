@@ -8,32 +8,24 @@
 import SwiftUI
 
 struct UserInformationView: View {
-    @State private var showMessageBox: Bool = false
+    @EnvironmentObject var appViewModel: AppViewModel
     
     var body: some View {
-        VStack {
-            wishListButton()
-                .padding()
-            
-            accountManageArea()
-                .padding([.horizontal, .bottom])
-            
-            helpArea()
-                .padding(.horizontal)
-            
-            Spacer()
-        }
-        .background(.white)
-        .overlay {
-            if showMessageBox {
-                MessageBoxView(showMessageBox: $showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
-                    
-                } secondaryButtonAction: {
-                    
-                }
-                .transition(.move(edge: .bottom))
+        ScrollView {
+            VStack {
+                wishListButton()
+                    .padding()
+                
+                accountManageArea()
+                    .padding([.horizontal, .bottom])
+                
+                helpArea()
+                    .padding(.horizontal)
+                
+                Spacer()
             }
         }
+        .background(.white)
     }
     
     @ViewBuilder
@@ -73,7 +65,8 @@ struct UserInformationView: View {
             
             Button {
                 withAnimation(.spring()) {
-                    showMessageBox = true
+                    appViewModel.showAlertView = true
+                    appViewModel.showNeedLoginMessageBox = true
                 }
             } label: {
                 HStack {
@@ -202,10 +195,12 @@ struct UserInformationView_Previews: PreviewProvider {
         if #available(iOS 16.0, *) {
             NavigationStack {
                 UserInformationView()
+                    .environmentObject(AppViewModel())
             }
         } else {
             NavigationView {
                 UserInformationView()
+                    .environmentObject(AppViewModel())
             }
         }
     }

@@ -24,8 +24,14 @@ struct CartView: View {
         VStack(spacing: 0) {
             allSeletionAndDeleteSeleted()
             
-            cartGoodsList()
+            Rectangle()
+                .fill(Color("shape-bkg-color"))
+                .frame(height: 10)
             
+            cartGoodsList()
+        }
+        .background(.white)
+        .overlay(alignment: .bottom) {
             Button {
                 
             } label: {
@@ -54,9 +60,7 @@ struct CartView: View {
             .disabled(selectedGoodsPrice == 0 || loginViewModel.isLoading)
             .padding([.horizontal, .bottom])
             .padding(.bottom, 20)
-            .background(.white)
         }
-        .background(Color("shape-bkg-color"))
         .onChange(of: goodsSelections) { newValue in
             withAnimation {
                 seletedCount = 0
@@ -126,8 +130,6 @@ struct CartView: View {
                     goodsSelections.removeAll()
                     
                     goodsViewModel.isCartGoodsListLoading = false
-                    
-//                    goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
                 }
             } label: {
                 Text("선택 삭제")
@@ -137,25 +139,24 @@ struct CartView: View {
             
         }
         .padding()
-        .background(.white)
     }
     
     @ViewBuilder
     func cartGoodsList() -> some View {
-        ScrollView {
-            LazyVGrid(columns: columns) {
-                ForEach(goodsViewModel.cart, id: \.id) { goods in
-                    subCartGoods(goods: goods)
-                        .onAppear() {
-                            if goodsSelections[goods.id] == nil {
-                                goodsSelections.updateValue(false, forKey: goods.id)
+        VStack {
+            ScrollView {
+                VStack {
+                    ForEach(goodsViewModel.cart, id: \.id) { goods in
+                        subCartGoods(goods: goods)
+                            .onAppear() {
+                                if goodsSelections[goods.id] == nil {
+                                    goodsSelections.updateValue(false, forKey: goods.id)
+                                }
                             }
-                        }
+                    }
                 }
             }
         }
-        .background(.white)
-        .padding(.top, 10)
     }
     
     @ViewBuilder
@@ -246,7 +247,6 @@ struct CartView: View {
                         HStack {
                             Button {
                                 withAnimation {
-                                    goodsViewModel.subtractCart(color: goods.color, size: goods.size)
                                     selectedGoodsPrice = 0
                                     goodsViewModel.cart.forEach { goods in
                                         selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? goods.price : 0
@@ -268,7 +268,6 @@ struct CartView: View {
                             
                             Button {
                                 withAnimation {
-                                    goodsViewModel.addCart(color: goods.color, size: goods.size)
                                     selectedGoodsPrice = 0
                                     goodsViewModel.cart.forEach { goods in
                                         selectedGoodsPrice += (goodsSelections[goods.id] ?? false) ? goods.price : 0

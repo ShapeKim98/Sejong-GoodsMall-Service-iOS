@@ -26,7 +26,6 @@ struct OptionSheetView: View {
     @State private var extendColorOptions: Bool = false
     @State private var noneOption: String?
     @State private var extendNoneOption: Bool = false
-    @State private var seletedCartGoods: CartGoodsRequest = CartGoodsRequest(quantity: 0)
     
     var body: some View {
         VStack(spacing: 0) {
@@ -55,7 +54,7 @@ struct OptionSheetView: View {
             
             if !extendSizeOptions {
                 if let colorOptions = goodsViewModel.goodsDetail.color?.components(separatedBy: ", ") {
-                    optionSelectionList(options: colorOptions, selectedOptions: seletedCartGoods.color, isExtended: extendColorOptions, optionType: .color) {
+                    optionSelectionList(options: colorOptions, selectedOptions: goodsViewModel.seletedGoods.color, isExtended: extendColorOptions, optionType: .color) {
                         withAnimation(.spring()) {
                             extendColorOptions.toggle()
                             isOptionSelected.toggle()
@@ -67,7 +66,7 @@ struct OptionSheetView: View {
             
             if !extendColorOptions {
                 if let sizeOptions = goodsViewModel.goodsDetail.size?.components(separatedBy: ", ") {
-                    optionSelectionList(options: sizeOptions, selectedOptions: seletedCartGoods.size, isExtended: extendSizeOptions, optionType: .size) {
+                    optionSelectionList(options: sizeOptions, selectedOptions: goodsViewModel.seletedGoods.size, isExtended: extendSizeOptions, optionType: .size) {
                         withAnimation(.spring()) {
                             extendSizeOptions.toggle()
                             isOptionSelected.toggle()
@@ -92,28 +91,28 @@ struct OptionSheetView: View {
             if !extendSizeOptions && !extendColorOptions && !extendNoneOption {
                 VStack(spacing: 0) {
                     if goodsViewModel.goodsDetail.color != nil && goodsViewModel.goodsDetail.size != nil {
-                        if seletedCartGoods.color == nil {
+                        if goodsViewModel.seletedGoods.color == nil {
                             alertMessageView(message: "색상 옵션을 선택해 주세요")
-                        } else if seletedCartGoods.size == nil {
+                        } else if goodsViewModel.seletedGoods.size == nil {
                             alertMessageView(message: "사이즈 옵션을 선택해 주세요")
                         } else {
                             selectedGoodsOptions()
                         }
                     } else {
                         if goodsViewModel.goodsDetail.color != nil {
-                            if seletedCartGoods.color == nil {
+                            if goodsViewModel.seletedGoods.color == nil {
                                 alertMessageView(message: "색상 옵션을 선택해 주세요")
                             } else {
                                 selectedGoodsOptions()
                             }
                         } else if goodsViewModel.goodsDetail.size != nil {
-                            if seletedCartGoods.size == nil {
+                            if goodsViewModel.seletedGoods.size == nil {
                                 alertMessageView(message: "사이즈 옵션을 선택해 주세요")
                             } else {
                                 selectedGoodsOptions()
                             }
                         } else {
-                            if seletedCartGoods.quantity < 1 {
+                            if goodsViewModel.seletedGoods.quantity < 1 {
                                 alertMessageView(message: "상품을 선택해 주세요")
                             } else {
                                 selectedGoodsOptions()
@@ -158,20 +157,20 @@ struct OptionSheetView: View {
                                 withAnimation(.spring()) {
                                     switch optionType {
                                         case .color:
-                                            seletedCartGoods.color = option
+                                            goodsViewModel.seletedGoods.color = option
                                             extendColorOptions = false
                                             break
                                         case .size:
-                                            seletedCartGoods.size = option
+                                            goodsViewModel.seletedGoods.size = option
                                             extendSizeOptions = false
                                             break
                                         case .none:
-                                            seletedCartGoods.quantity = 1
+                                            goodsViewModel.seletedGoods.quantity = 1
                                             extendNoneOption = false
                                             break
                                     }
                                     
-                                    seletedCartGoods.quantity = 1
+                                    goodsViewModel.seletedGoods.quantity = 1
                                     isOptionSelected = false
                                     optionChevronDegree = 180
                                 }
@@ -244,16 +243,16 @@ struct OptionSheetView: View {
     func selectedGoodsOptions() -> some View {
             HStack {
                 Group {
-                    if let color = seletedCartGoods.color, let size = seletedCartGoods.size {
+                    if let color = goodsViewModel.seletedGoods.color, let size = goodsViewModel.seletedGoods.size {
                         Text("\(color), \(size)")
                             .font(.footnote)
                             .fontWeight(.light)
-                    } else if seletedCartGoods.color == nil, seletedCartGoods.size == nil {
+                    } else if goodsViewModel.seletedGoods.color == nil, goodsViewModel.seletedGoods.size == nil {
                         Text(goodsViewModel.goodsDetail.title)
                             .font(.footnote)
                             .fontWeight(.light)
                     } else {
-                        Text("\(seletedCartGoods.color ?? "")\(seletedCartGoods.size ?? "")")
+                        Text("\(goodsViewModel.seletedGoods.color ?? "")\(goodsViewModel.seletedGoods.size ?? "")")
                             .font(.footnote)
                             .fontWeight(.light)
                     }
@@ -264,24 +263,24 @@ struct OptionSheetView: View {
                 
                 Button {
                     withAnimation {
-                        seletedCartGoods.quantity -= 1
+                        goodsViewModel.seletedGoods.quantity -= 1
                     }
                 } label: {
                     Label("마이너스", systemImage: "minus")
                         .labelStyle(.iconOnly)
                         .font(.caption2)
                 }
-                .disabled(seletedCartGoods.quantity == 1)
+                .disabled(goodsViewModel.seletedGoods.quantity == 1)
                 .frame(minWidth: 21, minHeight: 21)
                 .background(Circle().fill(Color("shape-bkg-color")))
                 
-                Text("\(seletedCartGoods.quantity)")
+                Text("\(goodsViewModel.seletedGoods.quantity)")
                     .font(.footnote)
                     .fontWeight(.light)
                 
                 Button {
                     withAnimation {
-                        seletedCartGoods.quantity += 1
+                        goodsViewModel.seletedGoods.quantity += 1
                     }
                 } label: {
                     Label("플러스", systemImage: "plus")
@@ -296,9 +295,9 @@ struct OptionSheetView: View {
                 
                 Button {
                     withAnimation(.spring()) {
-                        seletedCartGoods.color = nil
-                        seletedCartGoods.size = nil
-                        seletedCartGoods.quantity = 0
+                        goodsViewModel.seletedGoods.color = nil
+                        goodsViewModel.seletedGoods.size = nil
+                        goodsViewModel.seletedGoods.quantity = 0
                     }
                 } label: {
                     Label("삭제", systemImage: "xmark")

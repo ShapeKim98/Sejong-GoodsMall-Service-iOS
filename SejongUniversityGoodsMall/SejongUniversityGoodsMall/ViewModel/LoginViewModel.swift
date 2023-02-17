@@ -20,13 +20,14 @@ class LoginViewModel: ObservableObject {
     @Published var message: String?
     @Published var findEmail: String = ""
     @Published var userRequest: UserRequest = UserRequest(email: "", password: "", userName: "", birth: "")
+    @Published var findEmailRequest: FindEmailRequest = FindEmailRequest(userName: "", birth: "")
     
-    func signUp(email: String, password: String, userName: String, birth: String) {
+    func signUp() {
         withAnimation {
             self.isLoading = true
         }
         
-        ApiService.fetchSignUp(email: email, password: password, userName: userName, birth: birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -166,12 +167,12 @@ class LoginViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func findEmail(userName: String, birth: String) {
+    func fetchFindEmail() {
         withAnimation {
             self.isLoading = true
         }
         
-        ApiService.fetchFindEmail(userName: userName, birth: birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {

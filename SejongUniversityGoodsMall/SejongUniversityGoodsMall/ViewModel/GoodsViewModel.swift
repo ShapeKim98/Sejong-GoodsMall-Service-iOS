@@ -28,7 +28,7 @@ class GoodsViewModel: ObservableObject {
                                           CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading...")),
                                           CartGoodsResponse(id: 2, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."))
     ]
-    @Published var cartRequest: CartRequest = CartRequest()
+    @Published var seletedGoods: CartGoodsRequest = CartGoodsRequest(quantity: 0)
     @Published var categoryList: CategoryList = [Category(id: 0, name: "loading..."),
                                                  Category(id: 1, name: "loading..."),
                                                  Category(id: 2, name: "loading..."),
@@ -279,8 +279,9 @@ class GoodsViewModel: ObservableObject {
             }
         } receiveValue: { goodsDetail in
             DispatchQueue.main.async {
-                withAnimation {
                 self.goodsDetail = goodsDetail
+                
+                withAnimation {
                     self.isGoodsDetailLoading = false
                 }
             }
@@ -289,8 +290,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendCartGoodsRequest(token: String) {
-        cartRequest.forEach { goods in
-            ApiService.sendCartGoods(goods: goods, goodsID: goodsDetail.id, token: token).receive(on: DispatchQueue.global(qos: .background)).sink { completion in
+        ApiService.sendCartGoods(goods: seletedGoods, goodsID: goodsDetail.id, token: token).receive(on: DispatchQueue.global(qos: .background)).sink { completion in
                 switch completion {
                     case .failure(let error):
                         switch error {
@@ -342,7 +342,6 @@ class GoodsViewModel: ObservableObject {
                 print(data)
             }
             .store(in: &subscriptions)
-        }
     }
     
     func fetchCartGoods(token: String) {
@@ -471,55 +470,5 @@ class GoodsViewModel: ObservableObject {
             }
         }
         .store(in: &subscriptions)
-    }
-    
-    func addRequestCart(quantity: Int, seletedColor: String?, seletedSize: String?) {
-        if let index = cartRequest.firstIndex(where: {$0.color == seletedColor && $0.size == seletedSize}) {
-            cartRequest[index].quantity += quantity
-        } else {
-            cartRequest.append(CartGoodsRequest(quantity: quantity, color: seletedColor, size: seletedSize))
-        }
-    }
-    
-    func subtractRequestCart(seletedColor: String?, seletedSize: String?) {
-        if let index = cartRequest.firstIndex(where: {$0.color == seletedColor && $0.size == seletedSize}) {
-            cartRequest[index].quantity -= 1
-        } else {
-            message = "선택하지 않은 상품입니다."
-        }
-    }
-    
-    func removeRequestCart(seletedColor: String?, seletedSize: String?) {
-        if let index = cartRequest.firstIndex(where: {$0.color == seletedColor && $0.size == seletedSize}) {
-            cartRequest.remove(at: index)
-        } else {
-            message = "선택하지 않은 상품입니다."
-        }
-    }
-    
-    func addCart(color: String?, size: String?) {
-        if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
-            cart[index].price += (cart[index].price / cart[index].quantity)
-            cart[index].quantity += 1
-        } else {
-            message = "장바구니에 없는 상품입니다."
-        }
-    }
-    
-    func subtractCart(color: String?, size: String?) {
-        if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
-            cart[index].price -= (cart[index].price / cart[index].quantity)
-            cart[index].quantity -= 1
-        } else {
-            message = "장바구니에 없는 상품입니다."
-        }
-    }
-    
-    func removeCart(color: String?, size: String?) {
-        if let index = cart.firstIndex(where: {$0.color == color && $0.size == size}) {
-            cart.remove(at: index)
-        } else {
-            message = "장바구니에 없는 상품입니다."
-        }
     }
 }

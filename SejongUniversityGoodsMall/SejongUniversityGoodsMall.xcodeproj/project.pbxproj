@@ -20,7 +20,6 @@
 		C5515ECB299BD1CF00A3B850 /* MessageBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */; };
 		C5534D2F29892EF6006DBE09 /* FindEmailPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */; };
 		C5534D312989409D006DBE09 /* DatePickerSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D302989409D006DBE09 /* DatePickerSheetView.swift */; };
-		C592F3162998EBEC003CF15E /* AddingCartModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F3152998EBEC003CF15E /* AddingCartModifier.swift */; };
 		C592F318299A2857003CF15E /* CartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F317299A2857003CF15E /* CartView.swift */; };
 		C592F31A299B3425003CF15E /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F319299B3425003CF15E /* Category.swift */; };
 		C592F31C299B4D17003CF15E /* UserInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F31B299B4D17003CF15E /* UserInformationView.swift */; };
@@ -65,7 +64,6 @@
 		C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBoxView.swift; sourceTree = "<group>"; };
 		C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailPasswordView.swift; sourceTree = "<group>"; };
 		C5534D302989409D006DBE09 /* DatePickerSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerSheetView.swift; sourceTree = "<group>"; };
-		C592F3152998EBEC003CF15E /* AddingCartModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddingCartModifier.swift; sourceTree = "<group>"; };
 		C592F317299A2857003CF15E /* CartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartView.swift; sourceTree = "<group>"; };
 		C592F319299B3425003CF15E /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		C592F31B299B4D17003CF15E /* UserInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInformationView.swift; sourceTree = "<group>"; };
@@ -134,7 +132,6 @@
 				C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */,
 				C529B43E298BC48000958B7D /* TextFieldModifier.swift */,
 				C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */,
-				C592F3152998EBEC003CF15E /* AddingCartModifier.swift */,
 			);
 			path = Modifier;
 			sourceTree = "<group>";
@@ -331,7 +328,6 @@
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
 				C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */,
 				C5D32C7929794C4A00644BFD /* AppView.swift in Sources */,
-				C592F3162998EBEC003CF15E /* AddingCartModifier.swift in Sources */,
 				C5C73AF42986604100D42719 /* LoginResponse.swift in Sources */,
 				C5C73AF22986603700D42719 /* LoginRequest.swift in Sources */,
 				C5C73AF82986611600D42719 /* FindEmailResponse.swift in Sources */,

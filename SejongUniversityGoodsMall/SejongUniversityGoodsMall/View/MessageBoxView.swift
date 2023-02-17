@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct MessageBoxView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
+    
     @Binding var showMessageBox: Bool
     
     @State private var title: String
@@ -92,6 +94,7 @@ struct MessageBoxView: View {
                 
                 Button {
                     withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
                         showMessageBox = false
                     }
                 } label: {
@@ -122,6 +125,6 @@ struct MessageBoxView_Previews: PreviewProvider {
         } secondaryButtonAction: {
             
         }
-
+        .environmentObject(AppViewModel())
     }
 }

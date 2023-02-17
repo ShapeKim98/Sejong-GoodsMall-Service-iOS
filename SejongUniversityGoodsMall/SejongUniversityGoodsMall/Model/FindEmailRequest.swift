@@ -8,8 +8,8 @@
 import Foundation
 
 struct FindEmailRequest: Codable {
-    let userName: String
-    let birth: String
+    var userName: String
+    var birth: String
     
     enum CodingKeys: String, CodingKey {
         case userName = "username", birth

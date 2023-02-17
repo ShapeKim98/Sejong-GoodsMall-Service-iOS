@@ -15,20 +15,23 @@ struct FindEmailPasswordView: View {
     
     @Namespace var heroEffect
     
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
     let dateFormatter: DateFormatter = DateFormatter()
     
     @FocusState private var currentField: FocusedTextField?
     
+    @Binding var showDatePickerFromFindEmailView: Bool
+    
     @State private var findViewTitle: String = "이메일 찾기"
     @State private var page: Page = .emailPage
-    @State private var showDatePicker: Bool = false
     @State private var showMessage: Bool = false
     @State private var message: String = ""
     @State private var showFindComplete: Bool = false
     
-    init() {
+    init(showDatePickerFromFindEmailView: Binding<Bool>) {
+        self._showDatePickerFromFindEmailView = showDatePickerFromFindEmailView
         self.dateFormatter.locale = Locale(identifier: "ko_kr")
         self.dateFormatter.dateFormat = "yyyy/MM/dd"
     }
@@ -64,28 +67,6 @@ struct FindEmailPasswordView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onTapGesture {
             currentField = nil
-        }
-        .overlay {
-            if showDatePicker {
-                Color(.black).opacity(0.4)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.spring()) {
-                            showDatePicker = false
-                        }
-                    }
-            }
-        }
-        .overlay {
-            if showDatePicker {
-                VStack {
-                    Spacer()
-                    
-                    DatePickerSheetView(userBirthday: $userBirthday, userBirthdayString: $userBirthdayString, showDatePicker: $showDatePicker)
-                }
-                .ignoresSafeArea()
-                .transition(.move(edge: .bottom))
-            }
         }
     }
     
@@ -147,34 +128,31 @@ struct FindEmailPasswordView: View {
         }
     }
     
-    @State private var userName: String = ""
-    @State private var userBirthdayString: String = ""
-    @State private var userBirthday: Date = .now
-    
     @ViewBuilder
     func findEmailView() -> some View {
         VStack(spacing: 20) {
-            TextField("이름", text: $userName, prompt: Text("이름"))
-                .modifier(TextFieldModifier(text: $userName, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
+            TextField("이름", text: $loginViewModel.findEmailRequest.userName, prompt: Text("이름"))
+                .modifier(TextFieldModifier(text: $loginViewModel.findEmailRequest.userName, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
                 .onTapGesture {
                     currentField = .emailField
-                    showDatePicker = false
+                    showDatePickerFromFindEmailView = false
                 }
                 .onSubmit {
                     withAnimation(.spring()) {
                         currentField = nil
-                        showDatePicker = true
+                        showDatePickerFromFindEmailView = true
                     }
                 }
             
             Button {
                 withAnimation(.spring()) {
                     currentField = nil
-                    showDatePicker = true
+                    appViewModel.showAlertView = true
+                    showDatePickerFromFindEmailView = true
                 }
             } label: {
                 HStack {
-                    TextField("생년월일", text: $userBirthdayString, prompt: Text("생년월일"))
+                    TextField("생년월일", text: $loginViewModel.findEmailRequest.birth, prompt: Text("생년월일"))
                         .font(.subheadline.bold())
                     
                     Spacer()
@@ -191,7 +169,7 @@ struct FindEmailPasswordView: View {
             Spacer()
             
             Button {
-                loginViewModel.findEmail(userName: userName, birth: userBirthdayString)
+                loginViewModel.fetchFindEmail()
             } label: {
                 HStack {
                     Spacer()
@@ -210,10 +188,10 @@ struct FindEmailPasswordView: View {
                     Spacer()
                 }
             }
-            .disabled(userName == "" || userBirthdayString == "")
+            .disabled(loginViewModel.findEmailRequest.userName == "" || loginViewModel.findEmailRequest.birth == "")
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor((userName != "" && userBirthdayString != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                    .foregroundColor((loginViewModel.findEmailRequest.userName != "" && loginViewModel.findEmailRequest.birth != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
             
@@ -280,7 +258,7 @@ struct FindEmailPasswordView: View {
                 withAnimation {
                     page = .passwordPage
                     email = ""
-                    userName = ""
+                    loginViewModel.findEmailRequest.userName = ""
                     findViewTitle = "비밀번호 찾기"
                     loginViewModel.findComplete = false
                 }
@@ -350,6 +328,9 @@ struct FindEmailPasswordView: View {
         .padding(.top, 25)
         
     }
+    
+    @State private var userName = ""
+    @State private var showDatePicker: Bool = false
     
     @ViewBuilder
     func findPasswordInput() -> some View {
@@ -626,7 +607,8 @@ struct FindEmailPasswordView: View {
 
 struct FindEmailPasswordView_Previews: PreviewProvider {
     static var previews: some View {
-        FindEmailPasswordView()
+        FindEmailPasswordView(showDatePickerFromFindEmailView: .constant(false))
+            .environmentObject(AppViewModel())
             .environmentObject(LoginViewModel())
     }
 }

@@ -18,7 +18,7 @@ struct AppView: View {
     @State var message: String = ""
     
     var body: some View {
-        if loginViewModel.isSignUpComplete || loginViewModel.isAuthenticate {
+        if loginViewModel.isAuthenticate {
             HomeView()
                 .onAppear() {
                     goodsViewModel.fetchGoodsList()
@@ -45,31 +45,34 @@ struct AppView: View {
                         }
                     }
                 }
-                .overlay {
-                    if appViewModel.showAlertView {
-                        Color(.black).opacity(0.4)
-                            .ignoresSafeArea()
-                    }
-                }
         } else {
-            LoginView()
-                .onChange(of: loginViewModel.message, perform: { newValue in
-                    if let msg = newValue {
-                        message = msg
-                        showMessage = true
+            if loginViewModel.isSignUpComplete {
+                LoginView()
+                    .onChange(of: loginViewModel.message, perform: { newValue in
+                        if let msg = newValue {
+                            message = msg
+                            showMessage = true
+                        }
+                    })
+                    .alert(message, isPresented: $showMessage) {
+                        Button("확인") {
+                            loginViewModel.message = nil
+                        }
                     }
-                })
-                .alert(message, isPresented: $showMessage) {
-                    Button("확인") {
-                        loginViewModel.message = nil
+            } else {
+                LoginView()
+                    .onChange(of: loginViewModel.message, perform: { newValue in
+                        if let msg = newValue {
+                            message = msg
+                            showMessage = true
+                        }
+                    })
+                    .alert(message, isPresented: $showMessage) {
+                        Button("확인") {
+                            loginViewModel.message = nil
+                        }
                     }
-                }
-                .overlay {
-                    if appViewModel.showAlertView {
-                        Color(.black).opacity(0.4)
-                            .ignoresSafeArea()
-                    }
-                }
+            }
         }
     }
 }

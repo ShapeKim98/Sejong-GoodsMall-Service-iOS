@@ -12,6 +12,8 @@ struct SignInView: View {
     
     @FocusState private var currentField: FocusedTextField?
     
+    @Binding var showDatePickerFromFindEmailView: Bool
+    
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var isFindView: Bool = false
@@ -41,7 +43,7 @@ struct SignInView: View {
                 .padding(.bottom)
             
             NavigationLink(isActive: $isFindView) {
-                FindEmailPasswordView()
+                FindEmailPasswordView(showDatePickerFromFindEmailView: $showDatePickerFromFindEmailView)
             } label: {
                 Text("이메일/비밀번호 찾기")
                     .font(.footnote)
@@ -91,7 +93,7 @@ struct SignInView: View {
 
 struct SignInView_Previews: PreviewProvider {
     static var previews: some View {
-        SignInView()
+        SignInView(showDatePickerFromFindEmailView: .constant(false))
             .environmentObject(LoginViewModel())
     }
 }

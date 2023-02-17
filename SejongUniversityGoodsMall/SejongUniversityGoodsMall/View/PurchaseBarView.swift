@@ -39,8 +39,12 @@ struct PurchaseBarView: View {
         HStack(spacing: 20) {
             if showOptionSheet {
                 Button {
-                    goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
-                    goodsViewModel.cartRequest.removeAll()
+                    withAnimation {
+                        goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                        goodsViewModel.seletedGoods.quantity = 0
+                        goodsViewModel.seletedGoods.color = nil
+                        goodsViewModel.seletedGoods.size = nil
+                    }
                 } label: {
                     HStack {
                         Spacer()

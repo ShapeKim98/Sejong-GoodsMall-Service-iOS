@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @Namespace var heroEffect
     
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
@@ -46,13 +47,32 @@ struct HomeView: View {
                     }
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()
-                    .overlay {
-                        if isSearching {
-                            searchView()
-                        }
-                    }
                 }
                 .tint(Color("main-text-color"))
+                .overlay {
+                    ZStack {
+                        if appViewModel.showAlertView {
+                            Color(.black).opacity(0.4)
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showAlertView = false
+                                        appViewModel.showNeedLoginMessageBox = false
+                                    }
+                                }
+                        }
+                        
+                        if appViewModel.showNeedLoginMessageBox {
+                            MessageBoxView(showMessageBox: $appViewModel.showNeedLoginMessageBox, title: "로그인이 필요한 서비스 입니다.", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러가기", secondaryButtonTitle: "계속 둘러보기") {
+                                
+                            } secondaryButtonAction: {
+                                
+                            }
+                            .transition(.move(edge: .bottom))
+
+                        }
+                    }
+                    .ignoresSafeArea()
+                }
             } else {
                 NavigationView {
                     ZStack(alignment: .top) {
@@ -66,11 +86,30 @@ struct HomeView: View {
                     }
                     .navigationTitle("")
                     .navigationBarHidden(true)
-                    .overlay {
-                        if isSearching {
-                            searchView()
+                }
+                .overlay {
+                    ZStack {
+                        if appViewModel.showAlertView {
+                            Color(.black).opacity(0.4)
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showAlertView = false
+                                        appViewModel.showNeedLoginMessageBox = false
+                                    }
+                                }
+                        }
+                        
+                        if appViewModel.showNeedLoginMessageBox {
+                            MessageBoxView(showMessageBox: $appViewModel.showNeedLoginMessageBox, title: "로그인이 필요한 서비스 입니다.", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러가기", secondaryButtonTitle: "계속 둘러보기") {
+                                
+                            } secondaryButtonAction: {
+                                
+                            }
+                            .transition(.move(edge: .bottom))
+
                         }
                     }
+                    .ignoresSafeArea()
                 }
             }
         }
@@ -433,6 +472,7 @@ struct HomeView: View {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
+            .environmentObject(AppViewModel())
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }

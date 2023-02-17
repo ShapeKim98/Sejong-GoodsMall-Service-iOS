@@ -18,5 +18,3 @@ struct CartGoodsRequest: Codable {
         self.size = size
     }
 }
-
-typealias CartRequest = [CartGoodsRequest]

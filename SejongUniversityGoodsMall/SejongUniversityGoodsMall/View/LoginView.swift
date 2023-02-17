@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
-    @State var showDatePicker: Bool = false
+    @State var showDatePickerFromSignUpView: Bool = false
+    @State var showDatePickerFromFindEmailView: Bool = false
     
     init() {
         if #available(iOS 16.0, *) {
@@ -35,6 +37,35 @@ struct LoginView: View {
                     .navigationBarBackButtonHidden()
                 }
                 .tint(Color("main-text-color"))
+                .overlay(alignment: .bottom) {
+                    ZStack(alignment: .bottom) {
+                        if appViewModel.showAlertView {
+                            Color(.black).opacity(0.4)
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        showDatePickerFromSignUpView = false
+                                        showDatePickerFromFindEmailView = false
+                                    }
+                                    
+                                    withAnimation(.easeOut) {
+                                        appViewModel.showAlertView = false
+                                    }
+                                }
+                        }
+                        
+                        if showDatePickerFromSignUpView {
+                            DatePickerSheetView(userBirthdayString: $loginViewModel.userRequest.birth, showDatePicker: $showDatePickerFromSignUpView)
+                                .transition(.move(edge: .bottom))
+                        }
+                        
+                        if showDatePickerFromFindEmailView {
+                            DatePickerSheetView(userBirthdayString: $loginViewModel.findEmailRequest.birth, showDatePicker: $showDatePickerFromFindEmailView)
+                                .transition(.move(edge: .bottom))
+                        }
+                        
+                    }
+                    .ignoresSafeArea()
+                }
             } else {
                 NavigationView {
                     VStack {
@@ -46,6 +77,35 @@ struct LoginView: View {
                     }
                     .navigationTitle("")
                     .navigationBarHidden(true)
+                }
+                .overlay(alignment: .bottom) {
+                    ZStack(alignment: .bottom) {
+                        if appViewModel.showAlertView {
+                            Color(.black).opacity(0.4)
+                                .onTapGesture {
+                                    withAnimation(.spring()) {
+                                        showDatePickerFromSignUpView = false
+                                        showDatePickerFromFindEmailView = false
+                                    }
+                                    
+                                    withAnimation(.easeOut) {
+                                        appViewModel.showAlertView = false
+                                    }
+                                }
+                        }
+                        
+                        if showDatePickerFromSignUpView {
+                            DatePickerSheetView(userBirthdayString: $loginViewModel.userRequest.birth, showDatePicker: $showDatePickerFromSignUpView)
+                                .transition(.move(edge: .bottom))
+                        }
+                        
+                        if showDatePickerFromFindEmailView {
+                            DatePickerSheetView(userBirthdayString: $loginViewModel.findEmailRequest.birth, showDatePicker: $showDatePickerFromFindEmailView)
+                                .transition(.move(edge: .bottom))
+                        }
+                        
+                    }
+                    .ignoresSafeArea()
                 }
             }
         }
@@ -69,11 +129,10 @@ struct LoginView: View {
     func buttons() -> some View {
         VStack {
             NavigationLink {
-                SignUpView(showDatePicker: $showDatePicker)
+                SignUpView(showDatePicker: $showDatePickerFromSignUpView)
                     .navigationTitle("이메일로 가입하기")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
-                    .environmentObject(loginViewModel)
             } label: {
                 HStack {
                     Spacer()
@@ -92,7 +151,7 @@ struct LoginView: View {
             }
             
             NavigationLink {
-                SignInView()
+                SignInView(showDatePickerFromFindEmailView: $showDatePickerFromFindEmailView)
                     .navigationTitle("기존 계정으로 로그인")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
@@ -121,6 +180,7 @@ struct LoginView: View {
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .environmentObject(AppViewModel())
             .environmentObject(LoginViewModel())
     }
 }

@@ -10,14 +10,14 @@ import SwiftUI
 struct DatePickerSheetView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     
-    @Binding var userBirthday: Date
     @Binding var userBirthdayString: String
     @Binding var showDatePicker: Bool
     
+    @State var userBirthday: Date = .now
+    
     let dateFormatter = DateFormatter()
     
-    init(userBirthday: Binding<Date>, userBirthdayString: Binding<String>, showDatePicker: Binding<Bool>) {
-        self._userBirthday = userBirthday
+    init(userBirthdayString: Binding<String>, showDatePicker: Binding<Bool>) {
         self._userBirthdayString = userBirthdayString
         self._showDatePicker = showDatePicker
         
@@ -72,7 +72,7 @@ struct DatePickerSheetView: View {
 
 struct DatePickerSheetView_Previews: PreviewProvider {
     static var previews: some View {
-        DatePickerSheetView(userBirthday: .constant(.now), userBirthdayString: .constant(""), showDatePicker: .constant(true))
+        DatePickerSheetView(userBirthdayString: .constant(""), showDatePicker: .constant(true))
             .environmentObject(AppViewModel())
     }
 }
