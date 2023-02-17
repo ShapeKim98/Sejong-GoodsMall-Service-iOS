@@ -27,6 +27,7 @@
 		C595C74B297FC55600AF6E86 /* SampleGoodsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C74A297FC55600AF6E86 /* SampleGoodsViewModel.swift */; };
 		C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C74C298113F100AF6E86 /* OptionSheetView.swift */; };
 		C595C75129819A3C00AF6E86 /* SampleBasketItem:Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = C595C75029819A3C00AF6E86 /* SampleBasketItem:Model.swift */; };
+		C5BB655B299F84320083CA69 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5BB655A299F84320083CA69 /* Launch Screen.storyboard */; };
 		C5C5402A2997BC4E00EF9AEC /* CartGoodsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C540292997BC4E00EF9AEC /* CartGoodsRequest.swift */; };
 		C5C73AD02983B57700D42719 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73ACF2983B57700D42719 /* LoginView.swift */; };
 		C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AD12983CE5100D42719 /* SignUpView.swift */; };
@@ -72,6 +73,7 @@
 		C595C74A297FC55600AF6E86 /* SampleGoodsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoodsViewModel.swift; sourceTree = "<group>"; };
 		C595C74C298113F100AF6E86 /* OptionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSheetView.swift; sourceTree = "<group>"; };
 		C595C75029819A3C00AF6E86 /* SampleBasketItem:Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SampleBasketItem:Model.swift"; sourceTree = "<group>"; };
+		C5BB655A299F84320083CA69 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		C5C540292997BC4E00EF9AEC /* CartGoodsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartGoodsRequest.swift; sourceTree = "<group>"; };
 		C5C73ACF2983B57700D42719 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		C5C73AD12983CE5100D42719 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
@@ -165,6 +167,7 @@
 				C5324C9F29794AD20034C710 /* SejongUniversityGoodsMallApp.swift */,
 				C5324CA329794AD30034C710 /* Assets.xcassets */,
 				C5324CA529794AD30034C710 /* Preview Content */,
+				C5BB655A299F84320083CA69 /* Launch Screen.storyboard */,
 			);
 			path = SejongUniversityGoodsMall;
 			sourceTree = "<group>";
@@ -283,6 +286,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5BB655B299F84320083CA69 /* Launch Screen.storyboard in Resources */,
 				C5324CA729794AD30034C710 /* Preview Assets.xcassets in Resources */,
 				C5324CA429794AD30034C710 /* Assets.xcassets in Resources */,
 			);
@@ -466,8 +470,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SejongUniversityGoodsMall/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "세종이의 집";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -497,8 +502,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SejongUniversityGoodsMall/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "세종이의 집";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
