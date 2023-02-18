@@ -34,6 +34,9 @@ class GoodsViewModel: ObservableObject {
                                                  Category(id: 2, name: "loading..."),
                                                  Category(id: 3, name: "loading...")
     ]
+    @Published var cartGoodsSelections: [Int: Bool] = [Int: Bool]()
+    @Published var selectedCartGoodsCount: Int = 0
+    @Published var selectedCartGoodsPrice: Int = 0
     
     func fetchGoodsList() {
         withAnimation(.spring()) {
@@ -401,6 +404,7 @@ class GoodsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.cart = cartGoodsList
+                    self.updateCartData()
                     self.isCartGoodsListLoading = false
                 }
             }
@@ -418,11 +422,11 @@ class GoodsViewModel: ObservableObject {
             switch completion {
                 case .failure(let error):
                     switch error {
-                        case .authenticationFailure:
+                        case .isNoneCartGoods:
                             DispatchQueue.main.async {
-                                self.message = "접근 권한 없음"
+                                self.message = "존재하지 않는 장바구니 상품"
                             }
-                            print("접근 권한 없음")
+                            print("존재하지 않는 장바구니 상품")
                             break
                         case .invalidResponse(let error):
                             switch error.code {
@@ -466,9 +470,80 @@ class GoodsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.cart = cartGoods
+                    self.updateCartData()
                 }
             }
         }
         .store(in: &subscriptions)
+    }
+    
+    func updateCartGoods(id: Int, quantity: Int, token: String) {
+        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+                switch completion {
+                    case .failure(let error):
+                        switch error {
+                            case .isNoneCartGoods:
+                                DispatchQueue.main.async {
+                                    self.message = "존재하지 않는 장바구니 상품"
+                                }
+                                print("존재하지 않는 장바구니 상품")
+                                break
+                            case .invalidResponse(let error):
+                                switch error.code {
+                                    case .badServerResponse:
+                                        DispatchQueue.main.async {
+                                            self.message = "서버 응답 오류 \(error.errorCode)"
+                                        }
+                                        print("서버 응답 오류")
+                                        break
+                                    case .badURL:
+                                        DispatchQueue.main.async {
+                                            self.message = "잘못된 url"
+                                        }
+                                        print("잘못된 url")
+                                        break
+                                    default:
+                                        DispatchQueue.main.async {
+                                            self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        }
+                                        print("알 수 없는 오류")
+                                        break
+                                }
+                            case .jsonDecodeError:
+                                DispatchQueue.main.async {
+                                    self.message = "데이터 디코딩 에러"
+                                }
+                                print("데이터 디코딩 에러")
+                                break
+                            default:
+                                DispatchQueue.main.async {
+                                    self.message = "알 수 없는 오류 \(error)"
+                                }
+                                print("알 수 없는 오류")
+                                break
+                        }
+                    case .finished:
+                        print("보내기 성공")
+                        break
+                }
+            } receiveValue: { data in
+                print(data)
+                DispatchQueue.main.async {
+                    self.fetchCartGoods(token: token)
+                }
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func updateCartData() {
+        self.selectedCartGoodsCount = 0
+        self.selectedCartGoodsPrice = 0
+        self.cartGoodsSelections.values.forEach { isSelected in
+            self.selectedCartGoodsCount += isSelected ? 1 : 0
+        }
+        
+        self.cart.forEach { goods in
+            selectedCartGoodsPrice += (cartGoodsSelections[goods.id] ?? false) ? goods.price : 0
+        }
     }
 }
