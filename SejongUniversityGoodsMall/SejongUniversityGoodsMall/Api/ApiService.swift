@@ -269,7 +269,7 @@ enum ApiService {
     }
     
     static func fetchGoodsListFromCategory(id: Int) -> AnyPublisher<GoodsList, ApiError> {
-        let request = URLRequest(url: APIURL.fetchGoodsListFromCategory.url(id: id)!)
+        let request = URLRequest(url: id == 0 ? APIURL.fetchGoodsList.url()! : APIURL.fetchGoodsListFromCategory.url(id: id)!)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -358,7 +358,7 @@ enum ApiService {
         request.httpMethod = "DELETE"
         print(request)
         
-        return URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main).dataTaskPublisher(for: request).tryMap { data, response in
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             print(Thread.current)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw ApiError.invalidResponse(URLError(.badURL))

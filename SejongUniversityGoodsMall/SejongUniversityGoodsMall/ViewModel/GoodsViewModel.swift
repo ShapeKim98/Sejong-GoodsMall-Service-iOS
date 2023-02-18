@@ -93,7 +93,7 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { goodsList in
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
-                self.goodsList = goodsList
+                    self.goodsList = goodsList
                     self.isGoodsListLoading = false
                 }
             }
@@ -166,9 +166,6 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchGoodsListFromCatefory(id: Int) {
-        withAnimation(.spring()) {
-            self.isGoodsListLoading = true
-        }
         ApiService.fetchGoodsListFromCategory(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -221,7 +218,6 @@ class GoodsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.goodsList = goodsList
-                    self.isGoodsListLoading = false
                 }
             }
         }
@@ -412,12 +408,19 @@ class GoodsViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func deleteCartGoods(id: Int, token: String) {
-//        withAnimation {
-//            self.isCartGoodsListLoading = true
-//        }
+    func deleteCartGoods(token: String) {
+        withAnimation {
+            self.isCartGoodsListLoading = true
+        }
+        var publishers = [AnyPublisher<CartGoodsList, ApiError>]()
+        self.cart.forEach { goods in
+            if let isSelected = cartGoodsSelections[goods.id], isSelected {
+                publishers.append(ApiService.deleteCartGoods(id: goods.id, token: token))
+                cartGoodsSelections.removeValue(forKey: goods.id)
+            }
+        }
         
-        ApiService.deleteCartGoods(id: id, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        Publishers.MergeMany(publishers).eraseToAnyPublisher().receive(on: DispatchQueue.global(qos: .userInteractive)).sink { completion in
             print(Thread.current)
             switch completion {
                 case .failure(let error):
@@ -469,8 +472,9 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { cartGoods in
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
-                    self.cart = cartGoods
+                    self.fetchCartGoods(token: token)
                     self.updateCartData()
+                    self.isCartGoodsListLoading = false
                 }
             }
         }
@@ -478,7 +482,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func updateCartGoods(id: Int, quantity: Int, token: String) {
-        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).receive(on: DispatchQueue.global(qos: .userInteractive)).sink { completion in
                 switch completion {
                     case .failure(let error):
                         switch error {
