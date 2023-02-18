@@ -20,6 +20,7 @@ enum APIURL {
     case sendCartGoods
     case fetchCartGoods
     case deleteCartGoods
+    case updateCartGoods
     
     func url(id: Int? = nil) -> URL? {
         switch self {
@@ -61,6 +62,8 @@ enum APIURL {
                 }
                 
                 return URL(string: "cart/delete/\(id)", relativeTo: APIURL.server.url())
+            case .updateCartGoods:
+                return URL(string: "cart/update", relativeTo: APIURL.server.url())
         }
     }
 }
@@ -72,6 +75,7 @@ enum ApiError: Error {
     case invalidResponse(URLError)
     case jsonDecodeError
     case unknown(Error)
+    case isNoneCartGoods
     
     static func convert(error: Error) -> ApiError {
         switch error {
@@ -83,6 +87,8 @@ enum ApiError: Error {
                 return .authenticationFailure
             case ApiError.alreadyCartGoods:
                 return .alreadyCartGoods
+            case ApiError.isNoneCartGoods:
+                return .isNoneCartGoods
             case is DecodingError:
                 return .jsonDecodeError
             default:
@@ -360,7 +366,7 @@ enum ApiService {
 
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw ApiError.isNoneCartGoods
                 } else {
                     print(httpResponse.statusCode)
                     throw URLError(.badServerResponse)
@@ -370,6 +376,37 @@ enum ApiService {
             return data
         }
         .decode(type: CartGoodsList.self, decoder: JSONDecoder())
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func updateCartGoods(id: Int, quantity: Int, token: String) -> AnyPublisher<Data, ApiError> {
+        let body = UpdateCartGoodsRequest(id: id, quantity: quantity)
+        
+        var request = URLRequest(url: APIURL.updateCartGoods.url()!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "PATCH"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw URLError(.badURL)
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.isNoneCartGoods
+                } else {
+                    print(httpResponse.statusCode)
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
         .mapError { error in
             ApiError.convert(error: error)
         }

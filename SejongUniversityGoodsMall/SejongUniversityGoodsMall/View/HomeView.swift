@@ -14,11 +14,9 @@ struct HomeView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
-    @State private var searchText: String = ""
-    @State private var isSearching: Bool = false
+   
     @State private var currentCategory: Category = Category(id: 0, name: "ALLPRODUCT")
     
-    @FocusState private var searchingFocused: Bool
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -123,18 +121,15 @@ struct HomeView: View {
             
             Spacer()
             
-            Button {
-                withAnimation(.spring()) {
-                    isSearching = true
-                    searchingFocused = true
-                }
+            NavigationLink {
+                SearchView()
+                    .navigationTitle("")
+                    .modifier(NavigationColorModifier())
             } label: {
-                if !isSearching {
-                    Label("검색", systemImage: "magnifyingglass")
-                        .font(.title)
-                        .labelStyle(.iconOnly)
-                        .matchedGeometryEffect(id: "검색", in: heroEffect)
-                }
+                Label("검색", systemImage: "magnifyingglass")
+                    .font(.title)
+                    .labelStyle(.iconOnly)
+                    .matchedGeometryEffect(id: "검색", in: heroEffect)
             }
             
             NavigationLink {
@@ -340,132 +335,6 @@ struct HomeView: View {
             }
         }
         .padding(.horizontal)
-    }
-    
-    @ViewBuilder
-    func searchView() -> some View {
-        VStack(alignment: .leading) {
-            HStack() {
-                HStack {
-                    Label("검색", systemImage: "magnifyingglass")
-                        .labelStyle(.iconOnly)
-                        .foregroundColor(Color("main-text-color").opacity(0.7))
-                    
-                    TextField("검색", text: $searchText, prompt: Text("상품을 검색해주세요").font(.footnote).foregroundColor(Color("main-text-color").opacity(0.7)))
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.default)
-                        .submitLabel(.search)
-                        .onSubmit {
-//                            recentSearches.insert(searchText, at: 0)
-                        }
-                        .focused($searchingFocused)
-                        
-                        if searchText != "" {
-                            Button {
-                                withAnimation {
-                                    searchText = ""
-                                }
-                            } label: {
-                                Label("삭제", systemImage: "xmark.circle.fill")
-                                    .font(.headline.bold())
-                                    .labelStyle(.iconOnly)
-                                    .foregroundColor(Color("secondary-text-color"))
-                            }
-                        }
-                }
-                .matchedGeometryEffect(id: "검색", in: heroEffect)
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background {
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(Color("shape-bkg-color"))
-                }
-                .padding(.horizontal, 5)
-                
-                Spacer()
-                
-                Button("취소") {
-                    withAnimation(.spring()) {
-                        searchingFocused = false
-                        isSearching = false
-                        searchText = ""
-                    }
-                }
-                .padding(.horizontal, 5)
-                .foregroundColor(Color("secondary-text-color"))
-            }
-            .padding()
-            .background {
-                VStack {
-                    Spacer()
-                    
-                    Rectangle()
-                        .foregroundColor(Color("shape-bkg-color"))
-                        .frame(height: 1)
-                }
-            }
-            
-            HStack {
-                Text("최근 검색어")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color("main-text-color"))
-                
-                Spacer()
-                
-                Button("전체삭제", role: .destructive) {
-//                    recentSearches.removeAll()
-                }
-                .font(.footnote)
-                .foregroundColor(Color("main-highlight-color"))
-            }
-            .padding()
-            .padding(.horizontal, 5)
-            
-            VStack {
-//                ForEach(recentSearches, id: \.hashValue) { keyword in
-//                    HStack {
-//                        Button {
-//
-//                        } label: {
-//                            HStack(spacing: 20) {
-//                                Label("검색어", systemImage: "magnifyingglass")
-//                                    .labelStyle(.iconOnly)
-//                                    .foregroundColor(Color("main-text-color").opacity(0.7))
-//                                    .padding(8)
-//                                    .background {
-//                                        Circle()
-//                                            .foregroundColor(Color("shape-bkg-color"))
-//                                    }
-//
-//                                Text(keyword)
-//                                    .foregroundColor(Color("main-text-color"))
-//
-//                                Spacer()
-//                            }
-//                        }
-//
-//                        Button(role: .destructive) {
-//
-//                        } label: {
-//                            Label("삭제", systemImage: "xmark")
-//                                .labelStyle(.iconOnly)
-//                        }
-//                    }
-//                    .padding(.horizontal)
-//                    .padding(.vertical, 5)
-//                }
-            }
-            .foregroundColor(Color("main-text-color"))
-            .padding(.horizontal, 5)
-            
-            Spacer()
-        }
-        .background(.white)
-        .onTapGesture {
-            searchingFocused = false
-        }
     }
 }
 
