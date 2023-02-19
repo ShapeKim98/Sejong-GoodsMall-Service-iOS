@@ -37,6 +37,7 @@ class GoodsViewModel: ObservableObject {
     @Published var cartGoodsSelections: [Int: Bool] = [Int: Bool]()
     @Published var selectedCartGoodsCount: Int = 0
     @Published var selectedCartGoodsPrice: Int = 0
+    @Published var completeOrderResponseFromDetailGoods: OrderGoods = OrderGoods(buyerName: "loading...", phoneNumber: "loading...", address: nil, orderItems: [])
     
     func fetchGoodsList() {
         withAnimation(.spring()) {
@@ -93,7 +94,7 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { goodsList in
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
-                self.goodsList = goodsList
+                    self.goodsList = goodsList
                     self.isGoodsListLoading = false
                 }
             }
@@ -166,9 +167,6 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchGoodsListFromCatefory(id: Int) {
-        withAnimation(.spring()) {
-            self.isGoodsListLoading = true
-        }
         ApiService.fetchGoodsListFromCategory(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -221,7 +219,6 @@ class GoodsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.goodsList = goodsList
-                    self.isGoodsListLoading = false
                 }
             }
         }
@@ -412,12 +409,19 @@ class GoodsViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func deleteCartGoods(id: Int, token: String) {
-//        withAnimation {
-//            self.isCartGoodsListLoading = true
-//        }
+    func deleteCartGoods(token: String) {
+        withAnimation {
+            self.isCartGoodsListLoading = true
+        }
+        var publishers = [AnyPublisher<CartGoodsList, ApiError>]()
+        self.cart.forEach { goods in
+            if let isSelected = cartGoodsSelections[goods.id], isSelected {
+                publishers.append(ApiService.deleteCartGoods(id: goods.id, token: token))
+                cartGoodsSelections.removeValue(forKey: goods.id)
+            }
+        }
         
-        ApiService.deleteCartGoods(id: id, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        Publishers.MergeMany(publishers).eraseToAnyPublisher().receive(on: DispatchQueue.global(qos: .userInteractive)).sink { completion in
             print(Thread.current)
             switch completion {
                 case .failure(let error):
@@ -469,8 +473,9 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { cartGoods in
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
-                    self.cart = cartGoods
+                    self.fetchCartGoods(token: token)
                     self.updateCartData()
+                    self.isCartGoodsListLoading = false
                 }
             }
         }
@@ -478,7 +483,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func updateCartGoods(id: Int, quantity: Int, token: String) {
-        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).receive(on: DispatchQueue.global(qos: .userInteractive)).sink { completion in
                 switch completion {
                     case .failure(let error):
                         switch error {
@@ -531,6 +536,61 @@ class GoodsViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.fetchCartGoods(token: token)
                 }
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func sendOrderGoodsFromDetailGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderItems: [OrderItem], token: String) {
+        ApiService.sendOrderGoodsFromDetaiGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token).sink { completion in
+                switch completion {
+                    case .failure(let error):
+                        switch error {
+                            case .authenticationFailure:
+                                DispatchQueue.main.async {
+                                    self.message = "접근 권한이 없습니다"
+                                }
+                                print("접근 권한이 없습니다")
+                                break
+                            case .invalidResponse(let error):
+                                switch error.code {
+                                    case .badServerResponse:
+                                        DispatchQueue.main.async {
+                                            self.message = "서버 응답 오류 \(error.errorCode)"
+                                        }
+                                        print("서버 응답 오류")
+                                        break
+                                    case .badURL:
+                                        DispatchQueue.main.async {
+                                            self.message = "잘못된 url"
+                                        }
+                                        print("잘못된 url")
+                                        break
+                                    default:
+                                        DispatchQueue.main.async {
+                                            self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        }
+                                        print("알 수 없는 오류")
+                                        break
+                                }
+                            case .jsonDecodeError:
+                                DispatchQueue.main.async {
+                                    self.message = "데이터 디코딩 에러"
+                                }
+                                print("데이터 디코딩 에러")
+                                break
+                            default:
+                                DispatchQueue.main.async {
+                                    self.message = "알 수 없는 오류 \(error)"
+                                }
+                                print("알 수 없는 오류")
+                                break
+                        }
+                    case .finished:
+                        print("보내기 성공")
+                        break
+                }
+            } receiveValue: { data in
+                
             }
             .store(in: &subscriptions)
     }

@@ -13,10 +13,8 @@ struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
-    
    
     @State private var currentCategory: Category = Category(id: 0, name: "ALLPRODUCT")
-    
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -170,11 +168,7 @@ struct HomeView: View {
                 HStack {
                     ForEach(goodsViewModel.categoryList) { category in
                         categotyButton(category.categoryName, category: category) {
-                            if category.id == 0, category.name == "ALLPRODUCT" {
-                                goodsViewModel.fetchGoodsList()
-                            } else {
-                                goodsViewModel.fetchGoodsListFromCatefory(id: category.id)
-                            }
+                            goodsViewModel.fetchGoodsListFromCatefory(id: category.id)
                             
                             withAnimation(.spring()) {
                                 currentCategory = category
@@ -226,6 +220,7 @@ struct HomeView: View {
                 LazyVGrid(columns: columns) {
                     ForEach(goodsViewModel.goodsList) { item in
                         subGoodsView(item)
+                            .matchedGeometryEffect(id: "\(item.id)", in: heroEffect)
                     }
                     .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
                 }
@@ -242,6 +237,7 @@ struct HomeView: View {
         } else {
             List(goodsViewModel.goodsList) { item in
                 subGoodsView(item)
+                    .matchedGeometryEffect(id: "\(item.id)", in: heroEffect)
                 .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
                 .listRowSeparatorTint(.clear)
                 .listRowBackground(Color.clear)

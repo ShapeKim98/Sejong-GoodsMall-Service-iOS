@@ -105,17 +105,7 @@ struct CartView: View {
             
             Button {
                 withAnimation(.spring()) {
-                    goodsViewModel.isCartGoodsListLoading = true
-                    
-                    goodsViewModel.cart.forEach { goods in
-                        if let isSeleted = goodsViewModel.cartGoodsSelections[goods.id], isSeleted {
-                            goodsViewModel.deleteCartGoods(id: goods.id, token: loginViewModel.returnToken())
-                        }
-                    }
-                    
-                    goodsViewModel.cartGoodsSelections.removeAll()
-                    
-                    goodsViewModel.isCartGoodsListLoading = false
+                    goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
                 }
             } label: {
                 Text("선택 삭제")
@@ -147,7 +137,6 @@ struct CartView: View {
     
     @ViewBuilder
     func subCartGoods(goods: CartGoodsResponse) -> some View {
-        
         VStack {
             HStack(alignment: .top) {
                 Button {
@@ -208,7 +197,7 @@ struct CartView: View {
                             
                             Button {
                                 withAnimation(.spring()) {
-                                    goodsViewModel.deleteCartGoods(id: goods.id, token: loginViewModel.returnToken())
+                                    goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
                                 }
                             } label: {
                                 Label("삭제", systemImage: "xmark")
