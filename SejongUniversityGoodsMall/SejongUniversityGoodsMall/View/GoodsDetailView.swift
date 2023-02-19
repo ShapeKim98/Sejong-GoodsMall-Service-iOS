@@ -77,7 +77,7 @@ struct GoodsDetailView: View {
                         
                         let isMediumDisplayDevice = UIDevice.current.name == "iPhone 6s Plus" || UIDevice.current.name == "iPhone 7 Plus" || UIDevice.current.name == "iPhone 8 Plus"
                         
-                        OptionSheetView(isOptionSelected: $isOptionSelected)
+                        OptionSheetView(isOptionSelected: $isOptionSelected, orderType: $orderType)
                             .frame(height: reader.size.height + 50 - (isSmallDisplayDevice ? 270 : (isMediumDisplayDevice ? 350 : reader.size.width)) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)

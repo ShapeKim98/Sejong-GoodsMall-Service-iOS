@@ -19,6 +19,7 @@ struct OptionSheetView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var isOptionSelected: Bool
+    @Binding var orderType: OrderType
     
     @State private var optionChevronDegree: Double = 180
     @State private var showMessage: Bool = false
@@ -26,7 +27,6 @@ struct OptionSheetView: View {
     @State private var extendColorOptions: Bool = false
     @State private var noneOption: String?
     @State private var extendNoneOption: Bool = false
-    @State private var orderType: OrderType = .pickUpOrder
     
     var body: some View {
         VStack(spacing: 0) {
@@ -60,7 +60,7 @@ struct OptionSheetView: View {
                 
                 orderTypeButton("현장 수령", .pickUpOrder) {
                     withAnimation(.spring()) {
-                    orderType = .pickUpOrder
+                        orderType = .pickUpOrder
                     }
                 }
                 
@@ -408,7 +408,7 @@ struct OptionSheetView: View {
 
 struct OptionSheetView_Previews: PreviewProvider {
     static var previews: some View {
-        OptionSheetView(isOptionSelected: .constant(false))
+        OptionSheetView(isOptionSelected: .constant(false), orderType: .constant(.pickUpOrder))
             .environmentObject(GoodsViewModel())
     }
 }

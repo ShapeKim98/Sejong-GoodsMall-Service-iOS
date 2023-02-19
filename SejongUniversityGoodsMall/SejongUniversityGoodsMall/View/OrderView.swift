@@ -50,69 +50,12 @@ struct OrderView: View {
                 }
                 
                 orderGoodsList()
+                
+                orderButton()
+                    .padding(.top, 30)
             }
         }
-        .overlay(alignment: .bottom) {
-            if orderType == .pickUpOrder {
-                Button {
-                    showOrderCompleteView = true
-                } label: {
-                    HStack {
-                        Spacer()
-                        
-                        if loginViewModel.isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .padding()
-                                .tint(Color("main-highlight-color"))
-                        } else {
-                            Text("\(orderPrice)원 주문하기")
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding()
-                        }
-                        
-                        Spacer()
-                    }
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(isValidBuyerName && isValidPhoneNumber ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
-                    }
-                }
-                .disabled(!isValidBuyerName || !isValidPhoneNumber)
-                .padding([.horizontal, .bottom])
-                .padding(.bottom, 20)
-            } else {
-                Button {
-                    showOrderCompleteView = true
-                } label: {
-                    HStack {
-                        Spacer()
-                        
-                        if loginViewModel.isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .padding()
-                                .tint(Color("main-highlight-color"))
-                        } else {
-                            Text("\(orderPrice)원 주문하기")
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding()
-                        }
-                        
-                        Spacer()
-                    }
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(isValidBuyerName && isValidPhoneNumber && isValidPostalNumber && isValidAddress1 ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
-                    }
-                }
-                .disabled(!isValidBuyerName || !isValidPhoneNumber || !isValidPostalNumber || !isValidAddress1)
-                .padding([.horizontal, .bottom])
-                .padding(.bottom, 20)
-            }
-        }
+        .background(.white)
         .onAppear() {
             orderPrice = 0
             orderGoods.forEach { goods in
@@ -126,6 +69,7 @@ struct OrderView: View {
                         .navigationTitle("주문완료")
                         .navigationBarTitleDisplayMode(.inline)
                         .modifier(NavigationColorModifier())
+                        .background(.white)
                 }
             } else {
                 NavigationView {
@@ -133,6 +77,7 @@ struct OrderView: View {
                         .navigationTitle("주문완료")
                         .navigationBarTitleDisplayMode(.inline)
                         .modifier(NavigationColorModifier())
+                        .background(.white)
                 }
             }
         }
@@ -544,6 +489,69 @@ struct OrderView: View {
                 .frame(height: 1)
         }
         .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    func orderButton() -> some View {
+        if orderType == .pickUpOrder {
+            Button {
+                showOrderCompleteView = true
+            } label: {
+                HStack {
+                    Spacer()
+                    
+                    if loginViewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .padding()
+                            .tint(Color("main-highlight-color"))
+                    } else {
+                        Text("\(orderPrice)원 주문하기")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                    }
+                    
+                    Spacer()
+                }
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(isValidBuyerName && isValidPhoneNumber ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                }
+            }
+            .disabled(!isValidBuyerName || !isValidPhoneNumber)
+            .padding([.horizontal, .bottom])
+            .padding(.bottom, 20)
+        } else {
+            Button {
+                showOrderCompleteView = true
+            } label: {
+                HStack {
+                    Spacer()
+                    
+                    if loginViewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .padding()
+                            .tint(Color("main-highlight-color"))
+                    } else {
+                        Text("\(orderPrice)원 주문하기")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                    }
+                    
+                    Spacer()
+                }
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(isValidBuyerName && isValidPhoneNumber && isValidPostalNumber && isValidAddress1 ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                }
+            }
+            .disabled(!isValidBuyerName || !isValidPhoneNumber || !isValidPostalNumber || !isValidAddress1)
+            .padding([.horizontal, .bottom])
+            .padding(.bottom, 20)
+        }
     }
     
     @ViewBuilder
