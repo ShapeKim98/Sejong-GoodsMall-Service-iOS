@@ -13,4 +13,9 @@ enum FocusedTextField {
     case verifyPasswordField
     case nameField
     case verifyCodeField
+    case phoneNumberField
+    case postalNumberField
+    case address1
+    case address2
+    case deliveryRequirements
 }

@@ -22,6 +22,7 @@ struct GoodsDetailView: View {
     @State var imagePage: Int = 1
     @State var optionSheetDrag: CGFloat = .zero
     @State var isOptionSelected: Bool = false
+    @State var orderType: OrderType = .pickUpOrder
     
     var body: some View {
         GeometryReader { reader in
@@ -63,9 +64,6 @@ struct GoodsDetailView: View {
                         sellerInformationPage()
                 }
             }
-            .onDisappear() {
-                goodsViewModel.goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
-            }
             .overlay(alignment: .bottom) {
                 ZStack(alignment: .bottom) {
                     if showOptionSheet {
@@ -103,7 +101,7 @@ struct GoodsDetailView: View {
                     }
                     
                     if !isOptionSelected {
-                        PurchaseBarView(showOptionSheet: $showOptionSheet)
+                        PurchaseBarView(showOptionSheet: $showOptionSheet, orderType: $orderType)
                             .transition(.move(edge: .bottom))
                     }
                 }

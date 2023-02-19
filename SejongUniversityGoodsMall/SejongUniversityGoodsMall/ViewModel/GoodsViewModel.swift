@@ -539,6 +539,61 @@ class GoodsViewModel: ObservableObject {
             .store(in: &subscriptions)
     }
     
+    func sendOrderGoodsFromDetailGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderItems: [OrderItem], token: String) {
+        ApiService.sendOrderGoodsFromDetaiGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token).sink { completion in
+                switch completion {
+                    case .failure(let error):
+                        switch error {
+                            case .authenticationFailure:
+                                DispatchQueue.main.async {
+                                    self.message = "접근 권한이 없습니다"
+                                }
+                                print("접근 권한이 없습니다")
+                                break
+                            case .invalidResponse(let error):
+                                switch error.code {
+                                    case .badServerResponse:
+                                        DispatchQueue.main.async {
+                                            self.message = "서버 응답 오류 \(error.errorCode)"
+                                        }
+                                        print("서버 응답 오류")
+                                        break
+                                    case .badURL:
+                                        DispatchQueue.main.async {
+                                            self.message = "잘못된 url"
+                                        }
+                                        print("잘못된 url")
+                                        break
+                                    default:
+                                        DispatchQueue.main.async {
+                                            self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        }
+                                        print("알 수 없는 오류")
+                                        break
+                                }
+                            case .jsonDecodeError:
+                                DispatchQueue.main.async {
+                                    self.message = "데이터 디코딩 에러"
+                                }
+                                print("데이터 디코딩 에러")
+                                break
+                            default:
+                                DispatchQueue.main.async {
+                                    self.message = "알 수 없는 오류 \(error)"
+                                }
+                                print("알 수 없는 오류")
+                                break
+                        }
+                    case .finished:
+                        print("보내기 성공")
+                        break
+                }
+            } receiveValue: { data in
+                
+            }
+            .store(in: &subscriptions)
+    }
+    
     func updateCartData() {
         self.selectedCartGoodsCount = 0
         self.selectedCartGoodsPrice = 0

@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		C5053705297C1E82003E808C /* PurchaseBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5053704297C1E82003E808C /* PurchaseBarView.swift */; };
 		C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5167BB5299E7324006C5B23 /* AppViewModel.swift */; };
+		C5231D2029A2135600A720DC /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D1F29A2135600A720DC /* OrderView.swift */; };
+		C5231D2229A213E600A720DC /* OrderGoods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2129A213E600A720DC /* OrderGoods.swift */; };
+		C5231D2429A2281100A720DC /* OrderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2329A2281100A720DC /* OrderType.swift */; };
 		C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */; };
 		C529B43D298BBC3700958B7D /* FocusedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43C298BBC3700958B7D /* FocusedTextField.swift */; };
 		C529B43F298BC48000958B7D /* TextFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43E298BC48000958B7D /* TextFieldModifier.swift */; };
@@ -55,6 +58,9 @@
 /* Begin PBXFileReference section */
 		C5053704297C1E82003E808C /* PurchaseBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseBarView.swift; sourceTree = "<group>"; };
 		C5167BB5299E7324006C5B23 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		C5231D1F29A2135600A720DC /* OrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
+		C5231D2129A213E600A720DC /* OrderGoods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderGoods.swift; sourceTree = "<group>"; };
+		C5231D2329A2281100A720DC /* OrderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderType.swift; sourceTree = "<group>"; };
 		C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationColorModifier.swift; sourceTree = "<group>"; };
 		C529B43C298BBC3700958B7D /* FocusedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextField.swift; sourceTree = "<group>"; };
 		C529B43E298BC48000958B7D /* TextFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldModifier.swift; sourceTree = "<group>"; };
@@ -128,6 +134,7 @@
 				C5534D302989409D006DBE09 /* DatePickerSheetView.swift */,
 				C592F317299A2857003CF15E /* CartView.swift */,
 				C592F31B299B4D17003CF15E /* UserInformationView.swift */,
+				C5231D1F29A2135600A720DC /* OrderView.swift */,
 				C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */,
 				C592F31D299B51E2003CF15E /* WishListView.swift */,
 			);
@@ -196,6 +203,7 @@
 				C5C73B032987A11700D42719 /* SetNavigationBarColor.swift */,
 				C5C73B052987C12C00D42719 /* DrawingCheckmark.swift */,
 				C529B43C298BBC3700958B7D /* FocusedTextField.swift */,
+				C5231D2329A2281100A720DC /* OrderType.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -214,6 +222,7 @@
 				C5C540292997BC4E00EF9AEC /* CartGoodsRequest.swift */,
 				C52CB0EB29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift */,
 				C592F319299B3425003CF15E /* Category.swift */,
+				C5231D2129A213E600A720DC /* OrderGoods.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -315,6 +324,7 @@
 				C592F31C299B4D17003CF15E /* UserInformationView.swift in Sources */,
 				C529B43D298BBC3700958B7D /* FocusedTextField.swift in Sources */,
 				C5DF2FDF2979854A00642700 /* SampleGoodsModel.swift in Sources */,
+				C5231D2029A2135600A720DC /* OrderView.swift in Sources */,
 				C592F31A299B3425003CF15E /* Category.swift in Sources */,
 				C529B43F298BC48000958B7D /* TextFieldModifier.swift in Sources */,
 				C5DF2FE129798C7900642700 /* GoodsDetailView.swift in Sources */,
@@ -339,8 +349,10 @@
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
 				C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
+				C5231D2429A2281100A720DC /* OrderType.swift in Sources */,
 				C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */,
 				C5D32C7929794C4A00644BFD /* AppView.swift in Sources */,
+				C5231D2229A213E600A720DC /* OrderGoods.swift in Sources */,
 				C5C73AF42986604100D42719 /* LoginResponse.swift in Sources */,
 				C5C73AF22986603700D42719 /* LoginRequest.swift in Sources */,
 				C52CB0EC29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift in Sources */,

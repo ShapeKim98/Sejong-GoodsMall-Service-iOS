@@ -21,6 +21,7 @@ enum APIURL {
     case fetchCartGoods
     case deleteCartGoods
     case updateCartGoods
+    case sendOrderGoodsFromDetailGoods
     
     func url(id: Int? = nil) -> URL? {
         switch self {
@@ -64,6 +65,12 @@ enum APIURL {
                 return URL(string: "cart/delete/\(id)", relativeTo: APIURL.server.url())
             case .updateCartGoods:
                 return URL(string: "cart/update", relativeTo: APIURL.server.url())
+            case .sendOrderGoodsFromDetailGoods:
+                guard let id = id else {
+                    return nil
+                }
+                
+                return URL(string: "order/\(id)", relativeTo: APIURL.server.url())
         }
     }
 }
@@ -399,6 +406,37 @@ enum ApiService {
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.isNoneCartGoods
+                } else {
+                    print(httpResponse.statusCode)
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            return data
+        }
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func sendOrderGoodsFromDetaiGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderItems: [OrderItem], token: String) -> AnyPublisher<Data, ApiError> {
+        let body = OrderGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems)
+        
+        var request = URLRequest(url: APIURL.sendOrderGoodsFromDetailGoods.url(id: id)!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "PATCH"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw URLError(.badURL)
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
                 } else {
                     print(httpResponse.statusCode)
                     throw URLError(.badServerResponse)

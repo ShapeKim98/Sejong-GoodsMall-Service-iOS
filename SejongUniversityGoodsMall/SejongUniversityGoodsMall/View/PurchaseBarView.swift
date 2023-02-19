@@ -12,6 +12,7 @@ struct PurchaseBarView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var showOptionSheet: Bool
+    @Binding var orderType: OrderType
     
     var body: some View {
         VStack(spacing: 0) {
@@ -84,26 +85,51 @@ struct PurchaseBarView: View {
                 .foregroundColor(Color("main-text-color"))
             }
             
-            Button {
-                withAnimation(.spring()) {
-                    showOptionSheet = true
+            if showOptionSheet {
+                NavigationLink {
+                    OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+                        .navigationTitle("주문서 작성")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .modifier(NavigationColorModifier())
+                } label: {
+                    HStack {
+                        Spacer()
+                        
+                        Text("구매하기")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.vertical)
+                        
+                        Spacer()
+                    }
                 }
-            } label: {
-                HStack {
-                    Spacer()
-                    
-                    Text("구매하기")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding(.vertical)
-                    
-                    Spacer()
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color("main-highlight-color"))
                 }
-            }
-            .background {
-                RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor(Color("main-highlight-color"))
+            } else {
+                Button {
+                    withAnimation(.spring()) {
+                        showOptionSheet = true
+                    }
+                } label: {
+                    HStack {
+                        Spacer()
+                        
+                        Text("구매하기")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.vertical)
+                        
+                        Spacer()
+                    }
+                }
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color("main-highlight-color"))
+                }
             }
         }
     }
@@ -111,7 +137,7 @@ struct PurchaseBarView: View {
 
 struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
-        PurchaseBarView(showOptionSheet: .constant(false))
+        PurchaseBarView(showOptionSheet: .constant(false), orderType: .constant(.pickUpOrder))
             .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
     }
