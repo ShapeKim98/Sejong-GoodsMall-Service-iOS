@@ -37,6 +37,7 @@ class GoodsViewModel: ObservableObject {
     @Published var cartGoodsSelections: [Int: Bool] = [Int: Bool]()
     @Published var selectedCartGoodsCount: Int = 0
     @Published var selectedCartGoodsPrice: Int = 0
+    @Published var completeOrderResponseFromDetailGoods: OrderGoods = OrderGoods(buyerName: "loading...", phoneNumber: "loading...", address: nil, orderItems: [])
     
     func fetchGoodsList() {
         withAnimation(.spring()) {

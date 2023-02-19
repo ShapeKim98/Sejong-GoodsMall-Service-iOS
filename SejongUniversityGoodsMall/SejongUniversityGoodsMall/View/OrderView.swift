@@ -28,6 +28,8 @@ struct OrderView: View {
     @State private var address2: String = ""
     @State private var deliveryRequirements: String = ""
     @State private var showFindAddressView: Bool = false
+    @State private var showOrderCompleteView: Bool = false
+    @State private var limitDate: String = ""
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -53,7 +55,7 @@ struct OrderView: View {
         .overlay(alignment: .bottom) {
             if orderType == .pickUpOrder {
                 Button {
-                    
+                    showOrderCompleteView = true
                 } label: {
                     HStack {
                         Spacer()
@@ -82,7 +84,7 @@ struct OrderView: View {
                 .padding(.bottom, 20)
             } else {
                 Button {
-                    
+                    showOrderCompleteView = true
                 } label: {
                     HStack {
                         Spacer()
@@ -115,6 +117,23 @@ struct OrderView: View {
             orderPrice = 0
             orderGoods.forEach { goods in
                 orderPrice += (goods.price * goods.quantity)
+            }
+        }
+        .fullScreenCover(isPresented: $showOrderCompleteView) {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    orderCompleteView()
+                        .navigationTitle("주문완료")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .modifier(NavigationColorModifier())
+                }
+            } else {
+                NavigationView {
+                    orderCompleteView()
+                        .navigationTitle("주문완료")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .modifier(NavigationColorModifier())
+                }
             }
         }
     }
@@ -525,6 +544,177 @@ struct OrderView: View {
                 .frame(height: 1)
         }
         .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    func orderCompleteView() -> some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+                
+                Text("상품 주문이 완료되었습니다.")
+                    .font(.title3)
+                    .padding(.top)
+                
+                HStack(spacing: 0) {
+                    Text("48시간 내 ")
+                        .foregroundColor(Color("point-color"))
+                    Text("매장에 방문하여 결제 해주시기 바랍니다.")
+                        .foregroundColor(Color("secondary-text-color"))
+                }
+                .padding(.top)
+                
+                Text("현장 수령 기한: \(limitDate)")
+                    .foregroundColor(Color("main-highlight-color"))
+                    .padding(.vertical)
+                    .onAppear() {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "yyyy.MM.dd HH시 mm분"
+                        limitDate = formatter.string(from: .now.addingTimeInterval(3600 * 24 * 2))
+                    }
+                
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+                
+                VStack {
+                    HStack(alignment: .top) {
+                        if goodsViewModel.isCartGoodsListLoading {
+                            Color("main-shape-bkg-color")
+                                .frame(width: 100, height: 100)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .shadow(radius: 1)
+                        } else {
+                            if let image = goodsViewModel.goodsDetail.goodsImages.first {
+                                AsyncImage(url: URL(string: image.oriImgName)) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                } placeholder: {
+                                    ZStack {
+                                        Color("main-shape-bkg-color")
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        
+                                        ProgressView()
+                                            .tint(Color("main-highlight-color"))
+                                    }
+                                }
+                                .frame(width: 100, height: 100)
+                                .shadow(radius: 1)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text(goodsViewModel.goodsDetail.title)
+                                    .foregroundColor(Color("main-text-color"))
+                                
+                                Spacer()
+                            }
+                            
+                            Spacer()
+                            
+                            HStack {
+                                Text("\(goodsViewModel.completeOrderResponseFromDetailGoods.price)원")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color("main-text-color"))
+                                
+                                Spacer()
+                            }
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 5)
+                    }
+                    .padding(.vertical)
+                    
+                    Rectangle()
+                        .foregroundColor(Color("shape-bkg-color"))
+                        .frame(height: 1)
+                }
+                .padding(.horizontal)
+                
+                Group {
+                    if orderType == .parcelOrder {
+                        orderCompleteInfo(title: "예금주명", content: "김세종")
+                        
+                        orderCompleteInfo(title: "입금은행", content: "국민은행")
+                        
+                        orderCompleteInfo(title: "계좌번호", content: "304102-02-175615")
+                    }
+                    
+                    orderCompleteInfo(title: "업체명", content: "세종이와 아이들")
+                    
+                    orderCompleteInfo(title: "주소", content: "서울 광진구 능동로 195-16")
+                    
+                    orderCompleteInfo(title: "연락처", content: "010-1234-5678")
+                    
+                    orderCompleteInfo(title: "요청사항", content: "연락 드리겠습니다.")
+                }
+                .padding(.horizontal)
+                
+                
+                Button {
+                    
+                } label: {
+                    HStack {
+                        Spacer()
+                        
+                        Text("주문 내역 확인하기")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                        
+                        Spacer()
+                    }
+                    .background {
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundColor(Color("main-highlight-color"))
+                    }
+                }
+                .padding([.horizontal, .bottom])
+                .padding(.vertical, 20)
+                .padding(.top, 20)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showOrderCompleteView = false
+                } label: {
+                    Label("닫기", systemImage: "xmark")
+                        .labelStyle(.iconOnly)
+                        .font(.footnote)
+                        .foregroundColor(Color("main-text-color"))
+                }
+            }
+        }
+        .overlay(alignment: .bottom) {
+        }
+    }
+    
+    @ViewBuilder
+    func orderCompleteInfo(title: String, content: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(Color("secondary-text-color-strong"))
+                .frame(minWidth: 100)
+            
+            Text(content)
+                .foregroundColor(Color("main-text-color"))
+                .textSelection(.enabled)
+            
+            Spacer()
+        }
+        .padding(.vertical)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
+        }
     }
 }
 

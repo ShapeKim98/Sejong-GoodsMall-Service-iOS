@@ -12,6 +12,15 @@ struct OrderGoods: Codable {
     let buyerName, phoneNumber: String
     let address: Address?
     let orderItems: [OrderItem]
+    
+    var price: Int {
+        var sum: Int = 0
+        orderItems.forEach { goods in
+            sum += goods.price
+        }
+        
+        return sum
+    }
 }
 
 // MARK: - Address

@@ -17,12 +17,13 @@ struct GoodsDetailView: View {
     
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
-    @State var service: Servie = .goodsInformation
-    @State var showOptionSheet: Bool = false
-    @State var imagePage: Int = 1
-    @State var optionSheetDrag: CGFloat = .zero
-    @State var isOptionSelected: Bool = false
-    @State var orderType: OrderType = .pickUpOrder
+    @State private var service: Servie = .goodsInformation
+    @State private var showOptionSheet: Bool = false
+    @State private var imagePage: Int = 1
+    @State private var optionSheetDrag: CGFloat = .zero
+    @State private var isOptionSelected: Bool = false
+    @State private var orderType: OrderType = .pickUpOrder
+    @State private var showHelpAlert: Bool = false
     
     var body: some View {
         GeometryReader { reader in
@@ -77,7 +78,7 @@ struct GoodsDetailView: View {
                         let isMediumDisplayDevice = UIDevice.current.name == "iPhone 6s Plus" || UIDevice.current.name == "iPhone 7 Plus" || UIDevice.current.name == "iPhone 8 Plus"
                         
                         OptionSheetView(isOptionSelected: $isOptionSelected)
-                            .frame(height: reader.size.height - (isSmallDisplayDevice ? 270 : (isMediumDisplayDevice ? 350 : reader.size.width)) + 5)
+                            .frame(height: reader.size.height + 50 - (isSmallDisplayDevice ? 270 : (isMediumDisplayDevice ? 350 : reader.size.width)) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
                             .gesture(
@@ -141,7 +142,30 @@ struct GoodsDetailView: View {
                 .font(.title2.bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
+            
             Spacer()
+            
+            Button {
+                showHelpAlert = true
+            } label: {
+                Label("도움말", systemImage: "info.circle")
+                    .font(.title3)
+                    .labelStyle(.iconOnly)
+                    .foregroundColor(Color("point-color"))
+            }
+            .alert("도움말", isPresented: $showHelpAlert) {
+                Button {
+                    showHelpAlert = false
+                } label: {
+                   Text("확인")
+                }
+                .foregroundColor(Color("main-highlight-color"))
+
+            } message: {
+                Text("현징 수령 선택시 현장에서만 결제 가능하고,\n택배 수령 선택시 무통장 입금만 결제 가능합니다.")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+            }
         }
         .padding(.horizontal)
         
@@ -257,7 +281,7 @@ struct GoodsDetailView: View {
     }
 }
 
-struct Previews_GoodsDetailView_Previews: PreviewProvider {
+struct GoodsDetailView_Previews: PreviewProvider {
     static var previews: some View {
         GoodsDetailView()
             .environmentObject(GoodsViewModel())
