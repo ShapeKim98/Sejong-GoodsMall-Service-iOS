@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct UserInformationView: View {
+    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
+    @EnvironmentObject var loginViewModel: LoginViewModel
     
     var body: some View {
         ScrollView {
@@ -20,9 +23,6 @@ struct UserInformationView: View {
                 orderHistoryArea()
                     .padding([.horizontal, .bottom])
                 
-//                accountManageArea()
-//                    .padding([.horizontal, .bottom])
-                
                 helpArea()
                     .padding(.horizontal)
                 
@@ -30,6 +30,38 @@ struct UserInformationView: View {
             }
         }
         .background(.white)
+        .onAppear() {
+            if !loginViewModel.isAuthenticate {
+                appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    loginViewModel.showLoginView = true
+                } secondaryButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    dismiss()
+                } closeButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    dismiss()
+                } onDisAppearAction: {
+                    dismiss()
+                    appViewModel.messageBox = nil
+                }
+                
+                withAnimation(.spring()) {
+                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBox = true
+                }
+            }
+        }
     }
     
     @ViewBuilder
@@ -118,7 +150,7 @@ struct UserInformationView: View {
     func orderHistoryArea() -> some View {
         VStack(spacing: 0) {
             NavigationLink {
-                
+                OrderHistoryView()
             } label: {
                 HStack {
                     Text("주문 내역")
@@ -197,7 +229,7 @@ struct UserInformationView: View {
             Button {
                 withAnimation(.spring()) {
                     appViewModel.showAlertView = true
-                    appViewModel.showNeedLoginMessageBox = true
+                    appViewModel.showMessageBox = true
                 }
             } label: {
                 HStack {
@@ -317,12 +349,14 @@ struct UserInformationView_Previews: PreviewProvider {
                 UserInformationView()
                     .environmentObject(AppViewModel())
                     .environmentObject(GoodsViewModel())
+                    .environmentObject(LoginViewModel())
             }
         } else {
             NavigationView {
                 UserInformationView()
                     .environmentObject(AppViewModel())
                     .environmentObject(GoodsViewModel())
+                    .environmentObject(LoginViewModel())
             }
         }
     }

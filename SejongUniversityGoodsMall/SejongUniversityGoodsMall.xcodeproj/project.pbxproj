@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C5053705297C1E82003E808C /* PurchaseBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5053704297C1E82003E808C /* PurchaseBarView.swift */; };
+		C50FD0F629A3B2170001DAB9 /* NoticeAndFAQView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */; };
 		C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5167BB5299E7324006C5B23 /* AppViewModel.swift */; };
 		C5231D2029A2135600A720DC /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D1F29A2135600A720DC /* OrderView.swift */; };
 		C5231D2229A213E600A720DC /* OrderGoods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2129A213E600A720DC /* OrderGoods.swift */; };
@@ -25,6 +26,7 @@
 		C5515ECB299BD1CF00A3B850 /* MessageBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */; };
 		C5534D2F29892EF6006DBE09 /* FindEmailPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */; };
 		C5534D312989409D006DBE09 /* DatePickerSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D302989409D006DBE09 /* DatePickerSheetView.swift */; };
+		C57973AE29A36EF7007243A3 /* OrderHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57973AD29A36EF7007243A3 /* OrderHistoryView.swift */; };
 		C592F318299A2857003CF15E /* CartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F317299A2857003CF15E /* CartView.swift */; };
 		C592F31A299B3425003CF15E /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F319299B3425003CF15E /* Category.swift */; };
 		C592F31C299B4D17003CF15E /* UserInformationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C592F31B299B4D17003CF15E /* UserInformationView.swift */; };
@@ -57,6 +59,7 @@
 
 /* Begin PBXFileReference section */
 		C5053704297C1E82003E808C /* PurchaseBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseBarView.swift; sourceTree = "<group>"; };
+		C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoticeAndFAQView.swift; sourceTree = "<group>"; };
 		C5167BB5299E7324006C5B23 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		C5231D1F29A2135600A720DC /* OrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
 		C5231D2129A213E600A720DC /* OrderGoods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderGoods.swift; sourceTree = "<group>"; };
@@ -76,6 +79,7 @@
 		C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBoxView.swift; sourceTree = "<group>"; };
 		C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailPasswordView.swift; sourceTree = "<group>"; };
 		C5534D302989409D006DBE09 /* DatePickerSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerSheetView.swift; sourceTree = "<group>"; };
+		C57973AD29A36EF7007243A3 /* OrderHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderHistoryView.swift; sourceTree = "<group>"; };
 		C592F317299A2857003CF15E /* CartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartView.swift; sourceTree = "<group>"; };
 		C592F319299B3425003CF15E /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		C592F31B299B4D17003CF15E /* UserInformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInformationView.swift; sourceTree = "<group>"; };
@@ -130,6 +134,8 @@
 				C52CB0ED29A0DFED0020C7BE /* SearchView.swift */,
 				C5DF2FE029798C7900642700 /* GoodsDetailView.swift */,
 				C5053704297C1E82003E808C /* PurchaseBarView.swift */,
+				C57973AD29A36EF7007243A3 /* OrderHistoryView.swift */,
+				C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */,
 				C595C74C298113F100AF6E86 /* OptionSheetView.swift */,
 				C5534D302989409D006DBE09 /* DatePickerSheetView.swift */,
 				C592F317299A2857003CF15E /* CartView.swift */,
@@ -344,6 +350,7 @@
 				C5C73AFE2986B07000D42719 /* GoodsViewModel.swift in Sources */,
 				C592F318299A2857003CF15E /* CartView.swift in Sources */,
 				C5C73AD02983B57700D42719 /* LoginView.swift in Sources */,
+				C50FD0F629A3B2170001DAB9 /* NoticeAndFAQView.swift in Sources */,
 				C5C73B042987A11700D42719 /* SetNavigationBarColor.swift in Sources */,
 				C53D7A282991518E00F4DB67 /* CartGoodsResponse.swift in Sources */,
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
@@ -355,6 +362,7 @@
 				C5231D2229A213E600A720DC /* OrderGoods.swift in Sources */,
 				C5C73AF42986604100D42719 /* LoginResponse.swift in Sources */,
 				C5C73AF22986603700D42719 /* LoginRequest.swift in Sources */,
+				C57973AE29A36EF7007243A3 /* OrderHistoryView.swift in Sources */,
 				C52CB0EC29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift in Sources */,
 				C5C73AF82986611600D42719 /* FindEmailResponse.swift in Sources */,
 				C5C73B062987C12C00D42719 /* DrawingCheckmark.swift in Sources */,

@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct CartView: View {
+    @Namespace var orderTypeSeletection
+    
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var isAllSelected: Bool = false
+    @State var orderType: OrderType = .pickUpOrder
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -19,6 +23,8 @@ struct CartView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            orderTypeSelection()
+            
             allSeletionAndDeleteSeleted()
             
             Rectangle()
@@ -26,9 +32,7 @@ struct CartView: View {
                 .frame(height: 10)
             
             cartGoodsList()
-        }
-        .background(.white)
-        .overlay(alignment: .bottom) {
+            
             Button {
                 
             } label: {
@@ -57,6 +61,60 @@ struct CartView: View {
             .disabled(goodsViewModel.selectedCartGoodsPrice == 0 || loginViewModel.isLoading)
             .padding([.horizontal, .bottom])
             .padding(.bottom, 20)
+        }
+        .background(.white)
+    }
+    
+    @ViewBuilder
+    func orderTypeSelection() -> some View {
+        HStack {
+            Spacer()
+            
+            orderTypeButton("현장 수령", .pickUpOrder) {
+                withAnimation(.spring()) {
+                    orderType = .pickUpOrder
+                }
+            }
+            
+            Spacer(minLength: 150)
+            
+            orderTypeButton("택배 수령", .parcelOrder) {
+                withAnimation(.spring()) {
+                    orderType = .parcelOrder
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.top, 10)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
+        }
+        .background(.white)
+    }
+    
+    @ViewBuilder
+    func orderTypeButton(_ title: String, _ seleted: OrderType, _ action: @escaping () -> Void) -> some View {
+        let isSelected = orderType == seleted
+        
+        Button(action: action) {
+            VStack {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .bold : .light)
+                    .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
+                    .padding(.bottom, 10)
+            }
+            .overlay(alignment: .bottom) {
+                if isSelected {
+                    Rectangle()
+                        .foregroundColor(Color("main-highlight-color"))
+                        .frame(height: 3)
+                        .matchedGeometryEffect(id: "선택", in: orderTypeSeletection)
+                }
+            }
         }
     }
     
@@ -104,9 +162,31 @@ struct CartView: View {
             Spacer()
             
             Button {
-                withAnimation(.spring()) {
-                    goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
+                appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "선택하신 상품을 삭제하시겠습니까?", secondaryTitle: "다음에 구매하실 예정이라면 찜하기에 잠시 보관해두세요.", mainButtonTitle: "찜하기에 보관하기", secondaryButtonTitle: "삭제하기") {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                } secondaryButtonAction: {
+                    withAnimation(.spring()) {
+                        goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                } closeButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                } onDisAppearAction: {
+                    appViewModel.messageBox = nil
                 }
+                
+                withAnimation(.spring()) {
+                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBox = true
+                }
+                
             } label: {
                 Text("선택 삭제")
                     .fontWeight(.bold)
@@ -283,6 +363,7 @@ struct CartView: View {
 struct CartView_Previews: PreviewProvider {
     static var previews: some View {
         CartView()
+            .environmentObject(AppViewModel())
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }

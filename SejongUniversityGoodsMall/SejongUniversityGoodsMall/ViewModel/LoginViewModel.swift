@@ -13,6 +13,8 @@ class LoginViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     private var token: String = ""
     
+    @Published var showLoginView: Bool = true
+    
     @Published var isSignUpComplete: Bool = false
     @Published var isAuthenticate: Bool = false
     @Published var findComplete: Bool = false
@@ -76,9 +78,6 @@ class LoginViewModel: ObservableObject {
                         self.isLoading = false
                     }
                 case .finished:
-                    DispatchQueue.main.async {
-                        self.message = "환영합니다!!\n회원가입이 완료되었습니다!!"
-                    }
                     print("회원가입 성공")
                     break
             }
@@ -148,9 +147,6 @@ class LoginViewModel: ObservableObject {
                         self.isLoading = false
                     }
                 case .finished:
-                    DispatchQueue.main.async {
-                        self.message = "로그인 성공!!"
-                    }
                     print("로그인성공")
                     break
             }
@@ -159,6 +155,7 @@ class LoginViewModel: ObservableObject {
                 withAnimation(.easeInOut) {
                     self.isLoading = false
                     self.isAuthenticate = true
+                    self.showLoginView = false
                 }
             }
             self.token = loginResponse.token
@@ -226,6 +223,7 @@ class LoginViewModel: ObservableObject {
                 withAnimation(.spring()) {
                     self.isLoading = false
                     self.findComplete = true
+                    self.showLoginView = false
                 }
             }
             print(findEmailResponse)

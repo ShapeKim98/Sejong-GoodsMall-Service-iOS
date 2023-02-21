@@ -52,19 +52,16 @@ struct HomeView: View {
                                 .onTapGesture {
                                     withAnimation(.spring()) {
                                         appViewModel.showAlertView = false
-                                        appViewModel.showNeedLoginMessageBox = false
+                                        appViewModel.showMessageBox = false
                                     }
                                 }
                         }
                         
-                        if appViewModel.showNeedLoginMessageBox {
-                            MessageBoxView(showMessageBox: $appViewModel.showNeedLoginMessageBox, title: "로그인이 필요한 서비스 입니다.", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러가기", secondaryButtonTitle: "계속 둘러보기") {
-                                
-                            } secondaryButtonAction: {
-                                
+                        if appViewModel.showMessageBox {
+                            if let messageBox = appViewModel.messageBox {
+                                messageBox
+                                    .transition(.move(edge: .bottom))
                             }
-                            .transition(.move(edge: .bottom))
-
                         }
                     }
                     .ignoresSafeArea()
@@ -90,19 +87,17 @@ struct HomeView: View {
                                 .onTapGesture {
                                     withAnimation(.spring()) {
                                         appViewModel.showAlertView = false
-                                        appViewModel.showNeedLoginMessageBox = false
+                                        appViewModel.showMessageBox = false
+                                        appViewModel.messageBox = nil
                                     }
                                 }
                         }
                         
-                        if appViewModel.showNeedLoginMessageBox {
-                            MessageBoxView(showMessageBox: $appViewModel.showNeedLoginMessageBox, title: "로그인이 필요한 서비스 입니다.", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러가기", secondaryButtonTitle: "계속 둘러보기") {
-                                
-                            } secondaryButtonAction: {
-                                
+                        if appViewModel.showMessageBox {
+                            if let messageBox = appViewModel.messageBox {
+                                messageBox
+                                    .transition(.move(edge: .bottom))
                             }
-                            .transition(.move(edge: .bottom))
-
                         }
                     }
                     .ignoresSafeArea()

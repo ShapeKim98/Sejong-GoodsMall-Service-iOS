@@ -16,8 +16,6 @@ struct PurchaseBarView: View {
     @Binding var showOptionSheet: Bool
     @Binding var orderType: OrderType
     
-    @State private var showOrderTypeAlert: Bool = false
-    
     var body: some View {
         VStack(spacing: 0) {
             LinearGradient(colors: [.black.opacity(0),
@@ -120,7 +118,9 @@ struct PurchaseBarView: View {
                 .matchedGeometryEffect(id: "구매하기", in: heroEffect)
             } else {
                 Button {
-                    showOrderTypeAlert = true
+                    withAnimation(.spring()) {
+                        showOptionSheet = true
+                    }
                 } label: {
                     HStack {
                         Spacer()
@@ -139,19 +139,6 @@ struct PurchaseBarView: View {
                         .foregroundColor(Color("main-highlight-color"))
                 }
                 .matchedGeometryEffect(id: "구매하기", in: heroEffect)
-                .alert("주문 방법 안내", isPresented: $showOrderTypeAlert) {
-                    Button {
-                        withAnimation(.spring()) {
-                            showOptionSheet = true
-                        }
-                    } label: {
-                        Text("확인")
-                    }
-
-                } message: {
-                    Text("해당 상품은 현장 수령만 가능합니다.")
-                }
-
             }
         }
     }

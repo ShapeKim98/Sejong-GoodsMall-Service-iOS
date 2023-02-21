@@ -10,5 +10,6 @@ import SwiftUI
 
 class AppViewModel: ObservableObject {
     @Published var showAlertView: Bool = false
-    @Published var showNeedLoginMessageBox: Bool = false
+    @Published var showMessageBox: Bool = false
+    @Published var messageBox: MessageBoxView?
 }

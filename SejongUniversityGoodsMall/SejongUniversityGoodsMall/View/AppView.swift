@@ -18,48 +18,32 @@ struct AppView: View {
     @State var message: String = ""
     
     var body: some View {
-        if loginViewModel.isAuthenticate {
-            HomeView()
-                .onAppear() {
-                    goodsViewModel.fetchGoodsList()
-                    goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+        HomeView()
+            .onAppear() {
+                goodsViewModel.fetchGoodsList()
+                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+            }
+            .onChange(of: loginViewModel.message, perform: { newValue in
+                if let msg = newValue {
+                    message = msg
+                    showMessage = true
                 }
-                .onChange(of: loginViewModel.message, perform: { newValue in
-                    if let msg = newValue {
-                        message = msg
-                        showMessage = true
-                    }
-                })
-                .onChange(of: goodsViewModel.message, perform: { newValue in
-                    if let msg = newValue {
-                        message = msg
-                        showMessage = true
-                    }
-                })
-                .alert(message, isPresented: $showMessage) {
-                    Button("확인") {
-                        loginViewModel.message = nil
-                        if goodsViewModel.message != nil {
-                            goodsViewModel.message = nil
-                            goodsViewModel.fetchGoodsList()
-                        }
+            })
+            .onChange(of: goodsViewModel.message, perform: { newValue in
+                if let msg = newValue {
+                    message = msg
+                    showMessage = true
+                }
+            })
+            .alert(message, isPresented: $showMessage) {
+                Button("확인") {
+                    loginViewModel.message = nil
+                    if goodsViewModel.message != nil {
+                        goodsViewModel.message = nil
                     }
                 }
-        } else {
-            if loginViewModel.isSignUpComplete {
-                LoginView()
-                    .onChange(of: loginViewModel.message, perform: { newValue in
-                        if let msg = newValue {
-                            message = msg
-                            showMessage = true
-                        }
-                    })
-                    .alert(message, isPresented: $showMessage) {
-                        Button("확인") {
-                            loginViewModel.message = nil
-                        }
-                    }
-            } else {
+            }
+            .fullScreenCover(isPresented: $loginViewModel.showLoginView) {
                 LoginView()
                     .onChange(of: loginViewModel.message, perform: { newValue in
                         if let msg = newValue {
@@ -73,7 +57,6 @@ struct AppView: View {
                         }
                     }
             }
-        }
     }
 }
 

@@ -19,7 +19,6 @@ struct OptionSheetView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var isOptionSelected: Bool
-    @Binding var orderType: OrderType
     
     @State private var optionChevronDegree: Double = 180
     @State private var showMessage: Bool = false
@@ -38,7 +37,6 @@ struct OptionSheetView: View {
             .frame(height: 5)
             .opacity(0.3)
             
-            orderTypeSelection()
             
             optionsAndSelection()
         }
@@ -48,75 +46,13 @@ struct OptionSheetView: View {
     }
     
     @ViewBuilder
-    func orderTypeSelection() -> some View {
-        VStack {
+    func optionsAndSelection() -> some View {
+        VStack(spacing: 0) {
             Image(systemName: "chevron.compact.down")
                 .font(.title2)
                 .foregroundColor(Color("secondary-text-color"))
-                .padding(.top)
+                .padding(.bottom)
             
-            HStack {
-                Spacer()
-                
-                orderTypeButton("현장 수령", .pickUpOrder) {
-                    withAnimation(.spring()) {
-                        orderType = .pickUpOrder
-                    }
-                }
-                
-                Spacer(minLength: 120)
-                
-                orderTypeButton("택배 수령", .parcelOrder) {
-                    withAnimation(.spring()) {
-                        orderType = .parcelOrder
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(.top, 10)
-            .background {
-                VStack {
-                    Spacer()
-                    
-                    Rectangle()
-                        .foregroundColor(Color("shape-bkg-color"))
-                        .frame(height: 1)
-                }
-            }
-        }
-        .background(.white)
-    }
-    @ViewBuilder
-    func orderTypeButton(_ title: String, _ seleted: OrderType, _ action: @escaping () -> Void) -> some View {
-        let isSelected = orderType == seleted
-        
-        Button(action: action) {
-            VStack {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(isSelected ? .bold : .light)
-                    .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
-                    .padding(.horizontal, 0)
-                
-                Rectangle()
-                    .foregroundColor(.clear)
-                    .frame(width: 0, height: 3)
-            }
-            .overlay(alignment: .bottom) {
-                if isSelected {
-                    Rectangle()
-                        .foregroundColor(Color("main-highlight-color"))
-                        .frame(height: 3)
-                        .matchedGeometryEffect(id: "선택", in: optionTransition)
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func optionsAndSelection() -> some View {
-        VStack(spacing: 0) {
             if !extendSizeOptions {
                 if let colorOptions = goodsViewModel.goodsDetail.color?.components(separatedBy: ", ") {
                     optionSelectionList(options: colorOptions, selectedOptions: goodsViewModel.seletedGoods.color, isExtended: extendColorOptions, optionType: .color) {
@@ -408,7 +344,7 @@ struct OptionSheetView: View {
 
 struct OptionSheetView_Previews: PreviewProvider {
     static var previews: some View {
-        OptionSheetView(isOptionSelected: .constant(false), orderType: .constant(.pickUpOrder))
+        OptionSheetView(isOptionSelected: .constant(false))
             .environmentObject(GoodsViewModel())
     }
 }

@@ -77,7 +77,7 @@ struct GoodsDetailView: View {
                         
                         let isMediumDisplayDevice = UIDevice.current.name == "iPhone 6s Plus" || UIDevice.current.name == "iPhone 7 Plus" || UIDevice.current.name == "iPhone 8 Plus"
                         
-                        OptionSheetView(isOptionSelected: $isOptionSelected, orderType: $orderType)
+                        OptionSheetView(isOptionSelected: $isOptionSelected)
                             .frame(height: reader.size.height + 50 - (isSmallDisplayDevice ? 270 : (isMediumDisplayDevice ? 350 : reader.size.width)) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
@@ -98,7 +98,6 @@ struct GoodsDetailView: View {
                                         }
                                     })
                             )
-                        
                     }
                     
                     if !isOptionSelected {
@@ -106,6 +105,11 @@ struct GoodsDetailView: View {
                             .transition(.move(edge: .bottom))
                     }
                 }
+            }
+            .onDisappear() {
+                goodsViewModel.seletedGoods.color = nil
+                goodsViewModel.seletedGoods.size = nil
+                goodsViewModel.seletedGoods.quantity = 0
             }
         }
     }
@@ -182,36 +186,30 @@ struct GoodsDetailView: View {
     
     @ViewBuilder
     func goodsInformationView() -> some View {
-        VStack {
-            HStack {
-                Spacer()
-                
-                serviceButton("상품정보", .goodsInformation) {
-                    withAnimation(.spring()) {
-                        service = .goodsInformation
-                    }
-                }
-                
-                Spacer(minLength: 120)
-                
-                serviceButton("판매자 정보", .sellerInformation) {
-                    withAnimation(.spring()) {
-                        service = .sellerInformation
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(.top, 10)
-            .background {
-                VStack {
-                    Spacer()
-                    
-                    Rectangle()
-                        .foregroundColor(Color("shape-bkg-color"))
-                        .frame(height: 1)
+        HStack {
+            Spacer()
+            
+            serviceButton("상품정보", .goodsInformation) {
+                withAnimation(.spring()) {
+                    service = .goodsInformation
                 }
             }
+            
+            Spacer(minLength: 120)
+            
+            serviceButton("판매자 정보", .sellerInformation) {
+                withAnimation(.spring()) {
+                    service = .sellerInformation
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.top, 10)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
         }
         .background(.white)
     }
@@ -226,11 +224,7 @@ struct GoodsDetailView: View {
                     .font(.subheadline)
                     .fontWeight(isSelected ? .bold : .light)
                     .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
-                    .padding(.horizontal, 0)
-                
-                Rectangle()
-                    .foregroundColor(.clear)
-                    .frame(width: 0, height: 3)
+                    .padding(.bottom, 10)
             }
             .overlay(alignment: .bottom) {
                 if isSelected {
