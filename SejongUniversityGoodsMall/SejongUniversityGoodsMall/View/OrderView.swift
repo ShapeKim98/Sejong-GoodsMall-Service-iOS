@@ -413,7 +413,7 @@ struct OrderView: View {
     func subOrderGoods(goods: OrderItem) -> some View {
         VStack {
             HStack(alignment: .top) {
-                if goodsViewModel.isCartGoodsListLoading {
+                if goodsViewModel.isGoodsDetailLoading {
                     Color("main-shape-bkg-color")
                         .frame(width: 100, height: 100)
                         .clipShape(RoundedRectangle(cornerRadius: 10))

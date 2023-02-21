@@ -249,8 +249,8 @@ enum ApiService {
     }
     
     static func fetchCategory(token: String) -> AnyPublisher<CategoryList, ApiError> {
-        var request = URLRequest(url: APIURL.fetchCategory.url()!)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        let request = URLRequest(url: APIURL.fetchCategory.url()!)
+//        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {

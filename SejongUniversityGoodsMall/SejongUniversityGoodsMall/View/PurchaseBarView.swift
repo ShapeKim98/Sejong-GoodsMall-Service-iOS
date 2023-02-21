@@ -15,6 +15,7 @@ struct PurchaseBarView: View {
     
     @Binding var showOptionSheet: Bool
     @Binding var orderType: OrderType
+    @State var isPresented: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -34,6 +35,9 @@ struct PurchaseBarView: View {
                 .background(.white)
         }
         .background(.clear)
+        .modifier(NavigationPopModifierr(isPresented: $isPresented, destination: {
+            OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+        }))
     }
     
     @State private var isWished: Bool = false
@@ -93,29 +97,90 @@ struct PurchaseBarView: View {
             }
             
             if showOptionSheet {
-                NavigationLink {
-                    OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
-                        .navigationTitle("주문서 작성")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
-                } label: {
-                    HStack {
-                        Spacer()
-                        
-                        Text("주문하기")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(.vertical)
-                        
-                        Spacer()
+                if #available(iOS 16.0, *) {
+                    Button {
+                        isPresented = true
+                    } label: {
+                        HStack {
+                            Spacer()
+                            
+                            Text("주문하기")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding(.vertical)
+                            
+                            Spacer()
+                        }
                     }
+                    .background {
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundColor(Color("main-highlight-color"))
+                    }
+                    .matchedGeometryEffect(id: "구매하기", in: heroEffect)
+                } else {
+                    ZStack {
+                        NavigationLink(isActive: $isPresented) {
+                            OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+                                .navigationTitle("주문서 작성")
+                                .navigationBarTitleDisplayMode(.inline)
+                                .modifier(NavigationColorModifier())
+                        } label: {
+                            EmptyView()
+                        }
+
+//                        NavigationLink(destination: OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+//                            .navigationTitle("주문서 작성")
+//                            .navigationBarTitleDisplayMode(.inline)
+//                            .modifier(NavigationColorModifier()), isActive: $isPresented, label: {})
+                        //                    NavigationLink(isActive: $isPresented) {
+                        //                        OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+                        //                            .navigationTitle("주문서 작성")
+                        //                            .navigationBarTitleDisplayMode(.inline)
+                        //                            .modifier(NavigationColorModifier())
+                        //                    } label: {
+                        //                        HStack {
+                        //                            Spacer()
+                        //
+                        //                            Text("주문하기")
+                        //                                .font(.subheadline)
+                        //                                .fontWeight(.bold)
+                        //                                .foregroundColor(.white)
+                        //                                .padding(.vertical)
+                        //
+                        //                            Spacer()
+                        //                        }
+                        //                    }
+                        //                    .background {
+                        //                        RoundedRectangle(cornerRadius: 10)
+                        //                            .foregroundColor(Color("main-highlight-color"))
+                        //                    }
+                        //                    .matchedGeometryEffect(id: "구매하기", in: heroEffect)
+                        //                    .disabled(true)
+                        //                    .overlay {
+                        Button {
+                            isPresented = true
+                        } label: {
+                            HStack {
+                                Spacer()
+                                
+                                Text("주문하기")
+                                    .font(.subheadline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding(.vertical)
+                                
+                                Spacer()
+                            }
+                        }
+                        .background {
+                            RoundedRectangle(cornerRadius: 10)
+                                .foregroundColor(Color("main-highlight-color"))
+                        }
+                        .matchedGeometryEffect(id: "구매하기", in: heroEffect)
+                    }
+//                    }
                 }
-                .background {
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(Color("main-highlight-color"))
-                }
-                .matchedGeometryEffect(id: "구매하기", in: heroEffect)
             } else {
                 Button {
                     withAnimation(.spring()) {
