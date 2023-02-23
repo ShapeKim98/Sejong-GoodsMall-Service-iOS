@@ -192,7 +192,6 @@ struct CartView: View {
                     .fontWeight(.bold)
                     .foregroundColor(Color("main-text-color"))
             }
-            
         }
         .padding()
     }
@@ -201,7 +200,7 @@ struct CartView: View {
     func cartGoodsList() -> some View {
         VStack {
             ScrollView {
-                VStack {
+                LazyVGrid(columns: columns) {
                     ForEach(goodsViewModel.cart, id: \.id) { goods in
                         subCartGoods(goods: goods)
                             .onAppear() {

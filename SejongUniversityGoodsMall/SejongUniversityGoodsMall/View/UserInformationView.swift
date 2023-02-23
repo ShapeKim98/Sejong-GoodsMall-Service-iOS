@@ -14,17 +14,21 @@ struct UserInformationView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
+    private let columns = [
+        GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
+    ]
+    
     var body: some View {
         ScrollView {
-            VStack {
+            LazyVGrid(columns: columns) {
                 wishListArea()
-                    .padding()
+                    .padding([.horizontal, .top])
                 
                 orderHistoryArea()
-                    .padding([.horizontal, .bottom])
+                    .padding([.horizontal, .top])
                 
                 helpArea()
-                    .padding(.horizontal)
+                    .padding([.horizontal, .top])
                 
                 Spacer()
             }

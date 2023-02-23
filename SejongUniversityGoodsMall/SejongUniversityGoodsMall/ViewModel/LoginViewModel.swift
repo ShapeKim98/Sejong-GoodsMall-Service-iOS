@@ -14,7 +14,6 @@ class LoginViewModel: ObservableObject {
     private var token: String = ""
     
     @Published var showLoginView: Bool = true
-    
     @Published var isSignUpComplete: Bool = false
     @Published var isAuthenticate: Bool = false
     @Published var findComplete: Bool = false
@@ -23,11 +22,10 @@ class LoginViewModel: ObservableObject {
     @Published var findEmail: String = ""
     @Published var userRequest: UserRequest = UserRequest(email: "", password: "", userName: "", birth: "")
     @Published var findEmailRequest: FindEmailRequest = FindEmailRequest(userName: "", birth: "")
+    @Published var memberID: Int?
     
     func signUp() {
-        withAnimation {
-            self.isLoading = true
-        }
+        self.isLoading = true
         
         ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
@@ -83,8 +81,9 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { user in
             DispatchQueue.main.async {
+                self.isLoading = false
+                
                 withAnimation(.easeInOut) {
-                    self.isLoading = false
                     self.isSignUpComplete = true
                 }
                 print(user)
@@ -94,9 +93,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-        withAnimation {
             self.isLoading = true
-        }
         
         ApiService.fetchSignIn(email: email, password: password).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
@@ -152,22 +149,22 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { loginResponse in
             DispatchQueue.main.async {
+                self.isLoading = false
+                self.token = loginResponse.token
+                self.memberID = loginResponse.id
+                
                 withAnimation(.easeInOut) {
-                    self.isLoading = false
                     self.isAuthenticate = true
                     self.showLoginView = false
                 }
             }
-            self.token = loginResponse.token
             print(loginResponse)
         }
         .store(in: &subscriptions)
     }
     
     func fetchFindEmail() {
-        withAnimation {
             self.isLoading = true
-        }
         
         ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
@@ -220,8 +217,8 @@ class LoginViewModel: ObservableObject {
         } receiveValue: { findEmailResponse in
             DispatchQueue.main.async {
                 self.findEmail = findEmailResponse.email
+                self.isLoading = false
                 withAnimation(.spring()) {
-                    self.isLoading = false
                     self.findComplete = true
                     self.showLoginView = false
                 }

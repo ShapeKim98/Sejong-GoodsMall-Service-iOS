@@ -91,32 +91,57 @@ struct OptionSheetView: View {
             
             if !extendSizeOptions && !extendColorOptions && !extendNoneOption {
                 VStack(spacing: 0) {
-                    if goodsViewModel.goodsDetail.color != nil && goodsViewModel.goodsDetail.size != nil {
-                        if goodsViewModel.seletedGoods.color == nil {
-                            alertMessageView(message: "색상 옵션을 선택해 주세요")
-                        } else if goodsViewModel.seletedGoods.size == nil {
-                            alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                    ZStack {
+                        if goodsViewModel.completeSendCartGoods {
+                            alertMessageView(message: "장바구니에 보관되었습니다.")
+                                .onAppear() {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                        withAnimation {
+                                            goodsViewModel.completeSendCartGoods = false
+                                        }
+                                    }
+                                }
                         } else {
-                            selectedGoodsOptions()
-                        }
-                    } else {
-                        if goodsViewModel.goodsDetail.color != nil {
-                            if goodsViewModel.seletedGoods.color == nil {
-                                alertMessageView(message: "색상 옵션을 선택해 주세요")
+                            if goodsViewModel.goodsDetail.color != nil && goodsViewModel.goodsDetail.size != nil {
+                                if goodsViewModel.seletedGoods.color == nil {
+                                    alertMessageView(message: "색상 옵션을 선택해 주세요")
+                                } else if goodsViewModel.seletedGoods.size == nil {
+                                    alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                                } else {
+                                    selectedGoodsOptions()
+                                        .onAppear() {
+                                            goodsViewModel.isSendGoodsPossible = true
+                                        }
+                                }
                             } else {
-                                selectedGoodsOptions()
-                            }
-                        } else if goodsViewModel.goodsDetail.size != nil {
-                            if goodsViewModel.seletedGoods.size == nil {
-                                alertMessageView(message: "사이즈 옵션을 선택해 주세요")
-                            } else {
-                                selectedGoodsOptions()
-                            }
-                        } else {
-                            if goodsViewModel.seletedGoods.quantity < 1 {
-                                alertMessageView(message: "상품을 선택해 주세요")
-                            } else {
-                                selectedGoodsOptions()
+                                if goodsViewModel.goodsDetail.color != nil {
+                                    if goodsViewModel.seletedGoods.color == nil {
+                                        alertMessageView(message: "색상 옵션을 선택해 주세요")
+                                    } else {
+                                        selectedGoodsOptions()
+                                            .onAppear() {
+                                                goodsViewModel.isSendGoodsPossible = true
+                                            }
+                                    }
+                                } else if goodsViewModel.goodsDetail.size != nil {
+                                    if goodsViewModel.seletedGoods.size == nil {
+                                        alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                                    } else {
+                                        selectedGoodsOptions()
+                                            .onAppear() {
+                                                goodsViewModel.isSendGoodsPossible = true
+                                            }
+                                    }
+                                } else {
+                                    if goodsViewModel.seletedGoods.quantity < 1 {
+                                        alertMessageView(message: "상품을 선택해 주세요")
+                                    } else {
+                                        selectedGoodsOptions()
+                                            .onAppear() {
+                                                goodsViewModel.isSendGoodsPossible = true
+                                            }
+                                    }
+                                }
                             }
                         }
                     }

@@ -81,6 +81,7 @@ enum ApiError: Error {
     case alreadyCartGoods
     case invalidResponse(URLError)
     case jsonDecodeError
+    case jsonEncodeError
     case unknown(Error)
     case isNoneCartGoods
     
@@ -98,6 +99,8 @@ enum ApiError: Error {
                 return .isNoneCartGoods
             case is DecodingError:
                 return .jsonDecodeError
+            case is EncodingError:
+                return .jsonEncodeError
             default:
                 return .unknown(error)
         }
@@ -196,8 +199,13 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func fetchGoodsList() -> AnyPublisher<GoodsList, ApiError> {
-        let request = URLRequest(url: APIURL.fetchGoodsList.url()!)
+    static func fetchGoodsList(id: Int?) -> AnyPublisher<GoodsList, ApiError> {
+        let body = GoodsListRequest(memberID: id)
+        
+        var request = URLRequest(url: APIURL.fetchGoodsList.url()!)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {

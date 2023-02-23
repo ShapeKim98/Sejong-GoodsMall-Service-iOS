@@ -14,16 +14,18 @@ struct Goods: Codable, Identifiable {
     let title: String
     let color, size: String?
     let price: Int
+    let seller: Seller
     let goodsImages: [GoodsImage]
     let goodsInfos: [GoodsInfo]
     let description: String?
+    let cartItemCount: Int
 
     enum CodingKeys: String, CodingKey {
         case id
         case categoryID = "categoryId"
         case goodsImages = "itemImages"
         case goodsInfos = "itemInfos"
-        case categoryName, title, color, size, price, description
+        case categoryName, title, color, size, price, seller, description, cartItemCount
     }
  
     func representativeImage() -> GoodsImage? {
@@ -64,6 +66,12 @@ struct GoodsInfo: Codable {
     enum CodingKeys: String, CodingKey {
         case infoURL = "infoUrl"
     }
+}
+
+struct Seller: Codable {
+    let createdAt, modifiedAt: String
+    let id: Int
+    let name, phoneNumber, method: String
 }
 
 typealias GoodsList = [Goods]

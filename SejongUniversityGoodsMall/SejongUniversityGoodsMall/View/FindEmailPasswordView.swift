@@ -197,6 +197,7 @@ struct FindEmailPasswordView: View {
             
             
         }
+        .frame(maxWidth: 500)
         .padding(.horizontal)
         .padding(.top, 25)
     }

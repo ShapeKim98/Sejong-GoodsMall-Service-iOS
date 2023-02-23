@@ -13,6 +13,7 @@ struct AppView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
+    @EnvironmentObject var networkManager: NetworkManager
     
     @State var showMessage: Bool = false
     @State var message: String = ""
@@ -20,7 +21,7 @@ struct AppView: View {
     var body: some View {
         HomeView()
             .onAppear() {
-                goodsViewModel.fetchGoodsList()
+                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                 goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
             }
             .onChange(of: loginViewModel.message, perform: { newValue in
@@ -57,6 +58,12 @@ struct AppView: View {
                         }
                     }
             }
+            .disabled(!networkManager.isConnected)
+            .overlay {
+                if !networkManager.isConnected {
+                    ErrorView()
+                }
+            }
     }
 }
 
@@ -66,5 +73,6 @@ struct AppView_Previews: PreviewProvider {
             .environmentObject(AppViewModel())
             .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
+            .environmentObject(NetworkManager())
     }
 }

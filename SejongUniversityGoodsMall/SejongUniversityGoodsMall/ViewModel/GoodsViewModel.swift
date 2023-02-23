@@ -11,14 +11,13 @@ import Combine
 
 class GoodsViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
-
     
-    @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 1, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 2, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading..."),
-                                           Goods(id: 3, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
+    @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
+                                           Goods(id: 1, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
+                                           Goods(id: 2, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
+                                           Goods(id: 3, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0)
     ]
-    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: nil, size: nil, price: 99999, goodsImages: [], goodsInfos: [], description: "loading...")
+    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0)
     @Published var isGoodsListLoading: Bool = true
     @Published var isGoodsDetailLoading: Bool = true
     @Published var isCategoryLoading: Bool = true
@@ -38,12 +37,14 @@ class GoodsViewModel: ObservableObject {
     @Published var selectedCartGoodsCount: Int = 0
     @Published var selectedCartGoodsPrice: Int = 0
     @Published var completeOrderResponseFromDetailGoods: OrderGoods = OrderGoods(buyerName: "loading...", phoneNumber: "loading...", address: nil, orderItems: [])
+    @Published var isSendGoodsPossible: Bool = false
+    @Published var completeSendCartGoods: Bool = false
     
-    func fetchGoodsList() {
+    func fetchGoodsList(id: Int? = nil) {
         withAnimation(.spring()) {
             self.isGoodsListLoading = true
         }
-        ApiService.fetchGoodsList().receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.fetchGoodsList(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -79,6 +80,12 @@ class GoodsViewModel: ObservableObject {
                                 self.message = "데이터 디코딩 에러"
                             }
                             print("데이터 디코딩 에러")
+                            break
+                        case .jsonEncodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 인코딩 에러"
+                            }
+                            print("데이터 인코딩 에러")
                             break
                         default:
                             DispatchQueue.main.async {
@@ -290,6 +297,10 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendCartGoodsRequest(token: String) {
+        guard isSendGoodsPossible else {
+            return
+        }
+        
         ApiService.sendCartGoods(goods: seletedGoods, goodsID: goodsDetail.id, token: token).receive(on: DispatchQueue.global(qos: .background)).sink { completion in
                 switch completion {
                     case .failure(let error):
@@ -340,6 +351,11 @@ class GoodsViewModel: ObservableObject {
                 }
             } receiveValue: { data in
                 print(data)
+                DispatchQueue.main.async {
+                    withAnimation {
+                        self.completeSendCartGoods = true
+                    }
+                }
             }
             .store(in: &subscriptions)
     }

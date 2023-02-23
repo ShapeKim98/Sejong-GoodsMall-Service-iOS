@@ -25,6 +25,7 @@ struct SignUpView: View {
             
             signUpButton()
         }
+        .frame(maxWidth: 500)
         .onTapGesture {
             currentField = nil
         }
@@ -451,7 +452,7 @@ struct SignUpView: View {
                 }
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 withAnimation(.spring()) {
                     showCompleteContents = true
                 }
@@ -466,6 +467,7 @@ struct SignUpView_Previews: PreviewProvider {
             NavigationStack {
                 SignUpView(showDatePicker: .constant(false))
                     .environmentObject(LoginViewModel())
+                    .environmentObject(AppViewModel())
             }
         } else {
             NavigationView {

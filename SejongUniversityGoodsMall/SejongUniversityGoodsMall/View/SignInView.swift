@@ -80,6 +80,7 @@ struct SignInView: View {
             }
             .padding(.bottom, 20)
         }
+        .frame(maxWidth: 500)
         .padding()
         .background(.white)
         .onTapGesture {

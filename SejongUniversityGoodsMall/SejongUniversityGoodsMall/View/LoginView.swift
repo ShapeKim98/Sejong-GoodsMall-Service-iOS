@@ -14,6 +14,10 @@ struct LoginView: View {
     @State var showDatePickerFromSignUpView: Bool = false
     @State var showDatePickerFromFindEmailView: Bool = false
     
+    private let columns = [
+        GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
+    ]
+    
     init() {
         if #available(iOS 16.0, *) {
 
@@ -32,6 +36,7 @@ struct LoginView: View {
                         Spacer()
                         
                         buttons()
+                            .frame(maxWidth: 500)
                     }
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()

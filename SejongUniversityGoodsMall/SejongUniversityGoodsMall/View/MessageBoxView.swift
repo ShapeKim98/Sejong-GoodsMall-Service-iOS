@@ -114,6 +114,7 @@ struct MessageBoxView: View {
             
             Spacer()
         }
+        .frame(maxWidth: 500)
         .onDisappear(perform: onDisAppearAction)
     }
 }

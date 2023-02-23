@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct PurchaseBarView: View {
+    @Environment(\.dismiss) var dismiss
+    
     @Namespace var heroEffect
     
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
@@ -35,8 +38,11 @@ struct PurchaseBarView: View {
                 .background(.white)
         }
         .background(.clear)
-        .modifier(NavigationPopModifierr(isPresented: $isPresented, destination: {
-            OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+        .modifier(ShowOrderViewModifier(isPresented: $isPresented, destination: {
+            OrderView(isPresented: $isPresented, orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+                .navigationTitle("주문서 작성")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
         }))
     }
     
@@ -69,11 +75,41 @@ struct PurchaseBarView: View {
                 }
                 
                 Button {
-                    withAnimation {
-                        goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
-                        goodsViewModel.seletedGoods.quantity = 0
-                        goodsViewModel.seletedGoods.color = nil
-                        goodsViewModel.seletedGoods.size = nil
+                    if !loginViewModel.isAuthenticate {
+                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                            
+                            loginViewModel.showLoginView = true
+                        } secondaryButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                        } closeButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                        } onDisAppearAction: {
+                            appViewModel.messageBox = nil
+                        }
+                        
+                        withAnimation(.spring()) {
+                            appViewModel.showAlertView = true
+                            appViewModel.showMessageBox = true
+                        }
+                    } else {
+                        if goodsViewModel.isSendGoodsPossible {
+                            withAnimation {
+                                goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                                goodsViewModel.seletedGoods.quantity = 0
+                                goodsViewModel.seletedGoods.color = nil
+                                goodsViewModel.seletedGoods.size = nil
+                            }
+                        }
                     }
                 } label: {
                     HStack {
@@ -97,90 +133,56 @@ struct PurchaseBarView: View {
             }
             
             if showOptionSheet {
-                if #available(iOS 16.0, *) {
-                    Button {
-                        isPresented = true
-                    } label: {
-                        HStack {
-                            Spacer()
-                            
-                            Text("주문하기")
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(.vertical)
-                            
-                            Spacer()
-                        }
-                    }
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(Color("main-highlight-color"))
-                    }
-                    .matchedGeometryEffect(id: "구매하기", in: heroEffect)
-                } else {
-                    ZStack {
-                        NavigationLink(isActive: $isPresented) {
-                            OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
-                                .navigationTitle("주문서 작성")
-                                .navigationBarTitleDisplayMode(.inline)
-                                .modifier(NavigationColorModifier())
-                        } label: {
-                            EmptyView()
-                        }
-
-//                        NavigationLink(destination: OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
-//                            .navigationTitle("주문서 작성")
-//                            .navigationBarTitleDisplayMode(.inline)
-//                            .modifier(NavigationColorModifier()), isActive: $isPresented, label: {})
-                        //                    NavigationLink(isActive: $isPresented) {
-                        //                        OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
-                        //                            .navigationTitle("주문서 작성")
-                        //                            .navigationBarTitleDisplayMode(.inline)
-                        //                            .modifier(NavigationColorModifier())
-                        //                    } label: {
-                        //                        HStack {
-                        //                            Spacer()
-                        //
-                        //                            Text("주문하기")
-                        //                                .font(.subheadline)
-                        //                                .fontWeight(.bold)
-                        //                                .foregroundColor(.white)
-                        //                                .padding(.vertical)
-                        //
-                        //                            Spacer()
-                        //                        }
-                        //                    }
-                        //                    .background {
-                        //                        RoundedRectangle(cornerRadius: 10)
-                        //                            .foregroundColor(Color("main-highlight-color"))
-                        //                    }
-                        //                    .matchedGeometryEffect(id: "구매하기", in: heroEffect)
-                        //                    .disabled(true)
-                        //                    .overlay {
-                        Button {
-                            isPresented = true
-                        } label: {
-                            HStack {
-                                Spacer()
-                                
-                                Text("주문하기")
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                    .padding(.vertical)
-                                
-                                Spacer()
+                Button {
+                    if goodsViewModel.isSendGoodsPossible {
+                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "담을 방법을 선택해 주세요", secondaryTitle: "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
                             }
+                            
+                            orderType = .pickUpOrder
+                            isPresented = true
+                        } secondaryButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                            
+                            orderType = .parcelOrder
+                            isPresented = true
+                        } closeButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                        } onDisAppearAction: {
+                            appViewModel.messageBox = nil
                         }
-                        .background {
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundColor(Color("main-highlight-color"))
+                        
+                        withAnimation(.spring()) {
+                            appViewModel.showAlertView = true
+                            appViewModel.showMessageBox = true
                         }
-                        .matchedGeometryEffect(id: "구매하기", in: heroEffect)
                     }
-//                    }
+                } label: {
+                    HStack {
+                        Spacer()
+                        
+                        Text("주문하기")
+                            .font(.subheadline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.vertical)
+                        
+                        Spacer()
+                    }
                 }
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color("main-highlight-color"))
+                }
+                .matchedGeometryEffect(id: "구매하기", in: heroEffect)
             } else {
                 Button {
                     withAnimation(.spring()) {
@@ -214,5 +216,6 @@ struct PurchaseBarView_Previews: PreviewProvider {
         PurchaseBarView(showOptionSheet: .constant(false), orderType: .constant(.pickUpOrder))
             .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
+            .environmentObject(AppViewModel())
     }
 }

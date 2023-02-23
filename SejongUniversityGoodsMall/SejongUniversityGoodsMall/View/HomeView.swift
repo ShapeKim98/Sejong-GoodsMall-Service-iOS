@@ -80,6 +80,7 @@ struct HomeView: View {
                     .navigationTitle("")
                     .navigationBarHidden(true)
                 }
+                .navigationViewStyle(.stack)
                 .overlay {
                     ZStack {
                         if appViewModel.showAlertView {
