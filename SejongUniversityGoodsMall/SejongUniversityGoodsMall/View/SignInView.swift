@@ -54,6 +54,7 @@ struct SignInView: View {
             Spacer()
             
             Button {
+                loginViewModel.isLoading = true
                 loginViewModel.signIn(email: email, password: password)
             } label: {
                 HStack {

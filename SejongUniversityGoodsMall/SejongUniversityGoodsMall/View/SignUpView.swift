@@ -353,6 +353,7 @@ struct SignUpView: View {
     @ViewBuilder
     func signUpButton() -> some View {
         Button {
+            loginViewModel.isLoading = true
             loginViewModel.signUp()
         } label: {
             HStack {

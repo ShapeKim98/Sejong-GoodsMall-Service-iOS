@@ -21,7 +21,14 @@ struct AppView: View {
     var body: some View {
         HomeView()
             .onAppear() {
+                withAnimation {
+                    goodsViewModel.isGoodsListLoading = true
+                }
                 goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                
+                withAnimation {
+                    goodsViewModel.isCategoryLoading = true
+                }
                 goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
             }
             .onChange(of: loginViewModel.message, perform: { newValue in
@@ -56,6 +63,12 @@ struct AppView: View {
                         Button("확인") {
                             loginViewModel.message = nil
                         }
+                    }
+                    .onDisappear() {
+                        withAnimation {
+                            goodsViewModel.isGoodsListLoading = true
+                        }
+                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                     }
             }
             .disabled(!networkManager.isConnected)

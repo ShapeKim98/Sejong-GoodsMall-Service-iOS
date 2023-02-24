@@ -39,11 +39,9 @@ class GoodsViewModel: ObservableObject {
     @Published var completeOrderResponseFromDetailGoods: OrderGoods = OrderGoods(buyerName: "loading...", phoneNumber: "loading...", address: nil, orderItems: [])
     @Published var isSendGoodsPossible: Bool = false
     @Published var completeSendCartGoods: Bool = false
+    @Published var cartGoodsCount: Int = 0
     
     func fetchGoodsList(id: Int? = nil) {
-        withAnimation(.spring()) {
-            self.isGoodsListLoading = true
-        }
         ApiService.fetchGoodsList(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -102,6 +100,7 @@ class GoodsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.goodsList = goodsList
+                    self.cartGoodsCount = goodsList.first?.cartItemCount ?? 0
                     self.isGoodsListLoading = false
                 }
             }
@@ -110,9 +109,6 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchCategory(token: String) {
-        withAnimation {
-            self.isCategoryLoading = true
-        }
         ApiService.fetchCategory(token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -226,6 +222,7 @@ class GoodsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.goodsList = goodsList
+                    self.isGoodsListLoading = false
                 }
             }
         }
@@ -233,9 +230,6 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchGoodsDetail(id: Int) {
-        withAnimation {
-            self.isGoodsDetailLoading = true
-        }
         ApiService.fetchGoodsDetail(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -361,10 +355,6 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchCartGoods(token: String) {
-        withAnimation {
-            self.isCartGoodsListLoading = true
-        }
-        
         ApiService.fetchCartGoods(token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CartView: View {
+    @Environment(\.dismiss) var dismiss
+    
     @Namespace var orderTypeSeletection
     
     @EnvironmentObject var appViewModel: AppViewModel
@@ -24,6 +26,7 @@ struct CartView: View {
     var body: some View {
         VStack(spacing: 0) {
             orderTypeSelection()
+                .unredacted()
             
             allSeletionAndDeleteSeleted()
             
@@ -63,6 +66,44 @@ struct CartView: View {
             .padding(.bottom, 20)
         }
         .background(.white)
+        .onAppear(){
+            withAnimation {
+                goodsViewModel.isCartGoodsListLoading = true
+            }
+            
+            if !loginViewModel.isAuthenticate {
+                appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    loginViewModel.showLoginView = true
+                } secondaryButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    dismiss()
+                } closeButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    dismiss()
+                } onDisAppearAction: {
+                    dismiss()
+                    appViewModel.messageBox = nil
+                }
+                
+                withAnimation(.spring()) {
+                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBox = true
+                }
+            } else {
+                goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
+            }
+        }
     }
     
     @ViewBuilder
@@ -173,6 +214,8 @@ struct CartView: View {
                         appViewModel.showAlertView = false
                         appViewModel.showMessageBox = false
                     }
+                    
+                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                 } closeButtonAction: {
                     withAnimation(.spring()) {
                         appViewModel.showAlertView = false
@@ -186,12 +229,12 @@ struct CartView: View {
                     appViewModel.showAlertView = true
                     appViewModel.showMessageBox = true
                 }
-                
             } label: {
                 Text("선택 삭제")
                     .fontWeight(.bold)
                     .foregroundColor(Color("main-text-color"))
             }
+            .unredacted()
         }
         .padding()
     }
@@ -233,6 +276,9 @@ struct CartView: View {
                 NavigationLink {
                     GoodsDetailView()
                         .onAppear(){
+                            withAnimation {
+                                goodsViewModel.isGoodsDetailLoading = true
+                            }
                             goodsViewModel.fetchGoodsDetail(id: goods.goodsID)
                         }
                         .navigationTitle("상품 정보")
@@ -278,6 +324,8 @@ struct CartView: View {
                                 withAnimation(.spring()) {
                                     goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
                                 }
+                                
+                                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                             } label: {
                                 Label("삭제", systemImage: "xmark")
                                     .labelStyle(.iconOnly)

@@ -169,6 +169,7 @@ struct FindEmailPasswordView: View {
             Spacer()
             
             Button {
+                loginViewModel.isLoading = true
                 loginViewModel.fetchFindEmail()
             } label: {
                 HStack {

@@ -25,8 +25,6 @@ class LoginViewModel: ObservableObject {
     @Published var memberID: Int?
     
     func signUp() {
-        self.isLoading = true
-        
         ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -93,8 +91,6 @@ class LoginViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-            self.isLoading = true
-        
         ApiService.fetchSignIn(email: email, password: password).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
@@ -164,8 +160,6 @@ class LoginViewModel: ObservableObject {
     }
     
     func fetchFindEmail() {
-            self.isLoading = true
-        
         ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
