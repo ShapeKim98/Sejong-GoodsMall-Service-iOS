@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SignUpView: View {
+    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
@@ -23,8 +25,15 @@ struct SignUpView: View {
             
             signUpButton()
         }
+        .frame(maxWidth: 500)
         .onTapGesture {
             currentField = nil
+        }
+        .fullScreenCover(isPresented: $loginViewModel.isSignUpComplete) {
+            signUpComplete {
+                loginViewModel.isSignUpComplete = false
+                dismiss()
+            }
         }
     }
     
@@ -344,6 +353,7 @@ struct SignUpView: View {
     @ViewBuilder
     func signUpButton() -> some View {
         Button {
+            loginViewModel.isLoading = true
             loginViewModel.signUp()
         } label: {
             HStack {
@@ -379,6 +389,77 @@ struct SignUpView: View {
         RoundedRectangle(cornerRadius: 10)
             .stroke(isValidInput || input == "" ? Color("shape-bkg-color") : Color("main-highlight-color"))
     }
+    
+    @State private var showCompleteTitle: Bool = false
+    @State private var showCompleteContents: Bool = false
+    @ViewBuilder
+    func signUpComplete(action: @escaping () -> Void) -> some View {
+        VStack(spacing: 10) {
+            Spacer()
+            
+            if showCompleteTitle {
+                Text("환영합니다!")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color("main-text-color"))
+                    .transition(.move(edge: .bottom))
+            }
+            
+            Spacer()
+                .frame(height: 70)
+            
+            if showCompleteContents {
+                VStack {
+                    Text("회원가입이 완료되었습니다.")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color("main-text-color"))
+                        .padding(.bottom, 50)
+                    
+                    Text("아래 버튼을 클릭 후,")
+                        .foregroundColor(Color("main-text-color"))
+                    
+                    Text("기존 계정으로 로그인 버튼을 클릭해 주세요.")
+                        .foregroundColor(Color("main-text-color"))
+                }
+            }
+            
+            Spacer()
+            
+            if showCompleteContents {
+                Button(action: action) {
+                    HStack {
+                        Spacer()
+                        
+                        Text("처음으로 돌아가기")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                        
+                        Spacer()
+                    }
+                }
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(Color("main-highlight-color"))
+                }
+            }
+        }
+        .padding()
+        .onAppear() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(.spring()) {
+                    showCompleteTitle = true
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                withAnimation(.spring()) {
+                    showCompleteContents = true
+                }
+            }
+        }
+    }
 }
 
 struct SignUpView_Previews: PreviewProvider {
@@ -387,6 +468,7 @@ struct SignUpView_Previews: PreviewProvider {
             NavigationStack {
                 SignUpView(showDatePicker: .constant(false))
                     .environmentObject(LoginViewModel())
+                    .environmentObject(AppViewModel())
             }
         } else {
             NavigationView {

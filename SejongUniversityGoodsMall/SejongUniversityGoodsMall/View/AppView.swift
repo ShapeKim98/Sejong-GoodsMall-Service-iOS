@@ -13,40 +13,45 @@ struct AppView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
+    @EnvironmentObject var networkManager: NetworkManager
     
     @State var showMessage: Bool = false
     @State var message: String = ""
     
     var body: some View {
-        if loginViewModel.isAuthenticate {
-            HomeView()
-                .onAppear() {
-                    goodsViewModel.fetchGoodsList()
-                    goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+        HomeView()
+            .onAppear() {
+                withAnimation {
+                    goodsViewModel.isGoodsListLoading = true
                 }
-                .onChange(of: loginViewModel.message, perform: { newValue in
-                    if let msg = newValue {
-                        message = msg
-                        showMessage = true
-                    }
-                })
-                .onChange(of: goodsViewModel.message, perform: { newValue in
-                    if let msg = newValue {
-                        message = msg
-                        showMessage = true
-                    }
-                })
-                .alert(message, isPresented: $showMessage) {
-                    Button("확인") {
-                        loginViewModel.message = nil
-                        if goodsViewModel.message != nil {
-                            goodsViewModel.message = nil
-                            goodsViewModel.fetchGoodsList()
-                        }
+                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                
+                withAnimation {
+                    goodsViewModel.isCategoryLoading = true
+                }
+                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+            }
+            .onChange(of: loginViewModel.message, perform: { newValue in
+                if let msg = newValue {
+                    message = msg
+                    showMessage = true
+                }
+            })
+            .onChange(of: goodsViewModel.message, perform: { newValue in
+                if let msg = newValue {
+                    message = msg
+                    showMessage = true
+                }
+            })
+            .alert(message, isPresented: $showMessage) {
+                Button("확인") {
+                    loginViewModel.message = nil
+                    if goodsViewModel.message != nil {
+                        goodsViewModel.message = nil
                     }
                 }
-        } else {
-            if loginViewModel.isSignUpComplete {
+            }
+            .fullScreenCover(isPresented: $loginViewModel.showLoginView) {
                 LoginView()
                     .onChange(of: loginViewModel.message, perform: { newValue in
                         if let msg = newValue {
@@ -59,21 +64,19 @@ struct AppView: View {
                             loginViewModel.message = nil
                         }
                     }
-            } else {
-                LoginView()
-                    .onChange(of: loginViewModel.message, perform: { newValue in
-                        if let msg = newValue {
-                            message = msg
-                            showMessage = true
+                    .onDisappear() {
+                        withAnimation {
+                            goodsViewModel.isGoodsListLoading = true
                         }
-                    })
-                    .alert(message, isPresented: $showMessage) {
-                        Button("확인") {
-                            loginViewModel.message = nil
-                        }
+                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                     }
             }
-        }
+            .disabled(!networkManager.isConnected)
+            .overlay {
+                if !networkManager.isConnected {
+                    ErrorView()
+                }
+            }
     }
 }
 
@@ -83,5 +86,6 @@ struct AppView_Previews: PreviewProvider {
             .environmentObject(AppViewModel())
             .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
+            .environmentObject(NetworkManager())
     }
 }

@@ -14,6 +14,10 @@ struct LoginView: View {
     @State var showDatePickerFromSignUpView: Bool = false
     @State var showDatePickerFromFindEmailView: Bool = false
     
+    private let columns = [
+        GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
+    ]
+    
     init() {
         if #available(iOS 16.0, *) {
 
@@ -32,6 +36,7 @@ struct LoginView: View {
                         Spacer()
                         
                         buttons()
+                            .frame(maxWidth: 500)
                     }
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()
@@ -114,7 +119,7 @@ struct LoginView: View {
     @ViewBuilder
     func title() -> some View {
         HStack {
-            Text("앱 설명 & 이름 & 로고(?)")
+            Text("세종이의 집")
                 .font(.title)
                 .fontWeight(.semibold)
                 .foregroundColor(Color("main-text-color"))
@@ -149,6 +154,7 @@ struct LoginView: View {
                 RoundedRectangle(cornerRadius: 10)
                     .foregroundColor(Color("main-highlight-color"))
             }
+            .padding(.bottom)
             
             NavigationLink {
                 SignInView(showDatePickerFromFindEmailView: $showDatePickerFromFindEmailView)
@@ -170,6 +176,19 @@ struct LoginView: View {
             .background {
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color("main-highlight-color"))
+            }
+            .padding(.bottom)
+            
+            Button {
+                loginViewModel.showLoginView = false
+            } label: {
+                Text("건너뛰기")
+                    .fontWeight(.semibold)
+                    .background(alignment: .bottom) {
+                        Rectangle()
+                            .frame(height: 0.5)
+                    }
+                    .foregroundColor(Color("secondary-text-color"))
             }
         }
         .padding()

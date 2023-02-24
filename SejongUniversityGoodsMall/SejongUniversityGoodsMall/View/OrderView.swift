@@ -11,6 +11,7 @@ struct OrderView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
+    @Binding var isPresented: Bool
     @Binding var orderType: OrderType
     
     @FocusState private var currentField: FocusedTextField?
@@ -42,14 +43,16 @@ struct OrderView: View {
                 .frame(height: 10)
             
             ScrollView {
-                switch orderType {
-                    case .pickUpOrder:
-                        pickUpInformation()
-                    case .parcelOrder:
-                        deliveryInformation()
-                }
+                    switch orderType {
+                        case .pickUpOrder:
+                            pickUpInformation()
+                        case .parcelOrder:
+                            deliveryInformation()
+                    }
                 
-                orderGoodsList()
+                    LazyVGrid(columns: columns) {
+                    orderGoodsList()
+                }
                 
                 orderButton()
                     .padding(.top, 30)
@@ -401,7 +404,7 @@ struct OrderView: View {
             }
             .padding(.horizontal)
             
-            VStack {
+            LazyVGrid(columns: columns) {
                 ForEach(orderGoods, id: \.hashValue) { goods in
                     subOrderGoods(goods: goods)
                 }
@@ -412,8 +415,8 @@ struct OrderView: View {
     @ViewBuilder
     func subOrderGoods(goods: OrderItem) -> some View {
         VStack {
-            HStack(alignment: .top) {
-                if goodsViewModel.isCartGoodsListLoading {
+            HStack() {
+                if goodsViewModel.isGoodsDetailLoading {
                     Color("main-shape-bkg-color")
                         .frame(width: 100, height: 100)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -439,48 +442,54 @@ struct OrderView: View {
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack {
-                            Text(goodsViewModel.goodsDetail.title)
-                                .foregroundColor(Color("main-text-color"))
-                                .font(.subheadline)
-                            
-                            Spacer()
-                        }
+                VStack(spacing: 0) {
+                    HStack {
+                        Text(goodsViewModel.goodsDetail.title)
+                            .foregroundColor(Color("main-text-color"))
                         
-                        HStack {
+                        Rectangle()
+                            .fill(Color("main-text-color"))
+                            .frame(width: 1, height: 10)
+                        
+                        Group {
                             if let color = goods.color, let size = goods.size {
                                 Text("\(color), \(size)")
                             } else {
                                 Text("\(goods.color ?? "")\(goods.size ?? "")")
                             }
-                            
-                            Spacer()
                         }
                         .font(.caption.bold())
                         .foregroundColor(Color("main-text-color"))
                         
-                        HStack {
-                            Text("수량 \(goods.quantity)개")
-                            
-                            Spacer()
-                        }
-                        .font(.caption.bold())
-                        .foregroundColor(Color("main-text-color"))
+                        Spacer()
                     }
+                    .padding(.bottom, 10)
                     
                     HStack {
-                        Spacer()
+                        Text(goodsViewModel.goodsDetail.seller.name)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color("point-color"))
                         
+                        Spacer()
+                    }
+                    
+                    Spacer()
+                    
+                    HStack {
                         Text("\(goods.price * goods.quantity)원")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
+                        
+                        Spacer()
+                        
+                        Text("수량 \(goods.quantity)개")
+                            .font(.caption.bold())
+                            .foregroundColor(Color("main-text-color"))
                     }
                 }
-                .padding(.top, 5)
-                .padding(.horizontal, 5)
+                .padding(10)
             }
             .padding(.vertical)
             
@@ -566,15 +575,7 @@ struct OrderView: View {
                     .font(.title3)
                     .padding(.top)
                 
-                HStack(spacing: 0) {
-                    Text("48시간 내 ")
-                        .foregroundColor(Color("point-color"))
-                    Text("매장에 방문하여 결제 해주시기 바랍니다.")
-                        .foregroundColor(Color("secondary-text-color"))
-                }
-                .padding(.top)
-                
-                Text("현장 수령 기한: \(limitDate)")
+                Text("입금 기한: \(limitDate) 까지")
                     .foregroundColor(Color("main-highlight-color"))
                     .padding(.vertical)
                     .onAppear() {
@@ -583,87 +584,11 @@ struct OrderView: View {
                         limitDate = formatter.string(from: .now.addingTimeInterval(3600 * 24 * 2))
                     }
                 
-                Rectangle()
-                    .fill(Color("shape-bkg-color"))
-                    .frame(height: 10)
-                
-                VStack {
-                    HStack(alignment: .top) {
-                        if goodsViewModel.isCartGoodsListLoading {
-                            Color("main-shape-bkg-color")
-                                .frame(width: 100, height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .shadow(radius: 1)
-                        } else {
-                            if let image = goodsViewModel.goodsDetail.goodsImages.first {
-                                AsyncImage(url: URL(string: image.oriImgName)) { image in
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                                } placeholder: {
-                                    ZStack {
-                                        Color("main-shape-bkg-color")
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                        
-                                        ProgressView()
-                                            .tint(Color("main-highlight-color"))
-                                    }
-                                }
-                                .frame(width: 100, height: 100)
-                                .shadow(radius: 1)
-                            }
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Text(goodsViewModel.goodsDetail.title)
-                                    .foregroundColor(Color("main-text-color"))
-                                
-                                Spacer()
-                            }
-                            
-                            Spacer()
-                            
-                            HStack {
-                                Text("\(goodsViewModel.completeOrderResponseFromDetailGoods.price)원")
-                                    .font(.title3)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(Color("main-text-color"))
-                                
-                                Spacer()
-                            }
-                        }
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 5)
+                LazyVGrid(columns: columns) {
+                    ForEach(orderGoods, id: \.hashValue) { goods in
+                        orderCompleteGoods(goods: goods)
                     }
-                    .padding(.vertical)
-                    
-                    Rectangle()
-                        .foregroundColor(Color("shape-bkg-color"))
-                        .frame(height: 1)
                 }
-                .padding(.horizontal)
-                
-                Group {
-                    if orderType == .parcelOrder {
-                        orderCompleteInfo(title: "예금주명", content: "김세종")
-                        
-                        orderCompleteInfo(title: "입금은행", content: "국민은행")
-                        
-                        orderCompleteInfo(title: "계좌번호", content: "304102-02-175615")
-                    }
-                    
-                    orderCompleteInfo(title: "업체명", content: "세종이와 아이들")
-                    
-                    orderCompleteInfo(title: "주소", content: "서울 광진구 능동로 195-16")
-                    
-                    orderCompleteInfo(title: "연락처", content: "010-1234-5678")
-                    
-                    orderCompleteInfo(title: "요청사항", content: "연락 드리겠습니다.")
-                }
-                .padding(.horizontal)
-                
                 
                 Button {
                     
@@ -705,6 +630,26 @@ struct OrderView: View {
     }
     
     @ViewBuilder
+    func orderCompleteGoods(goods: OrderItem) -> some View {
+        VStack(spacing: 0) {
+            Rectangle()
+                .fill(Color("shape-bkg-color"))
+                .frame(height: 10)
+                       
+            subOrderGoods(goods: goods)
+            
+            Group {
+                orderCompleteInfo(title: "예금주명", content: "김세종")
+                
+                orderCompleteInfo(title: "입금은행", content: "국민은행")
+                
+                orderCompleteInfo(title: "계좌번호", content: "304102-02-175615")
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    @ViewBuilder
     func orderCompleteInfo(title: String, content: String) -> some View {
         HStack {
             Text(title)
@@ -728,7 +673,7 @@ struct OrderView: View {
 
 struct OrderView_Previews: PreviewProvider {
     static var previews: some View {
-        OrderView(orderType: .constant(.parcelOrder), orderGoods: [OrderItem(color: "블랙", size: "M", quantity: 1, price: 85000)])
+        OrderView(isPresented: .constant(false), orderType: .constant(.parcelOrder), orderGoods: [OrderItem(color: "블랙", size: "M", quantity: 1, price: 85000)])
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }

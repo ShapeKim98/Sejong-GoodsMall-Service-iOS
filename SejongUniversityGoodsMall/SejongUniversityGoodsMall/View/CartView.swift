@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct CartView: View {
+    @Environment(\.dismiss) var dismiss
+    
+    @Namespace var orderTypeSeletection
+    
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var isAllSelected: Bool = false
+    @State var orderType: OrderType = .pickUpOrder
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -19,6 +25,9 @@ struct CartView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            orderTypeSelection()
+                .unredacted()
+            
             allSeletionAndDeleteSeleted()
             
             Rectangle()
@@ -26,9 +35,7 @@ struct CartView: View {
                 .frame(height: 10)
             
             cartGoodsList()
-        }
-        .background(.white)
-        .overlay(alignment: .bottom) {
+            
             Button {
                 
             } label: {
@@ -57,6 +64,98 @@ struct CartView: View {
             .disabled(goodsViewModel.selectedCartGoodsPrice == 0 || loginViewModel.isLoading)
             .padding([.horizontal, .bottom])
             .padding(.bottom, 20)
+        }
+        .background(.white)
+        .onAppear(){
+            withAnimation {
+                goodsViewModel.isCartGoodsListLoading = true
+            }
+            
+            if !loginViewModel.isAuthenticate {
+                appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    loginViewModel.showLoginView = true
+                } secondaryButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    dismiss()
+                } closeButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    dismiss()
+                } onDisAppearAction: {
+                    dismiss()
+                    appViewModel.messageBox = nil
+                }
+                
+                withAnimation(.spring()) {
+                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBox = true
+                }
+            } else {
+                goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func orderTypeSelection() -> some View {
+        HStack {
+            Spacer()
+            
+            orderTypeButton("현장 수령", .pickUpOrder) {
+                withAnimation(.spring()) {
+                    orderType = .pickUpOrder
+                }
+            }
+            
+            Spacer(minLength: 150)
+            
+            orderTypeButton("택배 수령", .parcelOrder) {
+                withAnimation(.spring()) {
+                    orderType = .parcelOrder
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.top, 10)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
+        }
+        .background(.white)
+    }
+    
+    @ViewBuilder
+    func orderTypeButton(_ title: String, _ seleted: OrderType, _ action: @escaping () -> Void) -> some View {
+        let isSelected = orderType == seleted
+        
+        Button(action: action) {
+            VStack {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .bold : .light)
+                    .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
+                    .padding(.bottom, 10)
+            }
+            .overlay(alignment: .bottom) {
+                if isSelected {
+                    Rectangle()
+                        .foregroundColor(Color("main-highlight-color"))
+                        .frame(height: 3)
+                        .matchedGeometryEffect(id: "선택", in: orderTypeSeletection)
+                }
+            }
         }
     }
     
@@ -104,15 +203,38 @@ struct CartView: View {
             Spacer()
             
             Button {
+                appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "선택하신 상품을 삭제하시겠습니까?", secondaryTitle: "다음에 구매하실 예정이라면 찜하기에 잠시 보관해두세요.", mainButtonTitle: "찜하기에 보관하기", secondaryButtonTitle: "삭제하기") {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                } secondaryButtonAction: {
+                    withAnimation(.spring()) {
+                        goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                } closeButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBox = false
+                    }
+                } onDisAppearAction: {
+                    appViewModel.messageBox = nil
+                }
+                
                 withAnimation(.spring()) {
-                    goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
+                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBox = true
                 }
             } label: {
                 Text("선택 삭제")
                     .fontWeight(.bold)
                     .foregroundColor(Color("main-text-color"))
             }
-            
+            .unredacted()
         }
         .padding()
     }
@@ -121,7 +243,7 @@ struct CartView: View {
     func cartGoodsList() -> some View {
         VStack {
             ScrollView {
-                VStack {
+                LazyVGrid(columns: columns) {
                     ForEach(goodsViewModel.cart, id: \.id) { goods in
                         subCartGoods(goods: goods)
                             .onAppear() {
@@ -154,6 +276,9 @@ struct CartView: View {
                 NavigationLink {
                     GoodsDetailView()
                         .onAppear(){
+                            withAnimation {
+                                goodsViewModel.isGoodsDetailLoading = true
+                            }
                             goodsViewModel.fetchGoodsDetail(id: goods.goodsID)
                         }
                         .navigationTitle("상품 정보")
@@ -199,6 +324,8 @@ struct CartView: View {
                                 withAnimation(.spring()) {
                                     goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
                                 }
+                                
+                                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                             } label: {
                                 Label("삭제", systemImage: "xmark")
                                     .labelStyle(.iconOnly)
@@ -283,6 +410,7 @@ struct CartView: View {
 struct CartView_Previews: PreviewProvider {
     static var previews: some View {
         CartView()
+            .environmentObject(AppViewModel())
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }

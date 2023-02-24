@@ -12,6 +12,7 @@ struct SejongUniversityGoodsMallApp: App {
     @StateObject var appViewModel: AppViewModel = AppViewModel()
     @StateObject var goodsViewModel: GoodsViewModel = GoodsViewModel()
     @StateObject var loginViewModel: LoginViewModel = LoginViewModel()
+    @StateObject var networkManager: NetworkManager = NetworkManager()
     
     var body: some Scene {
         WindowGroup {
@@ -19,6 +20,7 @@ struct SejongUniversityGoodsMallApp: App {
                 .environmentObject(appViewModel)
                 .environmentObject(goodsViewModel)
                 .environmentObject(loginViewModel)
+                .environmentObject(networkManager)
                 .preferredColorScheme(.light)
         }
     }

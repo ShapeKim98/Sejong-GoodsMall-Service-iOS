@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct PurchaseBarView: View {
+    @Environment(\.dismiss) var dismiss
+    
     @Namespace var heroEffect
     
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var showOptionSheet: Bool
     @Binding var orderType: OrderType
-    
-    @State private var showOrderTypeAlert: Bool = false
+    @State var isPresented: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -36,6 +38,12 @@ struct PurchaseBarView: View {
                 .background(.white)
         }
         .background(.clear)
+        .modifier(ShowOrderViewModifier(isPresented: $isPresented, destination: {
+            OrderView(isPresented: $isPresented, orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+                .navigationTitle("주문서 작성")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
+        }))
     }
     
     @State private var isWished: Bool = false
@@ -67,11 +75,41 @@ struct PurchaseBarView: View {
                 }
                 
                 Button {
-                    withAnimation {
-                        goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
-                        goodsViewModel.seletedGoods.quantity = 0
-                        goodsViewModel.seletedGoods.color = nil
-                        goodsViewModel.seletedGoods.size = nil
+                    if !loginViewModel.isAuthenticate {
+                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                            
+                            loginViewModel.showLoginView = true
+                        } secondaryButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                        } closeButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                        } onDisAppearAction: {
+                            appViewModel.messageBox = nil
+                        }
+                        
+                        withAnimation(.spring()) {
+                            appViewModel.showAlertView = true
+                            appViewModel.showMessageBox = true
+                        }
+                    } else {
+                        if goodsViewModel.isSendGoodsPossible {
+                            withAnimation {
+                                goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                                goodsViewModel.seletedGoods.quantity = 0
+                                goodsViewModel.seletedGoods.color = nil
+                                goodsViewModel.seletedGoods.size = nil
+                            }
+                        }
                     }
                 } label: {
                     HStack {
@@ -95,11 +133,38 @@ struct PurchaseBarView: View {
             }
             
             if showOptionSheet {
-                NavigationLink {
-                    OrderView(orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
-                        .navigationTitle("주문서 작성")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
+                Button {
+                    if goodsViewModel.isSendGoodsPossible {
+                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "담을 방법을 선택해 주세요", secondaryTitle: "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                            
+                            orderType = .pickUpOrder
+                            isPresented = true
+                        } secondaryButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                            
+                            orderType = .parcelOrder
+                            isPresented = true
+                        } closeButtonAction: {
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBox = false
+                            }
+                        } onDisAppearAction: {
+                            appViewModel.messageBox = nil
+                        }
+                        
+                        withAnimation(.spring()) {
+                            appViewModel.showAlertView = true
+                            appViewModel.showMessageBox = true
+                        }
+                    }
                 } label: {
                     HStack {
                         Spacer()
@@ -120,7 +185,9 @@ struct PurchaseBarView: View {
                 .matchedGeometryEffect(id: "구매하기", in: heroEffect)
             } else {
                 Button {
-                    showOrderTypeAlert = true
+                    withAnimation(.spring()) {
+                        showOptionSheet = true
+                    }
                 } label: {
                     HStack {
                         Spacer()
@@ -139,19 +206,6 @@ struct PurchaseBarView: View {
                         .foregroundColor(Color("main-highlight-color"))
                 }
                 .matchedGeometryEffect(id: "구매하기", in: heroEffect)
-                .alert("주문 방법 안내", isPresented: $showOrderTypeAlert) {
-                    Button {
-                        withAnimation(.spring()) {
-                            showOptionSheet = true
-                        }
-                    } label: {
-                        Text("확인")
-                    }
-
-                } message: {
-                    Text("해당 상품은 현장 수령만 가능합니다.")
-                }
-
             }
         }
     }
@@ -162,5 +216,6 @@ struct PurchaseBarView_Previews: PreviewProvider {
         PurchaseBarView(showOptionSheet: .constant(false), orderType: .constant(.pickUpOrder))
             .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
+            .environmentObject(AppViewModel())
     }
 }

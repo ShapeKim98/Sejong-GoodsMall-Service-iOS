@@ -54,6 +54,7 @@ struct SignInView: View {
             Spacer()
             
             Button {
+                loginViewModel.isLoading = true
                 loginViewModel.signIn(email: email, password: password)
             } label: {
                 HStack {
@@ -80,6 +81,7 @@ struct SignInView: View {
             }
             .padding(.bottom, 20)
         }
+        .frame(maxWidth: 500)
         .padding()
         .background(.white)
         .onTapGesture {

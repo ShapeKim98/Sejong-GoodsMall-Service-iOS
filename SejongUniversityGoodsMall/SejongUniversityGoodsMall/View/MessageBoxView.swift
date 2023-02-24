@@ -19,8 +19,10 @@ struct MessageBoxView: View {
     
     private let mainButtonAction: () -> Void
     private let secondaryButtonAction: () -> Void
+    private let closeButtonAction: () -> Void
+    private let onDisAppearAction: () -> Void
     
-    init(showMessageBox: Binding<Bool>, title: String, secondaryTitle: String, mainButtonTitle: String, secondaryButtonTitle: String, mainButtonAction: @escaping () -> Void, secondaryButtonAction: @escaping () -> Void) {
+    init(showMessageBox: Binding<Bool>, title: String, secondaryTitle: String, mainButtonTitle: String, secondaryButtonTitle: String, mainButtonAction: @escaping () -> Void, secondaryButtonAction: @escaping () -> Void, closeButtonAction: @escaping () -> Void, onDisAppearAction: @escaping () -> Void) {
         self._showMessageBox = showMessageBox
         self.title = title
         self.secondaryTitle = secondaryTitle
@@ -28,6 +30,8 @@ struct MessageBoxView: View {
         self.secondaryButtonTitle = secondaryButtonTitle
         self.mainButtonAction = mainButtonAction
         self.secondaryButtonAction = secondaryButtonAction
+        self.closeButtonAction = closeButtonAction
+        self.onDisAppearAction = onDisAppearAction
     }
     
     var body: some View {
@@ -92,12 +96,7 @@ struct MessageBoxView: View {
                 }
                 .padding(.bottom)
                 
-                Button {
-                    withAnimation(.spring()) {
-                        appViewModel.showAlertView = false
-                        showMessageBox = false
-                    }
-                } label: {
+                Button(action: closeButtonAction) {
                     Text("닫기")
                         .font(.subheadline)
                         .fontWeight(.semibold)
@@ -115,6 +114,8 @@ struct MessageBoxView: View {
             
             Spacer()
         }
+        .frame(maxWidth: 500)
+        .onDisappear(perform: onDisAppearAction)
     }
 }
 
@@ -123,6 +124,10 @@ struct MessageBoxView_Previews: PreviewProvider {
         MessageBoxView(showMessageBox: .constant(true), title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
             
         } secondaryButtonAction: {
+            
+        } closeButtonAction: {
+            
+        } onDisAppearAction: {
             
         }
         .environmentObject(AppViewModel())

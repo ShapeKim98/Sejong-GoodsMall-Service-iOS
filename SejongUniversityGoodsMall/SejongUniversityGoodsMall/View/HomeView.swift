@@ -52,19 +52,16 @@ struct HomeView: View {
                                 .onTapGesture {
                                     withAnimation(.spring()) {
                                         appViewModel.showAlertView = false
-                                        appViewModel.showNeedLoginMessageBox = false
+                                        appViewModel.showMessageBox = false
                                     }
                                 }
                         }
                         
-                        if appViewModel.showNeedLoginMessageBox {
-                            MessageBoxView(showMessageBox: $appViewModel.showNeedLoginMessageBox, title: "로그인이 필요한 서비스 입니다.", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러가기", secondaryButtonTitle: "계속 둘러보기") {
-                                
-                            } secondaryButtonAction: {
-                                
+                        if appViewModel.showMessageBox {
+                            if let messageBox = appViewModel.messageBox {
+                                messageBox
+                                    .transition(.move(edge: .bottom))
                             }
-                            .transition(.move(edge: .bottom))
-
                         }
                     }
                     .ignoresSafeArea()
@@ -83,6 +80,7 @@ struct HomeView: View {
                     .navigationTitle("")
                     .navigationBarHidden(true)
                 }
+                .navigationViewStyle(.stack)
                 .overlay {
                     ZStack {
                         if appViewModel.showAlertView {
@@ -90,19 +88,17 @@ struct HomeView: View {
                                 .onTapGesture {
                                     withAnimation(.spring()) {
                                         appViewModel.showAlertView = false
-                                        appViewModel.showNeedLoginMessageBox = false
+                                        appViewModel.showMessageBox = false
+                                        appViewModel.messageBox = nil
                                     }
                                 }
                         }
                         
-                        if appViewModel.showNeedLoginMessageBox {
-                            MessageBoxView(showMessageBox: $appViewModel.showNeedLoginMessageBox, title: "로그인이 필요한 서비스 입니다.", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러가기", secondaryButtonTitle: "계속 둘러보기") {
-                                
-                            } secondaryButtonAction: {
-                                
+                        if appViewModel.showMessageBox {
+                            if let messageBox = appViewModel.messageBox {
+                                messageBox
+                                    .transition(.move(edge: .bottom))
                             }
-                            .transition(.move(edge: .bottom))
-
                         }
                     }
                     .ignoresSafeArea()
@@ -132,9 +128,6 @@ struct HomeView: View {
             
             NavigationLink {
                 CartView()
-                    .onAppear(){
-                        goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
-                    }
                     .navigationTitle("장바구니")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
@@ -143,6 +136,18 @@ struct HomeView: View {
                 Label("장바구니", systemImage: "cart")
                     .font(.title)
                     .labelStyle(.iconOnly)
+                    .overlay(alignment: .topTrailing) {
+                        if goodsViewModel.cartGoodsCount != 0 {
+                            Circle()
+                                .fill(Color("main-highlight-color"))
+                                .overlay {
+                                    Text("\(goodsViewModel.cartGoodsCount)")
+                                        .font(.caption2)
+                                        .foregroundColor(.white)
+                                }
+                                .frame(maxWidth: 16, maxHeight: 16)
+                        }
+                    }
             }
             
             NavigationLink {
@@ -168,7 +173,11 @@ struct HomeView: View {
                 HStack {
                     ForEach(goodsViewModel.categoryList) { category in
                         categotyButton(category.categoryName, category: category) {
-                            goodsViewModel.fetchGoodsListFromCatefory(id: category.id)
+                            if category.id == 0 {
+                                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                            } else {
+                                goodsViewModel.fetchGoodsListFromCatefory(id: category.id)
+                            }
                             
                             withAnimation(.spring()) {
                                 currentCategory = category
@@ -228,9 +237,19 @@ struct HomeView: View {
             }
             .refreshable {
                 if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
-                    goodsViewModel.fetchGoodsList()
+                    withAnimation {
+                        goodsViewModel.isGoodsListLoading = true
+                    }
+                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                 } else {
+                    withAnimation {
+                        goodsViewModel.isGoodsListLoading = true
+                    }
                     goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                }
+                
+                withAnimation {
+                    goodsViewModel.isCategoryLoading = true
                 }
                 goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
             }
@@ -247,9 +266,19 @@ struct HomeView: View {
             .listStyle(.plain)
             .refreshable {
                 if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
-                    goodsViewModel.fetchGoodsList()
+                    withAnimation {
+                        goodsViewModel.isGoodsListLoading = true
+                    }
+                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                 } else {
+                    withAnimation {
+                        goodsViewModel.isGoodsListLoading = true
+                    }
                     goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                }
+                
+                withAnimation {
+                    goodsViewModel.isCategoryLoading = true
                 }
                 goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
             }
@@ -261,6 +290,9 @@ struct HomeView: View {
         NavigationLink {
             GoodsDetailView()
                 .onAppear(){
+                    withAnimation {
+                        goodsViewModel.isGoodsDetailLoading = true
+                    }
                     goodsViewModel.fetchGoodsDetail(id: goods.id)
                 }
                 .navigationTitle("상품 정보")
