@@ -70,11 +70,22 @@ struct AppView: View {
                         }
                         goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                     }
+                    .overlay {
+                        if let errorView = goodsViewModel.errorView {
+                            errorView
+                        }
+                    }
             }
-            .disabled(!networkManager.isConnected)
             .overlay {
-                if !networkManager.isConnected {
-                    ErrorView()
+                if let errorView = goodsViewModel.errorView {
+                    errorView
+                }
+            }
+            .onChange(of: networkManager.isConnected) { newValue in
+                if !newValue {
+                    goodsViewModel.errorView = ErrorView(retryAction: {})
+                } else {
+                    goodsViewModel.errorView = nil
                 }
             }
     }

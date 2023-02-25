@@ -12,6 +12,8 @@ import Combine
 class GoodsViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     
+    @Published var error: ApiError?
+    @Published var errorView: ErrorView?
     @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
                                            Goods(id: 1, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
                                            Goods(id: 2, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
@@ -53,7 +55,8 @@ class GoodsViewModel: ObservableObject {
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
-                                self.message = "접근 권한 없음"
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: {})
                             }
                             print("접근 권한 없음")
                             break
@@ -61,7 +64,13 @@ class GoodsViewModel: ObservableObject {
                             switch error.code {
                                 case .badServerResponse:
                                     DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchGoodsList(id: id)
+                                        })
+//                                        self.message = "서버 응답 오류 \(error.errorCode)"
                                     }
                                     print("서버 응답 오류")
                                     break
@@ -73,7 +82,13 @@ class GoodsViewModel: ObservableObject {
                                     break
                                 default:
                                     DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchGoodsList(id: id)
+                                        })
+//                                        self.message = "알 수 없는 오류 \(error.errorCode)"
                                     }
                                     print("알 수 없는 오류")
                                     break
@@ -92,7 +107,13 @@ class GoodsViewModel: ObservableObject {
                             break
                         default:
                             DispatchQueue.main.async {
-                                self.message = "알 수 없는 오류 \(error)"
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                })
+//                                self.message = "알 수 없는 오류 \(error)"
                             }
                             print("알 수 없는 오류")
                             break
@@ -120,7 +141,9 @@ class GoodsViewModel: ObservableObject {
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
-                                self.message = "접근 권한 없음"
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { })
+//                                self.message = "접근 권한 없음"
                             }
                             print("접근 권한 없음")
                             break
@@ -128,7 +151,13 @@ class GoodsViewModel: ObservableObject {
                             switch error.code {
                                 case .badServerResponse:
                                     DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchCategory(token: token)
+                                        })
+//                                        self.message = "서버 응답 오류 \(error.errorCode)"
                                     }
                                     print("서버 응답 오류")
                                     break
@@ -140,7 +169,13 @@ class GoodsViewModel: ObservableObject {
                                     break
                                 default:
                                     DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchCategory(token: token)
+                                        })
+//                                        self.message = "알 수 없는 오류 \(error.errorCode)"
                                     }
                                     print("알 수 없는 오류")
                                     break
@@ -153,7 +188,13 @@ class GoodsViewModel: ObservableObject {
                             break
                         default:
                             DispatchQueue.main.async {
-                                self.message = "알 수 없는 오류 \(error)"
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCategory(token: token)
+                                })
+//                                self.message = "알 수 없는 오류 \(error)"
                             }
                             print("알 수 없는 오류")
                             break
@@ -181,7 +222,9 @@ class GoodsViewModel: ObservableObject {
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
-                                self.message = "접근 권한 없음"
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { })
+//                                self.message = "접근 권한 없음"
                             }
                             print("접근 권한 없음")
                             break
@@ -189,7 +232,13 @@ class GoodsViewModel: ObservableObject {
                             switch error.code {
                                 case .badServerResponse:
                                     DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchGoodsListFromCatefory(id: id)
+                                        })
+//                                        self.message = "서버 응답 오류 \(error.errorCode)"
                                     }
                                     print("서버 응답 오류")
                                     break
@@ -201,7 +250,13 @@ class GoodsViewModel: ObservableObject {
                                     break
                                 default:
                                     DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchGoodsListFromCatefory(id: id)
+                                        })
+//                                        self.message = "알 수 없는 오류 \(error.errorCode)"
                                     }
                                     print("알 수 없는 오류")
                                     break
@@ -214,7 +269,13 @@ class GoodsViewModel: ObservableObject {
                             break
                         default:
                             DispatchQueue.main.async {
-                                self.message = "알 수 없는 오류 \(error)"
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsListFromCatefory(id: id)
+                                })
+//                                self.message = "알 수 없는 오류 \(error)"
                             }
                             print("알 수 없는 오류")
                             break
@@ -241,7 +302,9 @@ class GoodsViewModel: ObservableObject {
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
-                                self.message = "접근 권한 없음"
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { })
+//                                self.message = "접근 권한 없음"
                             }
                             print("접근 권한 없음")
                             break
@@ -249,7 +312,13 @@ class GoodsViewModel: ObservableObject {
                             switch error.code {
                                 case .badServerResponse:
                                     DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchGoodsDetail(id: id)
+                                        })
+//                                        self.message = "서버 응답 오류 \(error.errorCode)"
                                     }
                                     print("서버 응답 오류")
                                     break
@@ -261,7 +330,13 @@ class GoodsViewModel: ObservableObject {
                                     break
                                 default:
                                     DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchGoodsDetail(id: id)
+                                        })
+//                                        self.message = "알 수 없는 오류 \(error.errorCode)"
                                     }
                                     print("알 수 없는 오류")
                                     break
@@ -274,7 +349,13 @@ class GoodsViewModel: ObservableObject {
                             break
                         default:
                             DispatchQueue.main.async {
-                                self.message = "알 수 없는 오류 \(error)"
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsDetail(id: id)
+                                })
+//                                self.message = "알 수 없는 오류 \(error)"
                             }
                             print("알 수 없는 오류")
                             break
@@ -314,7 +395,13 @@ class GoodsViewModel: ObservableObject {
                                 switch error.code {
                                     case .badServerResponse:
                                         DispatchQueue.main.async {
-                                            self.message = "서버 응답 오류 \(error.errorCode)"
+                                            self.error = .invalidResponse(error)
+                                            self.errorView = ErrorView(retryAction: {
+                                                self.error = nil
+                                                self.errorView = nil
+                                                self.sendCartGoodsRequest(token: token)
+                                            })
+//                                            self.message = "서버 응답 오류 \(error.errorCode)"
                                         }
                                         print("서버 응답 오류")
                                         break
@@ -326,7 +413,13 @@ class GoodsViewModel: ObservableObject {
                                         break
                                     default:
                                         DispatchQueue.main.async {
-                                            self.message = "알 수 없는 오류 \(error.errorCode)"
+                                            self.error = .invalidResponse(error)
+                                            self.errorView = ErrorView(retryAction: {
+                                                self.error = nil
+                                                self.errorView = nil
+                                                self.sendCartGoodsRequest(token: token)
+                                            })
+//                                            self.message = "알 수 없는 오류 \(error.errorCode)"
                                         }
                                         print("알 수 없는 오류")
                                         break
@@ -339,7 +432,13 @@ class GoodsViewModel: ObservableObject {
                                 break
                             default:
                                 DispatchQueue.main.async {
-                                    self.message = "알 수 없는 오류 \(error)"
+                                    self.error = .unknown(error)
+                                    self.errorView = ErrorView(retryAction: {
+                                        self.error = nil
+                                        self.errorView = nil
+                                        self.sendCartGoodsRequest(token: token)
+                                    })
+//                                    self.message = "알 수 없는 오류 \(error)"
                                 }
                                 print("알 수 없는 오류")
                                 break
@@ -366,7 +465,9 @@ class GoodsViewModel: ObservableObject {
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
-                                self.message = "접근 권한 없음"
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { })
+//                                self.message = "접근 권한 없음"
                             }
                             print("접근 권한 없음")
                             break
@@ -374,7 +475,13 @@ class GoodsViewModel: ObservableObject {
                             switch error.code {
                                 case .badServerResponse:
                                     DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.fetchCartGoods(token: token)
+                                        })
+//                                        self.message = "서버 응답 오류 \(error.errorCode)"
                                     }
                                     print("서버 응답 오류")
                                     break
@@ -386,7 +493,13 @@ class GoodsViewModel: ObservableObject {
                                     break
                                 default:
                                     DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.sendCartGoodsRequest(token: token)
+                                        })
+//                                        self.message = "알 수 없는 오류 \(error.errorCode)"
                                     }
                                     print("알 수 없는 오류")
                                     break
@@ -399,7 +512,13 @@ class GoodsViewModel: ObservableObject {
                             break
                         default:
                             DispatchQueue.main.async {
-                                self.message = "알 수 없는 오류 \(error)"
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.sendCartGoodsRequest(token: token)
+                                })
+//                                self.message = "알 수 없는 오류 \(error)"
                             }
                             print("알 수 없는 오류")
                             break
@@ -456,6 +575,7 @@ class GoodsViewModel: ObservableObject {
                     switch error {
                         case .isNoneCartGoods:
                             DispatchQueue.main.async {
+                                self.error = .isNoneCartGoods
                                 self.message = "존재하지 않는 장바구니 상품"
                             }
                             print("존재하지 않는 장바구니 상품")
@@ -464,7 +584,13 @@ class GoodsViewModel: ObservableObject {
                             switch error.code {
                                 case .badServerResponse:
                                     DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.deleteCartGoods(token: token)
+                                        })
+//                                        self.message = "서버 응답 오류 \(error.errorCode)"
                                     }
                                     print("서버 응답 오류")
                                     break
@@ -476,7 +602,13 @@ class GoodsViewModel: ObservableObject {
                                     break
                                 default:
                                     DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.deleteCartGoods(token: token)
+                                        })
+//                                        self.message = "알 수 없는 오류 \(error.errorCode)"
                                     }
                                     print("알 수 없는 오류")
                                     break
@@ -489,7 +621,13 @@ class GoodsViewModel: ObservableObject {
                             break
                         default:
                             DispatchQueue.main.async {
-                                self.message = "알 수 없는 오류 \(error)"
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.deleteCartGoods(token: token)
+                                })
+//                                self.message = "알 수 없는 오류 \(error)"
                             }
                             print("알 수 없는 오류")
                             break
@@ -517,6 +655,7 @@ class GoodsViewModel: ObservableObject {
                     switch error {
                         case .isNoneCartGoods:
                             DispatchQueue.main.async {
+                                self.error = .isNoneCartGoods
                                 self.message = "존재하지 않는 장바구니 상품"
                             }
                             print("존재하지 않는 장바구니 상품")
@@ -525,7 +664,13 @@ class GoodsViewModel: ObservableObject {
                             switch error.code {
                                 case .badServerResponse:
                                     DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.deleteIndividualCartGoods(id: id, token: token)
+                                        })
+//                                        self.message = "서버 응답 오류 \(error.errorCode)"
                                     }
                                     print("서버 응답 오류")
                                     break
@@ -537,7 +682,13 @@ class GoodsViewModel: ObservableObject {
                                     break
                                 default:
                                     DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                        self.error = .invalidResponse(error)
+                                        self.errorView = ErrorView(retryAction: {
+                                            self.error = nil
+                                            self.errorView = nil
+                                            self.deleteIndividualCartGoods(id: id, token: token)
+                                        })
+//                                        self.message = "알 수 없는 오류 \(error.errorCode)"
                                     }
                                     print("알 수 없는 오류")
                                     break
@@ -550,7 +701,13 @@ class GoodsViewModel: ObservableObject {
                             break
                         default:
                             DispatchQueue.main.async {
-                                self.message = "알 수 없는 오류 \(error)"
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.deleteIndividualCartGoods(id: id, token: token)
+                                })
+//                                self.message = "알 수 없는 오류 \(error)"
                             }
                             print("알 수 없는 오류")
                             break
@@ -578,6 +735,7 @@ class GoodsViewModel: ObservableObject {
                         switch error {
                             case .isNoneCartGoods:
                                 DispatchQueue.main.async {
+                                    self.error = .isNoneCartGoods
                                     self.message = "존재하지 않는 장바구니 상품"
                                 }
                                 print("존재하지 않는 장바구니 상품")
@@ -586,7 +744,13 @@ class GoodsViewModel: ObservableObject {
                                 switch error.code {
                                     case .badServerResponse:
                                         DispatchQueue.main.async {
-                                            self.message = "서버 응답 오류 \(error.errorCode)"
+                                            self.error = .invalidResponse(error)
+                                            self.errorView = ErrorView(retryAction: {
+                                                self.error = nil
+                                                self.errorView = nil
+                                                self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                            })
+//                                            self.message = "서버 응답 오류 \(error.errorCode)"
                                         }
                                         print("서버 응답 오류")
                                         break
@@ -598,7 +762,13 @@ class GoodsViewModel: ObservableObject {
                                         break
                                     default:
                                         DispatchQueue.main.async {
-                                            self.message = "알 수 없는 오류 \(error.errorCode)"
+                                            self.error = .invalidResponse(error)
+                                            self.errorView = ErrorView(retryAction: {
+                                                self.error = nil
+                                                self.errorView = nil
+                                                self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                            })
+//                                            self.message = "알 수 없는 오류 \(error.errorCode)"
                                         }
                                         print("알 수 없는 오류")
                                         break
@@ -611,7 +781,13 @@ class GoodsViewModel: ObservableObject {
                                 break
                             default:
                                 DispatchQueue.main.async {
-                                    self.message = "알 수 없는 오류 \(error)"
+                                    self.error = .unknown(error)
+                                    self.errorView = ErrorView(retryAction: {
+                                        self.error = nil
+                                        self.errorView = nil
+                                        self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                    })
+//                                    self.message = "알 수 없는 오류 \(error)"
                                 }
                                 print("알 수 없는 오류")
                                 break
@@ -636,7 +812,9 @@ class GoodsViewModel: ObservableObject {
                         switch error {
                             case .authenticationFailure:
                                 DispatchQueue.main.async {
-                                    self.message = "접근 권한이 없습니다"
+                                    self.error = .authenticationFailure
+                                    self.errorView = ErrorView(retryAction: { })
+//                                    self.message = "접근 권한이 없습니다"
                                 }
                                 print("접근 권한이 없습니다")
                                 break
@@ -644,7 +822,13 @@ class GoodsViewModel: ObservableObject {
                                 switch error.code {
                                     case .badServerResponse:
                                         DispatchQueue.main.async {
-                                            self.message = "서버 응답 오류 \(error.errorCode)"
+                                            self.error = .invalidResponse(error)
+                                            self.errorView = ErrorView(retryAction: {
+                                                self.error = nil
+                                                self.errorView = nil
+                                                self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                            })
+//                                            self.message = "서버 응답 오류 \(error.errorCode)"
                                         }
                                         print("서버 응답 오류")
                                         break
@@ -656,7 +840,13 @@ class GoodsViewModel: ObservableObject {
                                         break
                                     default:
                                         DispatchQueue.main.async {
-                                            self.message = "알 수 없는 오류 \(error.errorCode)"
+                                            self.error = .invalidResponse(error)
+                                            self.errorView = ErrorView(retryAction: {
+                                                self.error = nil
+                                                self.errorView = nil
+                                                self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                            })
+//                                            self.message = "알 수 없는 오류 \(error.errorCode)"
                                         }
                                         print("알 수 없는 오류")
                                         break
@@ -669,7 +859,13 @@ class GoodsViewModel: ObservableObject {
                                 break
                             default:
                                 DispatchQueue.main.async {
-                                    self.message = "알 수 없는 오류 \(error)"
+                                    self.error = .unknown(error)
+                                    self.errorView = ErrorView(retryAction: {
+                                        self.error = nil
+                                        self.errorView = nil
+                                        self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                    })
+//                                    self.message = "알 수 없는 오류 \(error)"
                                 }
                                 print("알 수 없는 오류")
                                 break

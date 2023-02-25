@@ -167,7 +167,7 @@ struct PurchaseBarView: View {
             if showOptionSheet {
                 Button {
                     if goodsViewModel.isSendGoodsPossible {
-                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "담을 방법을 선택해 주세요", secondaryTitle: "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "주문 방법을 선택해 주세요", secondaryTitle: "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
                             withAnimation(.spring()) {
                                 appViewModel.showAlertView = false
                                 appViewModel.showMessageBox = false
