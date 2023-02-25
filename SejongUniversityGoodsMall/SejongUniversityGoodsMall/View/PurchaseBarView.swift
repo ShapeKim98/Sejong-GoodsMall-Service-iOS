@@ -17,7 +17,6 @@ struct PurchaseBarView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var showOptionSheet: Bool
-    @Binding var orderType: OrderType
     @State var isPresented: Bool = false
     
     var body: some View {
@@ -39,7 +38,7 @@ struct PurchaseBarView: View {
         }
         .background(.clear)
         .modifier(ShowOrderViewModifier(isPresented: $isPresented, destination: {
-            OrderView(isPresented: $isPresented, orderType: $orderType, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+            OrderView(isPresented: $isPresented, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
                 .navigationTitle("주문서 작성")
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
@@ -103,11 +102,44 @@ struct PurchaseBarView: View {
                         }
                     } else {
                         if goodsViewModel.isSendGoodsPossible {
-                            withAnimation {
-                                goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
-                                goodsViewModel.seletedGoods.quantity = 0
-                                goodsViewModel.seletedGoods.color = nil
-                                goodsViewModel.seletedGoods.size = nil
+                            appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "담을 방법을 선택해 주세요", secondaryTitle: "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                                withAnimation(.spring()) {
+                                    appViewModel.showAlertView = false
+                                    appViewModel.showMessageBox = false
+                                }
+                                
+                                withAnimation {
+                                    goodsViewModel.seletedGoods.cartMethod = "pickup"
+                                    goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                                    goodsViewModel.seletedGoods.quantity = 0
+                                    goodsViewModel.seletedGoods.color = nil
+                                    goodsViewModel.seletedGoods.size = nil
+                                }
+                            } secondaryButtonAction: {
+                                withAnimation(.spring()) {
+                                    appViewModel.showAlertView = false
+                                    appViewModel.showMessageBox = false
+                                }
+                                
+                                withAnimation {
+                                    goodsViewModel.seletedGoods.cartMethod = "delivery"
+                                    goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                                    goodsViewModel.seletedGoods.quantity = 0
+                                    goodsViewModel.seletedGoods.color = nil
+                                    goodsViewModel.seletedGoods.size = nil
+                                }
+                            } closeButtonAction: {
+                                withAnimation(.spring()) {
+                                    appViewModel.showAlertView = false
+                                    appViewModel.showMessageBox = false
+                                }
+                            } onDisAppearAction: {
+                                appViewModel.messageBox = nil
+                            }
+                            
+                            withAnimation(.spring()) {
+                                appViewModel.showAlertView = true
+                                appViewModel.showMessageBox = true
                             }
                         }
                     }
@@ -141,7 +173,7 @@ struct PurchaseBarView: View {
                                 appViewModel.showMessageBox = false
                             }
                             
-                            orderType = .pickUpOrder
+                            goodsViewModel.orderType = .pickUpOrder
                             isPresented = true
                         } secondaryButtonAction: {
                             withAnimation(.spring()) {
@@ -149,7 +181,7 @@ struct PurchaseBarView: View {
                                 appViewModel.showMessageBox = false
                             }
                             
-                            orderType = .parcelOrder
+                            goodsViewModel.orderType = .deliveryOrder
                             isPresented = true
                         } closeButtonAction: {
                             withAnimation(.spring()) {
@@ -213,7 +245,7 @@ struct PurchaseBarView: View {
 
 struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
-        PurchaseBarView(showOptionSheet: .constant(false), orderType: .constant(.pickUpOrder))
+        PurchaseBarView(showOptionSheet: .constant(false))
             .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
             .environmentObject(AppViewModel())

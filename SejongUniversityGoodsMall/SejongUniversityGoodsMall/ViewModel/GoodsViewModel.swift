@@ -23,9 +23,13 @@ class GoodsViewModel: ObservableObject {
     @Published var isCategoryLoading: Bool = true
     @Published var isCartGoodsListLoading: Bool = true
     @Published var message: String?
-    @Published var cart: CartGoodsList = [CartGoodsResponse(id: 0, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading...")),
-                                          CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading...")),
-                                          CartGoodsResponse(id: 2, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."))
+    @Published var pickUpCart: CartGoodsList = [CartGoodsResponse(id: 0, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup"),
+                                                                                     CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup"),
+                                                                                     CartGoodsResponse(id: 2, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup")
+    ]
+    @Published var deliveryCart: CartGoodsList = [CartGoodsResponse(id: 0, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "delivery"),
+                                                                                     CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "delivery"),
+                                                                                     CartGoodsResponse(id: 2, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "delivery")
     ]
     @Published var seletedGoods: CartGoodsRequest = CartGoodsRequest(quantity: 0)
     @Published var categoryList: CategoryList = [Category(id: 0, name: "loading..."),
@@ -40,6 +44,7 @@ class GoodsViewModel: ObservableObject {
     @Published var isSendGoodsPossible: Bool = false
     @Published var completeSendCartGoods: Bool = false
     @Published var cartGoodsCount: Int = 0
+    @Published var orderType: OrderType = .pickUpOrder
     
     func fetchGoodsList(id: Int? = nil) {
         ApiService.fetchGoodsList(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
@@ -406,7 +411,14 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { cartGoodsList in
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
-                    self.cart = cartGoodsList
+                    self.pickUpCart = cartGoodsList.filter({ goods in
+                        return goods.cartMethod == "pickup"
+                    })
+                    
+                    self.deliveryCart = cartGoodsList.filter({ goods in
+                        return goods.cartMethod == "delivery"
+                    })
+                    
                     self.updateCartData()
                     self.isCartGoodsListLoading = false
                 }
@@ -419,16 +431,26 @@ class GoodsViewModel: ObservableObject {
         withAnimation {
             self.isCartGoodsListLoading = true
         }
-        var publishers = [AnyPublisher<CartGoodsList, ApiError>]()
-        self.cart.forEach { goods in
-            if let isSelected = cartGoodsSelections[goods.id], isSelected {
-                publishers.append(ApiService.deleteCartGoods(id: goods.id, token: token))
-                cartGoodsSelections.removeValue(forKey: goods.id)
-            }
+        var publishers = [AnyPublisher<Data, ApiError>]()
+        switch orderType {
+            case .pickUpOrder:
+                self.pickUpCart.forEach { goods in
+                    if let isSelected = cartGoodsSelections[goods.id], isSelected {
+                        publishers.append(ApiService.deleteCartGoods(id: goods.id, token: token))
+                        cartGoodsSelections.removeValue(forKey: goods.id)
+                    }
+                }
+                break
+            case .deliveryOrder:
+                self.deliveryCart.forEach { goods in
+                    if let isSelected = cartGoodsSelections[goods.id], isSelected {
+                        publishers.append(ApiService.deleteCartGoods(id: goods.id, token: token))
+                        cartGoodsSelections.removeValue(forKey: goods.id)
+                    }
+                }
         }
         
         Publishers.MergeMany(publishers).eraseToAnyPublisher().receive(on: DispatchQueue.global(qos: .userInteractive)).sink { completion in
-            print(Thread.current)
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -476,7 +498,68 @@ class GoodsViewModel: ObservableObject {
                     print("삭제 성공")
                     break
             }
-        } receiveValue: { cartGoods in
+        } receiveValue: { data in
+            DispatchQueue.main.async {
+                withAnimation(.spring()) {
+                    self.fetchCartGoods(token: token)
+                    self.updateCartData()
+                    self.isCartGoodsListLoading = false
+                }
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func deleteIndividualCartGoods(id: Int, token: String) {
+        ApiService.deleteCartGoods(id: id, token: token).receive(on: DispatchQueue.global(qos: .userInteractive)).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .isNoneCartGoods:
+                            DispatchQueue.main.async {
+                                self.message = "존재하지 않는 장바구니 상품"
+                            }
+                            print("존재하지 않는 장바구니 상품")
+                            break
+                        case .invalidResponse(let error):
+                            switch error.code {
+                                case .badServerResponse:
+                                    DispatchQueue.main.async {
+                                        self.message = "서버 응답 오류 \(error.errorCode)"
+                                    }
+                                    print("서버 응답 오류")
+                                    break
+                                case .badURL:
+                                    DispatchQueue.main.async {
+                                        self.message = "잘못된 url"
+                                    }
+                                    print("잘못된 url")
+                                    break
+                                default:
+                                    DispatchQueue.main.async {
+                                        self.message = "알 수 없는 오류 \(error.errorCode)"
+                                    }
+                                    print("알 수 없는 오류")
+                                    break
+                            }
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.message = "알 수 없는 오류 \(error)"
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("삭제 성공")
+                    break
+            }
+        } receiveValue: { data in
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.fetchCartGoods(token: token)
@@ -608,8 +691,19 @@ class GoodsViewModel: ObservableObject {
             self.selectedCartGoodsCount += isSelected ? 1 : 0
         }
         
-        self.cart.forEach { goods in
-            selectedCartGoodsPrice += (cartGoodsSelections[goods.id] ?? false) ? goods.price : 0
+        switch orderType {
+            case .pickUpOrder:
+                self.pickUpCart.forEach { goods in
+                    selectedCartGoodsPrice += (cartGoodsSelections[goods.id] ?? false) ? goods.price : 0
+                }
+                break
+            case .deliveryOrder:
+                self.deliveryCart.forEach { goods in
+                    selectedCartGoodsPrice += (cartGoodsSelections[goods.id] ?? false) ? goods.price : 0
+                }
+                break
         }
+        
+        
     }
 }

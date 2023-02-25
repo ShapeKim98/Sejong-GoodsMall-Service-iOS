@@ -367,7 +367,7 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func deleteCartGoods(id: Int, token: String) -> AnyPublisher<CartGoodsList, ApiError> {
+    static func deleteCartGoods(id: Int, token: String) -> AnyPublisher<Data, ApiError> {
         var request = URLRequest(url: APIURL.deleteCartGoods.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
@@ -390,7 +390,7 @@ enum ApiService {
 
             return data
         }
-        .decode(type: CartGoodsList.self, decoder: JSONDecoder())
+//        .decode(type: CartGoodsList.self, decoder: JSONDecoder())
         .mapError { error in
             ApiError.convert(error: error)
         }

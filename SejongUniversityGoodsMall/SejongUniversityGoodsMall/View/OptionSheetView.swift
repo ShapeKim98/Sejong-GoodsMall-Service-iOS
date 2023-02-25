@@ -112,6 +112,9 @@ struct OptionSheetView: View {
                                         .onAppear() {
                                             goodsViewModel.isSendGoodsPossible = true
                                         }
+                                        .onDisappear() {
+                                            goodsViewModel.isSendGoodsPossible = false
+                                        }
                                 }
                             } else {
                                 if goodsViewModel.goodsDetail.color != nil {
@@ -122,6 +125,9 @@ struct OptionSheetView: View {
                                             .onAppear() {
                                                 goodsViewModel.isSendGoodsPossible = true
                                             }
+                                            .onDisappear() {
+                                                goodsViewModel.isSendGoodsPossible = false
+                                            }
                                     }
                                 } else if goodsViewModel.goodsDetail.size != nil {
                                     if goodsViewModel.seletedGoods.size == nil {
@@ -131,6 +137,9 @@ struct OptionSheetView: View {
                                             .onAppear() {
                                                 goodsViewModel.isSendGoodsPossible = true
                                             }
+                                            .onDisappear() {
+                                                goodsViewModel.isSendGoodsPossible = false
+                                            }
                                     }
                                 } else {
                                     if goodsViewModel.seletedGoods.quantity < 1 {
@@ -139,6 +148,9 @@ struct OptionSheetView: View {
                                         selectedGoodsOptions()
                                             .onAppear() {
                                                 goodsViewModel.isSendGoodsPossible = true
+                                            }
+                                            .onDisappear() {
+                                                goodsViewModel.isSendGoodsPossible = false
                                             }
                                     }
                                 }

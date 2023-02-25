@@ -14,12 +14,14 @@ struct CartGoodsResponse: Codable {
     var price: Int
     let title: String
     let repImage: RepImage
+    let seller: String
+    let cartMethod: String
 
     enum CodingKeys: String, CodingKey {
         case id
         case memberID = "memberId"
         case goodsID = "itemId"
-        case quantity, color, size, price, title, repImage
+        case quantity, color, size, price, title, repImage, seller, cartMethod
     }
 }
 

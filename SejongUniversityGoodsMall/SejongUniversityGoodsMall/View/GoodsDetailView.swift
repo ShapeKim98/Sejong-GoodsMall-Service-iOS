@@ -22,7 +22,6 @@ struct GoodsDetailView: View {
     @State private var imagePage: Int = 1
     @State private var optionSheetDrag: CGFloat = .zero
     @State private var isOptionSelected: Bool = false
-    @State private var orderType: OrderType = .pickUpOrder
     @State private var showHelpAlert: Bool = false
     
     var body: some View {
@@ -101,7 +100,7 @@ struct GoodsDetailView: View {
                     }
                     
                     if !isOptionSelected {
-                        PurchaseBarView(showOptionSheet: $showOptionSheet, orderType: $orderType)
+                        PurchaseBarView(showOptionSheet: $showOptionSheet)
                             .transition(.move(edge: .bottom))
                     }
                 }
