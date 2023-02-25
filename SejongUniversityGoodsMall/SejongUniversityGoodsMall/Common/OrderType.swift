@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum OrderType {
-    case pickUpOrder
-    case parcelOrder
+enum OrderType: String {
+    case pickUpOrder = "pickup"
+    case deliveryOrder = "delivery"
 }

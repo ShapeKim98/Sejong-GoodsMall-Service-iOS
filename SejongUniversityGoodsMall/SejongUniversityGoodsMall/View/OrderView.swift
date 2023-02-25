@@ -12,7 +12,6 @@ struct OrderView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var isPresented: Bool
-    @Binding var orderType: OrderType
     
     @FocusState private var currentField: FocusedTextField?
     
@@ -43,10 +42,10 @@ struct OrderView: View {
                 .frame(height: 10)
             
             ScrollView {
-                    switch orderType {
+                    switch goodsViewModel.orderType {
                         case .pickUpOrder:
                             pickUpInformation()
-                        case .parcelOrder:
+                        case .deliveryOrder:
                             deliveryInformation()
                     }
                 
@@ -125,9 +124,9 @@ struct OrderView: View {
             .padding(.horizontal)
             
             TextField("휴대전화", text: $phoneNumber, prompt: Text("휴대전화('-'포함해서 입력)"))
-                .modifier(TextFieldModifier(text: $phoneNumber, isValidInput: $isValidPhoneNumber, currentField: _currentField, font: .subheadline.bold(), keyboardType: .phonePad, contentType: .telephoneNumber, focusedTextField: .phoneNumberField, submitLabel: .done))
+                .modifier(TextFieldModifier(text: $phoneNumber, isValidInput: $isValidPhoneNumber, currentField: _currentField, font: .subheadline.bold(), keyboardType: .numbersAndPunctuation, contentType: .telephoneNumber, focusedTextField: .phoneNumberField, submitLabel: .done))
                 .onChange(of: phoneNumber) { newValue in
-                    if(newValue.range(of:"^01([0|1|6|7|8|9]?)-?([0-9]{3,4})-?([0-9]{4})$", options: .regularExpression) != nil) {
+                    if(newValue.range(of:"^01([0|1|6|7|8|9]?)-([0-9]{3,4})-([0-9]{4})$", options: .regularExpression) != nil) {
                         withAnimation {
                             isValidPhoneNumber = true
                         }
@@ -443,13 +442,10 @@ struct OrderView: View {
                 }
                 
                 VStack(spacing: 0) {
-                    HStack {
+                    HStack(spacing: 0) {
                         Text(goodsViewModel.goodsDetail.title)
                             .foregroundColor(Color("main-text-color"))
-                        
-                        Rectangle()
-                            .fill(Color("main-text-color"))
-                            .frame(width: 1, height: 10)
+                            .padding(.trailing)
                         
                         Group {
                             if let color = goods.color, let size = goods.size {
@@ -460,6 +456,12 @@ struct OrderView: View {
                         }
                         .font(.caption.bold())
                         .foregroundColor(Color("main-text-color"))
+                        .padding(.leading)
+                        .background(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color("main-text-color"))
+                                .frame(width: 1)
+                        }
                         
                         Spacer()
                     }
@@ -502,7 +504,7 @@ struct OrderView: View {
     
     @ViewBuilder
     func orderButton() -> some View {
-        if orderType == .pickUpOrder {
+        if goodsViewModel.orderType == .pickUpOrder {
             Button {
                 showOrderCompleteView = true
             } label: {
@@ -673,7 +675,7 @@ struct OrderView: View {
 
 struct OrderView_Previews: PreviewProvider {
     static var previews: some View {
-        OrderView(isPresented: .constant(false), orderType: .constant(.parcelOrder), orderGoods: [OrderItem(color: "블랙", size: "M", quantity: 1, price: 85000)])
+        OrderView(isPresented: .constant(false), orderGoods: [OrderItem(color: "블랙", size: "M", quantity: 1, price: 85000)])
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }

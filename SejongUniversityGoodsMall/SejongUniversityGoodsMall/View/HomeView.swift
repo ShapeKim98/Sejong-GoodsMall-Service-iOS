@@ -132,6 +132,12 @@ struct HomeView: View {
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
                     .redacted(reason: goodsViewModel.isCartGoodsListLoading ? .placeholder : [])
+                    .onDisappear() {
+                        withAnimation {
+                            goodsViewModel.isGoodsListLoading = true
+                        }
+                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                    }
             } label: {
                 Label("장바구니", systemImage: "cart")
                     .font(.title)
@@ -299,6 +305,12 @@ struct HomeView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
                 .redacted(reason: goodsViewModel.isGoodsDetailLoading ? .placeholder : [])
+                .onDisappear() {
+                    withAnimation {
+                        goodsViewModel.isGoodsListLoading = true
+                    }
+                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                }
         } label: {
             VStack {
                 HStack(alignment: .top) {

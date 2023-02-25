@@ -22,7 +22,6 @@ struct GoodsDetailView: View {
     @State private var imagePage: Int = 1
     @State private var optionSheetDrag: CGFloat = .zero
     @State private var isOptionSelected: Bool = false
-    @State private var orderType: OrderType = .pickUpOrder
     @State private var showHelpAlert: Bool = false
     
     var body: some View {
@@ -101,7 +100,7 @@ struct GoodsDetailView: View {
                     }
                     
                     if !isOptionSelected {
-                        PurchaseBarView(showOptionSheet: $showOptionSheet, orderType: $orderType)
+                        PurchaseBarView(showOptionSheet: $showOptionSheet)
                             .transition(.move(edge: .bottom))
                     }
                 }
@@ -166,7 +165,7 @@ struct GoodsDetailView: View {
                 .foregroundColor(Color("main-highlight-color"))
 
             } message: {
-                Text("현징 수령 선택시 현장에서만 결제 가능하고,\n택배 수령 선택시 무통장 입금만 결제 가능합니다.")
+                Text("현장 수령 선택시 현장에서만 결제 가능하고,\n택배 수령 선택시 무통장 입금만 결제 가능합니다.")
                     .font(.caption)
                     .fontWeight(.semibold)
             }

@@ -17,7 +17,6 @@ struct CartView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var isAllSelected: Bool = false
-    @State var orderType: OrderType = .pickUpOrder
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -42,17 +41,10 @@ struct CartView: View {
                 HStack {
                     Spacer()
                     
-                    if loginViewModel.isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                            .padding()
-                            .tint(Color("main-highlight-color"))
-                    } else {
-                        Text("\(goodsViewModel.selectedCartGoodsPrice)원 결제하기")
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding()
-                    }
+                    Text("\(goodsViewModel.selectedCartGoodsPrice)원 주문하기")
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding()
                     
                     Spacer()
                 }
@@ -70,6 +62,8 @@ struct CartView: View {
             withAnimation {
                 goodsViewModel.isCartGoodsListLoading = true
             }
+            
+            goodsViewModel.orderType = .pickUpOrder
             
             if !loginViewModel.isAuthenticate {
                 appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
@@ -112,17 +106,35 @@ struct CartView: View {
             Spacer()
             
             orderTypeButton("현장 수령", .pickUpOrder) {
-                withAnimation(.spring()) {
-                    orderType = .pickUpOrder
+                isAllSelected = false
+                
+                goodsViewModel.cartGoodsSelections.removeAll()
+                goodsViewModel.pickUpCart.forEach { goods in
+                    goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
                 }
+                
+                withAnimation(.spring()) {
+                    goodsViewModel.orderType = .pickUpOrder
+                }
+                
+                goodsViewModel.updateCartData()
             }
             
             Spacer(minLength: 150)
             
-            orderTypeButton("택배 수령", .parcelOrder) {
-                withAnimation(.spring()) {
-                    orderType = .parcelOrder
+            orderTypeButton("택배 수령", .deliveryOrder) {
+                isAllSelected = false
+                
+                goodsViewModel.cartGoodsSelections.removeAll()
+                goodsViewModel.deliveryCart.forEach { goods in
+                    goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
                 }
+                
+                withAnimation(.spring()) {
+                    goodsViewModel.orderType = .deliveryOrder
+                }
+                
+                goodsViewModel.updateCartData()
             }
             
             Spacer()
@@ -138,15 +150,42 @@ struct CartView: View {
     
     @ViewBuilder
     func orderTypeButton(_ title: String, _ seleted: OrderType, _ action: @escaping () -> Void) -> some View {
-        let isSelected = orderType == seleted
+        let isSelected = goodsViewModel.orderType == seleted
         
         Button(action: action) {
             VStack {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(isSelected ? .bold : .light)
-                    .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
-                    .padding(.bottom, 10)
+                switch seleted {
+                    case .pickUpOrder:
+                        HStack(spacing: 0) {
+                            Text(title)
+                                .font(.subheadline)
+                                .fontWeight(isSelected ? .bold : .light)
+                                .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
+                                .padding(.bottom, 10)
+                                .unredacted()
+                            
+                            Text(" \(goodsViewModel.pickUpCart.count)")
+                                .font(.subheadline)
+                                .fontWeight(isSelected ? .bold : .light)
+                                .foregroundColor(isSelected ? Color("point-color") : Color("secondary-text-color"))
+                                .padding(.bottom, 10)
+                        }
+                    case .deliveryOrder:
+                        HStack(spacing: 0) {
+                            Text(title)
+                                .font(.subheadline)
+                                .fontWeight(isSelected ? .bold : .light)
+                                .foregroundColor(isSelected ? Color("main-text-color") : Color("secondary-text-color"))
+                                .padding(.bottom, 10)
+                                .unredacted()
+                            
+                            Text(" \(goodsViewModel.deliveryCart.count)")
+                                .font(.subheadline)
+                                .fontWeight(isSelected ? .bold : .light)
+                                .foregroundColor(isSelected ? Color("point-color") : Color("secondary-text-color"))
+                                .padding(.bottom, 10)
+                        }
+                }
             }
             .overlay(alignment: .bottom) {
                 if isSelected {
@@ -167,12 +206,30 @@ struct CartView: View {
                     isAllSelected.toggle()
                     
                     if isAllSelected {
-                        goodsViewModel.cart.forEach { goods in
-                            goodsViewModel.cartGoodsSelections.updateValue(true, forKey: goods.id)
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder:
+                                goodsViewModel.pickUpCart.forEach { goods in
+                                    goodsViewModel.cartGoodsSelections.updateValue(true, forKey: goods.id)
+                                }
+                                break
+                            case .deliveryOrder:
+                                goodsViewModel.deliveryCart.forEach { goods in
+                                    goodsViewModel.cartGoodsSelections.updateValue(true, forKey: goods.id)
+                                }
+                                break
                         }
                     } else {
-                        goodsViewModel.cart.forEach { goods in
-                            goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder:
+                                goodsViewModel.pickUpCart.forEach { goods in
+                                    goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
+                                }
+                                break
+                            case .deliveryOrder:
+                                goodsViewModel.deliveryCart.forEach { goods in
+                                    goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
+                                }
+                                break
                         }
                     }
                     
@@ -214,8 +271,6 @@ struct CartView: View {
                         appViewModel.showAlertView = false
                         appViewModel.showMessageBox = false
                     }
-                    
-                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                 } closeButtonAction: {
                     withAnimation(.spring()) {
                         appViewModel.showAlertView = false
@@ -244,12 +299,24 @@ struct CartView: View {
         VStack {
             ScrollView {
                 LazyVGrid(columns: columns) {
-                    ForEach(goodsViewModel.cart, id: \.id) { goods in
-                        subCartGoods(goods: goods)
-                            .onAppear() {
-                                if goodsViewModel.cartGoodsSelections[goods.id] == nil {
-                                    goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
-                                }
+                    switch goodsViewModel.orderType {
+                        case .pickUpOrder:
+                            ForEach(goodsViewModel.pickUpCart, id: \.id) { goods in
+                                subCartGoods(goods: goods)
+                                    .onAppear() {
+                                        if goodsViewModel.cartGoodsSelections[goods.id] == nil {
+                                            goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
+                                        }
+                                    }
+                            }
+                        case .deliveryOrder:
+                            ForEach(goodsViewModel.deliveryCart, id: \.id) { goods in
+                                subCartGoods(goods: goods)
+                                    .onAppear() {
+                                        if goodsViewModel.cartGoodsSelections[goods.id] == nil {
+                                            goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
+                                        }
+                                    }
                             }
                     }
                 }
@@ -311,21 +378,34 @@ struct CartView: View {
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack {
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
                             Text(goods.title)
                                 .foregroundColor(Color("main-text-color"))
-                                .font(.subheadline)
+                                .padding(.trailing)
+                            
+                            Group {
+                                if let color = goods.color, let size = goods.size {
+                                    Text("\(color), \(size)")
+                                } else {
+                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
+                                }
+                            }
+                            .font(.caption.bold())
+                            .foregroundColor(Color("main-text-color"))
+                            .padding(.leading)
+                            .background(alignment: .leading) {
+                                Rectangle()
+                                    .fill(Color("main-text-color"))
+                                    .frame(width: 1)
+                            }
                             
                             Spacer()
                             
                             Button {
                                 withAnimation(.spring()) {
-                                    goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
+                                    goodsViewModel.deleteIndividualCartGoods(id: goods.id, token: loginViewModel.returnToken())
                                 }
-                                
-                                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                             } label: {
                                 Label("삭제", systemImage: "xmark")
                                     .labelStyle(.iconOnly)
@@ -334,21 +414,18 @@ struct CartView: View {
                             }
                             .unredacted()
                         }
+                        .padding(.bottom, 10)
                         
                         HStack {
-                            if let color = goods.color, let size = goods.size {
-                                Text("\(color), \(size)")
-                            } else {
-                                Text("\(goods.color ?? "")\(goods.size ?? "")")
-                            }
+                            Text(goods.seller)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("point-color"))
                             
                             Spacer()
                         }
-                        .font(.caption.bold())
-                        .foregroundColor(Color("main-text-color"))
-                    }
-                    
-                    Spacer()
+                        
+                        Spacer()
                     
                     HStack {
                         Button {
@@ -360,11 +437,11 @@ struct CartView: View {
                                 .labelStyle(.iconOnly)
                                 .font(.caption2)
                                 .foregroundColor(Color("main-text-color"))
+                                .frame(minWidth: 24, minHeight: 24)
+                                .background(Circle().fill(Color("shape-bkg-color")))
                         }
                         .disabled(goods.quantity <= 1)
-                        .frame(minWidth: 21, minHeight: 21)
-                        .background(Circle().fill(Color("shape-bkg-color")))
-                        .opacity(goods.quantity <= 1 ? 0.7 : 1)
+                        .opacity(goods.quantity <= 1 ? 0.5 : 1)
                         .unredacted()
                         
                         Text("\(goods.quantity)")
@@ -380,9 +457,9 @@ struct CartView: View {
                                 .labelStyle(.iconOnly)
                                 .font(.caption2)
                                 .foregroundColor(Color("main-text-color"))
+                                .frame(minWidth: 24, minHeight: 24)
+                                .background(Circle().fill(Color("shape-bkg-color")))
                         }
-                        .frame(minWidth: 21, minHeight: 21)
-                        .background(Circle().fill(Color("shape-bkg-color")))
                         .unredacted()
                         
                         Spacer()

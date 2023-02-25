@@ -301,7 +301,7 @@ struct UserInformationView: View {
             }
             
             NavigationLink {
-                
+                NoticeAndFAQView()
             } label: {
                 HStack {
                     Text("공지사항")
