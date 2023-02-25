@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct NoticeAndFAQView: View {
-    enum Page {
-        case notice
-        case FAQ
+    enum Page: String {
+        case notice = "공지사항"
+        case FAQ = "고객센터"
     }
     
     @Namespace var pageSelection
@@ -37,6 +37,9 @@ struct NoticeAndFAQView: View {
             
             Spacer()
         }
+        .navigationTitle(page.rawValue)
+        .navigationBarTitleDisplayMode(.inline)
+        .modifier(NavigationColorModifier())
     }
     
     @ViewBuilder
