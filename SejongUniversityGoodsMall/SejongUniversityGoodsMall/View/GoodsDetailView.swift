@@ -165,7 +165,7 @@ struct GoodsDetailView: View {
                 .foregroundColor(Color("main-highlight-color"))
 
             } message: {
-                Text("현징 수령 선택시 현장에서만 결제 가능하고,\n택배 수령 선택시 무통장 입금만 결제 가능합니다.")
+                Text("현장 수령 선택시 현장에서만 결제 가능하고,\n택배 수령 선택시 무통장 입금만 결제 가능합니다.")
                     .font(.caption)
                     .fontWeight(.semibold)
             }
