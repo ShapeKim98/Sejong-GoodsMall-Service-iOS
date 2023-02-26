@@ -83,7 +83,11 @@ struct GoodsDetailView: View {
                             .gesture(
                                 DragGesture()
                                     .onChanged({ drag in
-                                        optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
+                                        if !isOptionSelected {
+                                            optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
+                                        } else {
+                                            optionSheetDrag = drag.translation.height / 10
+                                        }
                                     })
                                     .onEnded({ drag in
                                         withAnimation(.spring()) {

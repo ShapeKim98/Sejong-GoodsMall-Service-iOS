@@ -43,6 +43,7 @@ struct PurchaseBarView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
         }))
+        
     }
     
     @State private var isWished: Bool = false
@@ -75,36 +76,54 @@ struct PurchaseBarView: View {
                 
                 Button {
                     if !loginViewModel.isAuthenticate {
-                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                        appViewModel.messageBoxTitle = "로그인이 필요한 서비스 입니다"
+                        appViewModel.messageBoxSecondaryTitle = "로그인 하시겠습니까?"
+                        appViewModel.messageBoxMainButtonTitle = "로그인 하러 가기"
+                        appViewModel.messageBoxSecondaryButtonTitle = "계속 둘러보기"
+                        appViewModel.messageBoxMainButtonAction = {
                             withAnimation(.spring()) {
-                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBoxBackground = false
                                 appViewModel.showMessageBox = false
                             }
                             
                             loginViewModel.showLoginView = true
-                        } secondaryButtonAction: {
+                        }
+                        appViewModel.messageBoxSecondaryButtonAction = {
                             withAnimation(.spring()) {
-                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBoxBackground = false
                                 appViewModel.showMessageBox = false
                             }
-                        } closeButtonAction: {
+                        }
+                        appViewModel.messageBoxCloseButtonAction = {
+                            appViewModel.messageBoxTitle = ""
+                            appViewModel.messageBoxSecondaryTitle = ""
+                            appViewModel.messageBoxMainButtonTitle = ""
+                            appViewModel.messageBoxSecondaryButtonTitle = ""
+                            appViewModel.messageBoxMainButtonAction = {}
+                            appViewModel.messageBoxSecondaryButtonAction = {}
+                            appViewModel.messageBoxCloseButtonAction = {}
+                            
                             withAnimation(.spring()) {
-                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBoxBackground = false
                                 appViewModel.showMessageBox = false
                             }
-                        } onDisAppearAction: {
-                            appViewModel.messageBox = nil
                         }
                         
+                        
                         withAnimation(.spring()) {
-                            appViewModel.showAlertView = true
+                            appViewModel.showMessageBoxBackground = true
                             appViewModel.showMessageBox = true
+                            
                         }
                     } else {
                         if goodsViewModel.isSendGoodsPossible {
-                            appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "담을 방법을 선택해 주세요", secondaryTitle: "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                            appViewModel.messageBoxTitle = "담을 방법을 선택해 주세요"
+                            appViewModel.messageBoxSecondaryTitle = "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다"
+                            appViewModel.messageBoxMainButtonTitle = "현장 수령하기"
+                            appViewModel.messageBoxSecondaryButtonTitle = "택배 수령하기"
+                            appViewModel.messageBoxMainButtonAction = {
                                 withAnimation(.spring()) {
-                                    appViewModel.showAlertView = false
+                                    appViewModel.showMessageBoxBackground = false
                                     appViewModel.showMessageBox = false
                                 }
                                 
@@ -115,9 +134,10 @@ struct PurchaseBarView: View {
                                     goodsViewModel.seletedGoods.color = nil
                                     goodsViewModel.seletedGoods.size = nil
                                 }
-                            } secondaryButtonAction: {
+                            }
+                            appViewModel.messageBoxSecondaryButtonAction = {
                                 withAnimation(.spring()) {
-                                    appViewModel.showAlertView = false
+                                    appViewModel.showMessageBoxBackground = false
                                     appViewModel.showMessageBox = false
                                 }
                                 
@@ -128,17 +148,24 @@ struct PurchaseBarView: View {
                                     goodsViewModel.seletedGoods.color = nil
                                     goodsViewModel.seletedGoods.size = nil
                                 }
-                            } closeButtonAction: {
+                            }
+                            appViewModel.messageBoxCloseButtonAction = {
+                                appViewModel.messageBoxTitle = ""
+                                appViewModel.messageBoxSecondaryTitle = ""
+                                appViewModel.messageBoxMainButtonTitle = ""
+                                appViewModel.messageBoxSecondaryButtonTitle = ""
+                                appViewModel.messageBoxMainButtonAction = {}
+                                appViewModel.messageBoxSecondaryButtonAction = {}
+                                appViewModel.messageBoxCloseButtonAction = {}
+                                
                                 withAnimation(.spring()) {
-                                    appViewModel.showAlertView = false
+                                    appViewModel.showMessageBoxBackground = false
                                     appViewModel.showMessageBox = false
                                 }
-                            } onDisAppearAction: {
-                                appViewModel.messageBox = nil
                             }
                             
                             withAnimation(.spring()) {
-                                appViewModel.showAlertView = true
+                                appViewModel.showMessageBoxBackground = true
                                 appViewModel.showMessageBox = true
                             }
                         }
@@ -167,33 +194,45 @@ struct PurchaseBarView: View {
             if showOptionSheet {
                 Button {
                     if goodsViewModel.isSendGoodsPossible {
-                        appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "주문 방법을 선택해 주세요", secondaryTitle: "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                        appViewModel.messageBoxTitle = "주문 방법을 선택해 주세요"
+                        appViewModel.messageBoxSecondaryTitle = "현장 수령 선택시 결제는 현장에서만 가능하고\n배송 신청 선택시 결제는 무통장 입금만 가능합니다"
+                        appViewModel.messageBoxMainButtonTitle = "현장 수령하기"
+                        appViewModel.messageBoxSecondaryButtonTitle = "택배 수령하기"
+                        appViewModel.messageBoxMainButtonAction = {
                             withAnimation(.spring()) {
-                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBoxBackground = false
                                 appViewModel.showMessageBox = false
+                                
+                                goodsViewModel.orderType = .pickUpOrder
+                                isPresented = true
                             }
-                            
-                            goodsViewModel.orderType = .pickUpOrder
-                            isPresented = true
-                        } secondaryButtonAction: {
+                        }
+                        appViewModel.messageBoxSecondaryButtonAction = {
                             withAnimation(.spring()) {
-                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBoxBackground = false
                                 appViewModel.showMessageBox = false
                             }
                             
                             goodsViewModel.orderType = .deliveryOrder
                             isPresented = true
-                        } closeButtonAction: {
+                        }
+                        appViewModel.messageBoxCloseButtonAction = {
+                            appViewModel.messageBoxTitle = ""
+                            appViewModel.messageBoxSecondaryTitle = ""
+                            appViewModel.messageBoxMainButtonTitle = ""
+                            appViewModel.messageBoxSecondaryButtonTitle = ""
+                            appViewModel.messageBoxMainButtonAction = {}
+                            appViewModel.messageBoxSecondaryButtonAction = {}
+                            appViewModel.messageBoxCloseButtonAction = {}
+                            
                             withAnimation(.spring()) {
-                                appViewModel.showAlertView = false
+                                appViewModel.showMessageBoxBackground = false
                                 appViewModel.showMessageBox = false
                             }
-                        } onDisAppearAction: {
-                            appViewModel.messageBox = nil
                         }
                         
                         withAnimation(.spring()) {
-                            appViewModel.showAlertView = true
+                            appViewModel.showMessageBoxBackground = true
                             appViewModel.showMessageBox = true
                         }
                     }

@@ -44,7 +44,7 @@ struct LoginView: View {
                 .tint(Color("main-text-color"))
                 .overlay(alignment: .bottom) {
                     ZStack(alignment: .bottom) {
-                        if appViewModel.showAlertView {
+                        if appViewModel.showMessageBoxBackground {
                             Color(.black).opacity(0.4)
                                 .onTapGesture {
                                     withAnimation(.spring()) {
@@ -53,7 +53,7 @@ struct LoginView: View {
                                     }
                                     
                                     withAnimation(.easeOut) {
-                                        appViewModel.showAlertView = false
+                                        appViewModel.showMessageBoxBackground = false
                                     }
                                 }
                         }
@@ -85,7 +85,7 @@ struct LoginView: View {
                 }
                 .overlay(alignment: .bottom) {
                     ZStack(alignment: .bottom) {
-                        if appViewModel.showAlertView {
+                        if appViewModel.showMessageBoxBackground {
                             Color(.black).opacity(0.4)
                                 .onTapGesture {
                                     withAnimation(.spring()) {
@@ -94,7 +94,7 @@ struct LoginView: View {
                                     }
                                     
                                     withAnimation(.easeOut) {
-                                        appViewModel.showAlertView = false
+                                        appViewModel.showMessageBoxBackground = false
                                     }
                                 }
                         }

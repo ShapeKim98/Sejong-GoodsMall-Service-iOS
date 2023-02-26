@@ -24,8 +24,8 @@ struct OptionSheetView: View {
     @State private var showMessage: Bool = false
     @State private var extendSizeOptions: Bool = false
     @State private var extendColorOptions: Bool = false
-    @State private var noneOption: String?
     @State private var extendNoneOption: Bool = false
+    @State private var noneOption: String?
     
     var body: some View {
         VStack(spacing: 0) {

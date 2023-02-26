@@ -328,7 +328,7 @@ struct SignUpView: View {
             Button {
                 withAnimation(.spring()) {
                     currentField = nil
-                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBoxBackground = true
                     showDatePicker = true
                 }
             } label: {

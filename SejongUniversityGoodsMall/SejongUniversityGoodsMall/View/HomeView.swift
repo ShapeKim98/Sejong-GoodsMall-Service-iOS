@@ -47,21 +47,13 @@ struct HomeView: View {
                 .tint(Color("main-text-color"))
                 .overlay {
                     ZStack {
-                        if appViewModel.showAlertView {
+                        if appViewModel.showMessageBoxBackground {
                             Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        appViewModel.showAlertView = false
-                                        appViewModel.showMessageBox = false
-                                    }
-                                }
                         }
                         
                         if appViewModel.showMessageBox {
-                            if let messageBox = appViewModel.messageBox {
-                                messageBox
-                                    .transition(.move(edge: .bottom))
-                            }
+                            MessageBoxView()
+                                .transition(.move(edge: .bottom))
                         }
                     }
                     .ignoresSafeArea()
@@ -83,22 +75,13 @@ struct HomeView: View {
                 .navigationViewStyle(.stack)
                 .overlay {
                     ZStack {
-                        if appViewModel.showAlertView {
+                        if appViewModel.showMessageBoxBackground {
                             Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        appViewModel.showAlertView = false
-                                        appViewModel.showMessageBox = false
-                                        appViewModel.messageBox = nil
-                                    }
-                                }
                         }
                         
                         if appViewModel.showMessageBox {
-                            if let messageBox = appViewModel.messageBox {
-                                messageBox
-                                    .transition(.move(edge: .bottom))
-                            }
+                            MessageBoxView()
+                                .transition(.move(edge: .bottom))
                         }
                     }
                     .ignoresSafeArea()
