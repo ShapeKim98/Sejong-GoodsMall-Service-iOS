@@ -25,6 +25,7 @@
 		C5324CA429794AD30034C710 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA329794AD30034C710 /* Assets.xcassets */; };
 		C5324CA729794AD30034C710 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5324CA629794AD30034C710 /* Preview Assets.xcassets */; };
 		C53D7A282991518E00F4DB67 /* CartGoodsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53D7A272991518E00F4DB67 /* CartGoodsResponse.swift */; };
+		C54F325729AB989200B2253E /* VibrateAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C54F325629AB989200B2253E /* VibrateAnimation.swift */; };
 		C5515ECB299BD1CF00A3B850 /* MessageBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */; };
 		C5534D2F29892EF6006DBE09 /* FindEmailPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */; };
 		C5534D312989409D006DBE09 /* DatePickerSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5534D302989409D006DBE09 /* DatePickerSheetView.swift */; };
@@ -82,6 +83,7 @@
 		C5324CA329794AD30034C710 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C5324CA629794AD30034C710 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C53D7A272991518E00F4DB67 /* CartGoodsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartGoodsResponse.swift; sourceTree = "<group>"; };
+		C54F325629AB989200B2253E /* VibrateAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibrateAnimation.swift; sourceTree = "<group>"; };
 		C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBoxView.swift; sourceTree = "<group>"; };
 		C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailPasswordView.swift; sourceTree = "<group>"; };
 		C5534D302989409D006DBE09 /* DatePickerSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerSheetView.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				C529B43E298BC48000958B7D /* TextFieldModifier.swift */,
 				C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */,
 				C50FD0F729A4C36C0001DAB9 /* ShowOrderViewModifier.swift */,
+				C54F325629AB989200B2253E /* VibrateAnimation.swift */,
 			);
 			path = Modifier;
 			sourceTree = "<group>";
@@ -376,6 +379,7 @@
 				C5543B5D29A64963008D0FEC /* NetworkManager.swift in Sources */,
 				C5543B5A29A6483C008D0FEC /* ErrorView.swift in Sources */,
 				C53D7A282991518E00F4DB67 /* CartGoodsResponse.swift in Sources */,
+				C54F325729AB989200B2253E /* VibrateAnimation.swift in Sources */,
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
 				C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,

@@ -32,8 +32,10 @@ struct ErrorView: View {
                         switch error {
                             case .authenticationFailure:
                                 authenticationFailure()
-                            case .invalidResponse(let error):
-                                invalidResponse(error: error)
+                            case .invalidResponse(statusCode: let statusCode):
+                                invalidResponse(statusCode: statusCode)
+                            case .urlError(let error):
+                                urlError(error: error)
                             case .unknown(_):
                                 unknown()
                             default:
@@ -98,7 +100,38 @@ struct ErrorView: View {
     }
     
     @ViewBuilder
-    func invalidResponse(error: URLError) -> some View {
+    func invalidResponse(statusCode: Int) -> some View {
+        VStack {
+            Image(systemName: "questionmark")
+                .resizable()
+                .frame(width: 80, height: 80)
+                .foregroundColor(Color("shape-bkg-color"))
+            
+            
+            Text("서버와의 통신중에 오류가 발생했어요 :(\n다시 시도해 주세요.\n오류코드 : \(statusCode)")
+                .foregroundColor(Color("secondary-text-color"))
+            
+            Button(action: retryAction) {
+                HStack {
+                    Spacer()
+                    
+                    Text("탭하여 다시 시도")
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding()
+                    
+                    Spacer()
+                }
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 10)
+                    .foregroundColor(Color("main-highlight-color"))
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func urlError(error: URLError) -> some View {
         VStack {
             Image(systemName: "exclamationmark.triangle")
                 .resizable()
@@ -106,11 +139,23 @@ struct ErrorView: View {
                 .foregroundColor(Color("shape-bkg-color"))
             
             switch error.code {
-                case .badServerResponse:
+                case .badServerResponse, .cannotConnectToHost, .cannotFindHost:
                     Text("서버와 제대로 통신하지 못했어요. :(\n다시 시도해 주세요.")
                         .foregroundColor(Color("secondary-text-color"))
+                case .backgroundSessionWasDisconnected:
+                    Text("서버와의 통신이 알 수 없는 이유로 잠시 중단 되었어요. :(\n다시 시도해 주세요.")
+                        .foregroundColor(Color("secondary-text-color"))
+                case .cancelled:
+                    Text("서버와의 통신이 알 수 없는 이유로 취소 되었어요. :(\n다시 시도해 주세요.")
+                        .foregroundColor(Color("secondary-text-color"))
+                case .networkConnectionLost:
+                    Text("서버와의 통신이 알 수 없는 이유로 끊어졌어요. :(\n다시 시도해 주세요.")
+                        .foregroundColor(Color("secondary-text-color"))
+                case .timedOut:
+                    Text("서버와의 통신이 너무 오래걸려 중단되었어요. :(\n다시 시도해 주세요.")
+                        .foregroundColor(Color("secondary-text-color"))
                 default:
-                    Text("서버와의 통신에서 알 수 없는 오류가 발생했어요. :(\n다시 시도해 주세요.")
+                    Text("서버와의 통신중에 알 수 없는 오류가 발생했어요. :(\n다시 시도해 주세요.")
                         .foregroundColor(Color("secondary-text-color"))
             }
             

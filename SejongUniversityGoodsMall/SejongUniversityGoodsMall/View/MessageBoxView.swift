@@ -91,13 +91,19 @@ struct MessageBoxView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color("main-shape-bkg-color"))
                 }
-                .padding(.bottom)
                 
                 Button(action: appViewModel.messageBoxCloseButtonAction) {
-                    Text("닫기")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                    HStack {
+                        Spacer()
+                        
+                        Text("닫기")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                         .foregroundColor(Color("secondary-text-color"))
+                        .padding()
+                        
+                        Spacer()
+                    }
                 }
                 
             }

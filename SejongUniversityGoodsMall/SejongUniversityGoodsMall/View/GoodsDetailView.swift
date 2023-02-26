@@ -23,6 +23,7 @@ struct GoodsDetailView: View {
     @State private var optionSheetDrag: CGFloat = .zero
     @State private var isOptionSelected: Bool = false
     @State private var showHelpAlert: Bool = false
+    @State private var vibrateOffset: CGFloat = 0
     
     var body: some View {
         GeometryReader { reader in
@@ -76,7 +77,7 @@ struct GoodsDetailView: View {
                         
                         let isMediumDisplayDevice = UIDevice.current.name == "iPhone 6s Plus" || UIDevice.current.name == "iPhone 7 Plus" || UIDevice.current.name == "iPhone 8 Plus"
                         
-                        OptionSheetView(isOptionSelected: $isOptionSelected)
+                        OptionSheetView(isOptionSelected: $isOptionSelected, vibrateOffset: $vibrateOffset)
                             .frame(height: reader.size.height - (isSmallDisplayDevice ? 270 : (isMediumDisplayDevice ? 350 : reader.size.width)) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
@@ -104,7 +105,7 @@ struct GoodsDetailView: View {
                     }
                     
                     if !isOptionSelected {
-                        PurchaseBarView(showOptionSheet: $showOptionSheet)
+                        PurchaseBarView(showOptionSheet: $showOptionSheet, vibrateOffset: $vibrateOffset)
                             .transition(.move(edge: .bottom))
                     }
                 }

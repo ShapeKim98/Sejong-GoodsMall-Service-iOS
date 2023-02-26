@@ -79,24 +79,20 @@ enum ApiError: Error {
     case alreadyEmail
     case authenticationFailure
     case alreadyCartGoods
-    case invalidResponse(URLError)
+    case invalidResponse(statusCode: Int)
+    case cannotNetworkConnect
     case jsonDecodeError
     case jsonEncodeError
-    case unknown(Error)
     case isNoneCartGoods
+    case urlError(URLError)
+    case unknown(Error)
     
     static func convert(error: Error) -> ApiError {
         switch error {
+            case is ApiError:
+                return error as! ApiError
             case is URLError:
-                return .invalidResponse(error as! URLError)
-            case ApiError.alreadyEmail:
-                return .alreadyEmail
-            case ApiError.authenticationFailure:
-                return .authenticationFailure
-            case ApiError.alreadyCartGoods:
-                return .alreadyCartGoods
-            case ApiError.isNoneCartGoods:
-                return .isNoneCartGoods
+                return .urlError(error as! URLError)
             case is DecodingError:
                 return .jsonDecodeError
             case is EncodingError:
@@ -118,15 +114,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badURL)
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.alreadyEmail
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -149,14 +144,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badURL)
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -179,14 +174,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badURL)
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -209,15 +204,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -235,15 +229,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -258,19 +251,17 @@ enum ApiService {
     
     static func fetchCategory(token: String) -> AnyPublisher<CategoryList, ApiError> {
         let request = URLRequest(url: APIURL.fetchCategory.url()!)
-//        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -288,15 +279,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -320,20 +310,19 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badURL)
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
             return data
         }
-//        .decode(type: CartGoodsResponse.self, decoder: JSONDecoder())
         .mapError { error in
             ApiError.convert(error: error)
         }
@@ -346,15 +335,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -376,21 +364,19 @@ enum ApiService {
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             print(Thread.current)
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.invalidResponse(URLError(.badURL))
+                throw ApiError.cannotNetworkConnect
             }
 
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.isNoneCartGoods
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
 
             return data
         }
-//        .decode(type: CartGoodsList.self, decoder: JSONDecoder())
         .mapError { error in
             ApiError.convert(error: error)
         }
@@ -408,15 +394,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badURL)
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.isNoneCartGoods
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -439,15 +424,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw URLError(.badURL)
+                throw ApiError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
                     throw ApiError.authenticationFailure
                 } else {
-                    print(httpResponse.statusCode)
-                    throw URLError(.badServerResponse)
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             

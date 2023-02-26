@@ -66,12 +66,13 @@ struct AppView: View {
                     }
                     .onDisappear() {
                         withAnimation {
+                            loginViewModel.isSignInFail = false
                             goodsViewModel.isGoodsListLoading = true
                         }
                         goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                     }
                     .overlay {
-                        if let errorView = goodsViewModel.errorView {
+                        if let errorView = loginViewModel.errorView {
                             errorView
                         }
                     }
@@ -84,8 +85,10 @@ struct AppView: View {
             .onChange(of: networkManager.isConnected) { newValue in
                 if !newValue {
                     goodsViewModel.errorView = ErrorView(retryAction: {})
+                    loginViewModel.errorView = ErrorView(retryAction: {})
                 } else {
                     goodsViewModel.errorView = nil
+                    loginViewModel.errorView = nil
                 }
             }
     }

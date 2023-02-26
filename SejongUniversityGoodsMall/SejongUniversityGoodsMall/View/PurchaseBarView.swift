@@ -17,6 +17,8 @@ struct PurchaseBarView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var showOptionSheet: Bool
+    @Binding var vibrateOffset: CGFloat
+    
     @State var isPresented: Bool = false
     
     var body: some View {
@@ -168,6 +170,10 @@ struct PurchaseBarView: View {
                                 appViewModel.showMessageBoxBackground = true
                                 appViewModel.showMessageBox = true
                             }
+                        } else {
+                            withAnimation(.spring()) {
+                                vibrateOffset += 1
+                            }
                         }
                     }
                 } label: {
@@ -235,6 +241,10 @@ struct PurchaseBarView: View {
                             appViewModel.showMessageBoxBackground = true
                             appViewModel.showMessageBox = true
                         }
+                    } else {
+                        withAnimation(.spring()) {
+                            vibrateOffset += 1
+                        }
                     }
                 } label: {
                     HStack {
@@ -284,7 +294,7 @@ struct PurchaseBarView: View {
 
 struct PurchaseBarView_Previews: PreviewProvider {
     static var previews: some View {
-        PurchaseBarView(showOptionSheet: .constant(false))
+        PurchaseBarView(showOptionSheet: .constant(false), vibrateOffset: .constant(0))
             .environmentObject(GoodsViewModel())
             .environmentObject(LoginViewModel())
             .environmentObject(AppViewModel())
