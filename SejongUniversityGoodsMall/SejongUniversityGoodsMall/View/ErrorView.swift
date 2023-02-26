@@ -34,6 +34,8 @@ struct ErrorView: View {
                                 authenticationFailure()
                             case .invalidResponse(statusCode: let statusCode):
                                 invalidResponse(statusCode: statusCode)
+                            case .cannotNetworkConnect:
+                                cannotNetworkConnect()
                             case .urlError(let error):
                                 urlError(error: error)
                             case .unknown(_):
@@ -109,6 +111,37 @@ struct ErrorView: View {
             
             
             Text("서버와의 통신중에 오류가 발생했어요 :(\n다시 시도해 주세요.\n오류코드 : \(statusCode)")
+                .foregroundColor(Color("secondary-text-color"))
+            
+            Button(action: retryAction) {
+                HStack {
+                    Spacer()
+                    
+                    Text("탭하여 다시 시도")
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding()
+                    
+                    Spacer()
+                }
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 10)
+                    .foregroundColor(Color("main-highlight-color"))
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func cannotNetworkConnect() -> some View {
+        VStack {
+            Image(systemName: "questionmark")
+                .resizable()
+                .frame(width: 80, height: 80)
+                .foregroundColor(Color("shape-bkg-color"))
+            
+            
+            Text("인터넷 연결이 불안정해요. :(\n연결되어 있는 인터넷이 잘 작동하는지 확인 후,\n다시 시도해 주세요.")
                 .foregroundColor(Color("secondary-text-color"))
             
             Button(action: retryAction) {

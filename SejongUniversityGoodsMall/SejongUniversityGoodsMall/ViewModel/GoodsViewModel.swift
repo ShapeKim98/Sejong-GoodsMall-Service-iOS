@@ -70,6 +70,16 @@ class GoodsViewModel: ObservableObject {
                                 })
                             }
                             break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                })
+                            }
+                            break
                         case .urlError(let error):
                             DispatchQueue.main.async {
                                 self.error = .urlError(error)
@@ -135,6 +145,16 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(statusCode: let statusCode):
                             DispatchQueue.main.async {
                                 self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCategory(token: token)
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
@@ -208,6 +228,16 @@ class GoodsViewModel: ObservableObject {
                                 })
                             }
                             break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsListFromCatefory(id: id)
+                                })
+                            }
+                            break
                         case .urlError(let error):
                             DispatchQueue.main.async {
                                 self.error = .urlError(error)
@@ -266,6 +296,16 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(statusCode: let statusCode):
                             DispatchQueue.main.async {
                                 self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsDetail(id: id)
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
@@ -342,6 +382,16 @@ class GoodsViewModel: ObservableObject {
                                 })
                             }
                             break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.sendCartGoodsRequest(token: token)
+                                })
+                            }
+                            break
                         case .urlError(let error):
                             DispatchQueue.main.async {
                                 self.error = .urlError(error)
@@ -400,6 +450,16 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(statusCode: let statusCode):
                             DispatchQueue.main.async {
                                 self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
@@ -502,6 +562,16 @@ class GoodsViewModel: ObservableObject {
                                 })
                             }
                             break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.deleteCartGoods(token: token)
+                                })
+                            }
+                            break
                         case .urlError(let error):
                             DispatchQueue.main.async {
                                 self.error = .urlError(error)
@@ -561,6 +631,16 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(statusCode: let statusCode):
                             DispatchQueue.main.async {
                                 self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.deleteIndividualCartGoods(id: id, token: token)
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
@@ -634,6 +714,16 @@ class GoodsViewModel: ObservableObject {
                                 })
                             }
                             break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                })
+                            }
+                            break
                         case .urlError(let error):
                             DispatchQueue.main.async {
                                 self.error = .urlError(error)
@@ -690,6 +780,16 @@ class GoodsViewModel: ObservableObject {
                         case .invalidResponse(statusCode: let statusCode):
                             DispatchQueue.main.async {
                                 self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil

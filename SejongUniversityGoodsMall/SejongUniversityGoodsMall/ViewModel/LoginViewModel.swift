@@ -48,6 +48,16 @@ class LoginViewModel: ObservableObject {
                                 })
                             }
                             break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signUp()
+                                })
+                            }
+                            break
                         case .urlError(let error):
                             DispatchQueue.main.async {
                                 self.error = .urlError(error)
@@ -108,6 +118,16 @@ class LoginViewModel: ObservableObject {
                         case .invalidResponse(statusCode: let statusCode):
                             DispatchQueue.main.async {
                                 self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signIn(email: email, password: password)
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
@@ -177,6 +197,16 @@ class LoginViewModel: ObservableObject {
                         case .invalidResponse(statusCode: let statusCode):
                             DispatchQueue.main.async {
                                 self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchFindEmail()
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
