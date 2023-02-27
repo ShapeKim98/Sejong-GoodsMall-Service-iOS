@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CartGoodsResponse: Codable {
+struct CartGoodsResponse: Codable, Identifiable {
     let id, memberID, goodsID: Int
     var quantity: Int
     let color, size: String?
@@ -25,7 +25,7 @@ struct CartGoodsResponse: Codable {
     }
 }
 
-struct RepImage: Codable {
+struct RepImage: Codable, Hashable {
     let id: Int
     let imgName: String
     let oriImgName: String

@@ -18,6 +18,7 @@ struct CartView: View {
     
     @State private var isAllSelected: Bool = false
     @State private var scrollOffset: CGFloat = .zero
+    @State private var showOrderView: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -30,12 +31,36 @@ struct CartView: View {
             
             allSeletionAndDeleteSeleted()
             
-            
-            
             cartGoodsList()
             
-            Button {
-                
+            NavigationLink {
+                OrderView(isPresented: $showOrderView)
+                    .onAppear() {
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder:
+                                goodsViewModel.pickUpCart.forEach { goods in
+                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                        goodsViewModel.cartIDList.append(goods.id)
+                                        goodsViewModel.orderGoodsListFromCart.append(goods)
+                                    }
+                                }
+                                
+                                break
+                            case .deliveryOrder:
+                                goodsViewModel.deliveryCart.forEach { goods in
+                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                        goodsViewModel.cartIDList.append(goods.id)
+                                        goodsViewModel.orderGoodsListFromCart.append(goods)
+                                    }
+                                }
+                        }
+                    }
+                    .onDisappear() {
+                        goodsViewModel.cartGoodsSelections.removeAll()
+                        goodsViewModel.updateCartData()
+                    }
             } label: {
                 HStack {
                     Spacer()
@@ -329,8 +354,8 @@ struct CartView: View {
                 LazyVGrid(columns: columns) {
                     Rectangle()
                         .fill(Color("shape-bkg-color"))
-                        .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
                         .offset(y: scrollOffset < 0 ? scrollOffset : 0)
+                        .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
                     
                     switch goodsViewModel.orderType {
                         case .pickUpOrder:

@@ -40,10 +40,13 @@ struct PurchaseBarView: View {
         }
         .background(.clear)
         .modifier(ShowOrderViewModifier(isPresented: $isPresented, destination: {
-            OrderView(isPresented: $isPresented, orderGoods: [OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price)])
+            OrderView(isPresented: $isPresented)
                 .navigationTitle("주문서 작성")
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
+                .onAppear() {
+                    goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
+                }
         }))
         
     }

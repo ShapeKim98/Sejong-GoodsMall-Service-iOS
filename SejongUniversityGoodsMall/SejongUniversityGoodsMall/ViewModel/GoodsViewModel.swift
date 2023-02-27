@@ -24,6 +24,7 @@ class GoodsViewModel: ObservableObject {
     @Published var isGoodsDetailLoading: Bool = true
     @Published var isCategoryLoading: Bool = true
     @Published var isCartGoodsListLoading: Bool = true
+    @Published var isSendOrderGoodsLoading: Bool = false
     @Published var message: String?
     @Published var pickUpCart: CartGoodsList = [CartGoodsResponse(id: 0, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup"),
                                                 CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup"),
@@ -42,11 +43,16 @@ class GoodsViewModel: ObservableObject {
     @Published var cartGoodsSelections: [Int: Bool] = [Int: Bool]()
     @Published var selectedCartGoodsCount: Int = 0
     @Published var selectedCartGoodsPrice: Int = 0
-    @Published var completeOrderResponseFromDetailGoods: OrderGoods = OrderGoods(buyerName: "loading...", phoneNumber: "loading...", address: nil, orderItems: [])
     @Published var isSendGoodsPossible: Bool = false
     @Published var completeSendCartGoods: Bool = false
     @Published var cartGoodsCount: Int = 0
     @Published var orderType: OrderType = .pickUpOrder
+    @Published var orderGoodsListFromCart: CartGoodsList = CartGoodsList()
+    @Published var orderGoods: [OrderItem] = [OrderItem]()
+    @Published var cartIDList: [Int] = [Int]()
+    @Published var orderCompleteGoodsList = OrderGoodsRespnoseList()
+    @Published var orderCompleteGoods: OrderGoodsRespnose?
+    @Published var isOrderComplete: Bool = false
     
     func fetchGoodsList(id: Int? = nil) {
         ApiService.fetchGoodsList(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
@@ -765,8 +771,8 @@ class GoodsViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func sendOrderGoodsFromDetailGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderItems: [OrderItem], token: String) {
-        ApiService.sendOrderGoodsFromDetaiGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token).retry(1).sink { completion in
+    func sendOrderGoodsFromDetailGoods(buyerName: String, phoneNumber: String, address: Address?, token: String) {
+        ApiService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -774,6 +780,7 @@ class GoodsViewModel: ObservableObject {
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
                                 self.errorView = ErrorView(retryAction: { })
+                                self.isSendOrderGoodsLoading = false
                             }
                             print("접근 권한이 없습니다")
                             break
@@ -783,7 +790,7 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
                                 })
                             }
                             break
@@ -793,7 +800,7 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
                                 })
                             }
                             break
@@ -803,13 +810,14 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
                                 })
                             }
                             break
                         case .jsonDecodeError:
                             DispatchQueue.main.async {
                                 self.message = "데이터 디코딩 에러"
+                                self.isSendOrderGoodsLoading = false
                             }
                             print("데이터 디코딩 에러")
                             break
@@ -819,7 +827,7 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(id: id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
                                 })
                             }
                             print("알 수 없는 오류")
@@ -829,8 +837,94 @@ class GoodsViewModel: ObservableObject {
                     print("보내기 성공")
                     break
             }
-        } receiveValue: { data in
-            
+        } receiveValue: { goods in
+            DispatchQueue.main.async {
+                self.orderGoods.removeAll()
+                self.orderGoodsListFromCart.removeAll()
+                self.cartIDList.removeAll()
+                self.orderCompleteGoods = goods
+                self.isSendOrderGoodsLoading = false
+                self.isOrderComplete = true
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func sendOrderGoodsFromCart(buyerName: String, phoneNumber: String, address: Address?, token: String) {
+        ApiService.sendOrderGoodsFromCart(cartIDList: self.cartIDList, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { })
+                                self.isSendOrderGoodsLoading = false
+                            }
+                            print("접근 권한이 없습니다")
+                            break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                })
+                            }
+                            break
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                                self.isSendOrderGoodsLoading = false
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                })
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("보내기 성공")
+                    break
+            }
+        } receiveValue: { goods in
+            DispatchQueue.main.async {
+                self.orderGoods.removeAll()
+                self.orderGoodsListFromCart.removeAll()
+                self.cartIDList.removeAll()
+                self.orderCompleteGoods = goods
+                self.isSendOrderGoodsLoading = false
+                self.isOrderComplete = true
+            }
         }
         .store(in: &subscriptions)
     }

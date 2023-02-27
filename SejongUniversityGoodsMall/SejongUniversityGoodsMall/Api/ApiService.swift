@@ -22,6 +22,7 @@ enum APIURL {
     case deleteCartGoods
     case updateCartGoods
     case sendOrderGoodsFromDetailGoods
+    case sendOrderGoodsFromCart
     
     func url(id: Int? = nil) -> URL? {
         switch self {
@@ -71,6 +72,8 @@ enum APIURL {
                 }
                 
                 return URL(string: "order/\(id)", relativeTo: APIURL.server.url())
+            case .sendOrderGoodsFromCart:
+                return URL(string: "order/cart", relativeTo: APIURL.server.url())
         }
     }
 }
@@ -413,14 +416,19 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func sendOrderGoodsFromDetaiGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderItems: [OrderItem], token: String) -> AnyPublisher<Data, ApiError> {
-        let body = OrderGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderItems: orderItems)
+    static func sendOrderGoodsFromDetailGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderMethod: String, orderItems: [OrderItem], token: String) -> AnyPublisher<OrderGoodsRespnose, ApiError> {
+        let body = OrderGoodsRequestFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: orderMethod, orderItems: orderItems)
         
         var request = URLRequest(url: APIURL.sendOrderGoodsFromDetailGoods.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.httpMethod = "PATCH"
+        request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
+        
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        decoder.dateDecodingStrategy = .formatted(formatter)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -437,6 +445,43 @@ enum ApiService {
             
             return data
         }
+        .decode(type: OrderGoodsRespnose.self, decoder: decoder)
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func sendOrderGoodsFromCart(cartIDList: [Int], buyerName: String, phoneNumber: String, address: Address?, orderMethod: String, orderItems: [OrderItem], token: String) -> AnyPublisher<OrderGoodsRespnose, ApiError> {
+        let body = OrderGoodsRequestFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: orderMethod, cartIDList: cartIDList)
+        
+        var request = URLRequest(url: APIURL.sendOrderGoodsFromCart.url()!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
+        
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        decoder.dateDecodingStrategy = .formatted(formatter)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ApiError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: OrderGoodsRespnose.self, decoder: decoder)
         .mapError { error in
             ApiError.convert(error: error)
         }

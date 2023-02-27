@@ -150,7 +150,7 @@ struct GoodsDetailView: View {
                             .tint(Color("main-highlight-color"))
                     }
                 }
-                .frame(width: height, height: height)
+                .frame(width: height, height: height - (scrollOffset < 0 ? scrollOffset : 0))
                 .tag(image.id - goodsViewModel.goodsDetail.id)
             }
         }
