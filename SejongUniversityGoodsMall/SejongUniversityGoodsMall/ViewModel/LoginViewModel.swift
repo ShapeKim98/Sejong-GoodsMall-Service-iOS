@@ -35,6 +35,7 @@ class LoginViewModel: ObservableObject {
                         case .alreadyEmail:
                             DispatchQueue.main.async {
                                 self.message = "이미 존재하는 이메일"
+                                self.isLoading = false
                             }
                             print("이미 존재하는 이메일")
                             break
@@ -71,6 +72,7 @@ class LoginViewModel: ObservableObject {
                         case .jsonDecodeError:
                             DispatchQueue.main.async {
                                 self.message = "데이터 디코딩 에러"
+                                self.isLoading = false
                             }
                             print("데이터 디코딩 에러")
                             break
@@ -82,9 +84,7 @@ class LoginViewModel: ObservableObject {
                             print("알 수 없는 오류")
                             break
                     }
-                    DispatchQueue.main.async {
-                        self.isLoading = false
-                    }
+                    
                 case .finished:
                     print("회원가입 성공")
                     break
@@ -111,6 +111,7 @@ class LoginViewModel: ObservableObject {
                             DispatchQueue.main.async {
                                 withAnimation {
                                     self.isSignInFail = true
+                                    self.isLoading = false
                                 }
                             }
                             print("로그인 실패")
@@ -148,6 +149,7 @@ class LoginViewModel: ObservableObject {
                         case .jsonDecodeError:
                             DispatchQueue.main.async {
                                 self.message = "데이터 디코딩 에러"
+                                self.isLoading = false
                             }
                             print("데이터 디코딩 에러")
                             break
@@ -158,9 +160,6 @@ class LoginViewModel: ObservableObject {
                             print(error.localizedDescription)
                             print("알 수 없는 오류")
                             break
-                    }
-                    DispatchQueue.main.async {
-                        self.isLoading = false
                     }
                 case .finished:
                     print("로그인성공")
@@ -191,6 +190,7 @@ class LoginViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.message = "존재하지 않는 이메일"
+                                self.isLoading = false
                             }
                             print("존재하지 않는 이메일")
                             break
@@ -233,9 +233,6 @@ class LoginViewModel: ObservableObject {
                             }
                             print("알 수 없는 오류")
                             break
-                    }
-                    DispatchQueue.main.async {
-                        self.isLoading = false
                     }
                 case .finished:
                     print("이메일 찾기 성공")

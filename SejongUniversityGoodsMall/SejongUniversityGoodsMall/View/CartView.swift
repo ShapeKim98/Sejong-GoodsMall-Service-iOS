@@ -17,6 +17,7 @@ struct CartView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var isAllSelected: Bool = false
+    @State private var scrollOffset: CGFloat = .zero
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -29,9 +30,7 @@ struct CartView: View {
             
             allSeletionAndDeleteSeleted()
             
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
+            
             
             cartGoodsList()
             
@@ -77,6 +76,8 @@ struct CartView: View {
                     }
                     
                     loginViewModel.showLoginView = true
+                    
+                    dismiss()
                 }
                 appViewModel.messageBoxSecondaryButtonAction = {
                     withAnimation(.spring()) {
@@ -326,6 +327,11 @@ struct CartView: View {
         VStack {
             ScrollView {
                 LazyVGrid(columns: columns) {
+                    Rectangle()
+                        .fill(Color("shape-bkg-color"))
+                        .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
+                        .offset(y: scrollOffset < 0 ? scrollOffset : 0)
+                    
                     switch goodsViewModel.orderType {
                         case .pickUpOrder:
                             ForEach(goodsViewModel.pickUpCart, id: \.id) { goods in
@@ -347,6 +353,16 @@ struct CartView: View {
                             }
                     }
                 }
+                .background {
+                    GeometryReader { reader in
+                        let offset = -reader.frame(in: .named("SCROLL")).minY
+                        Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                    }
+                }
+            }
+            .coordinateSpace(name: "SCROLL")
+            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+                scrollOffset = value
             }
         }
     }

@@ -47,6 +47,8 @@ struct UserInformationView: View {
                     }
                     
                     loginViewModel.showLoginView = true
+                    
+                    dismiss()
                 }
                 appViewModel.messageBoxSecondaryButtonAction = {
                     withAnimation(.spring()) {
