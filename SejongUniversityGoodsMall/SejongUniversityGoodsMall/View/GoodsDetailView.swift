@@ -23,47 +23,59 @@ struct GoodsDetailView: View {
     @State private var optionSheetDrag: CGFloat = .zero
     @State private var isOptionSelected: Bool = false
     @State private var showHelpAlert: Bool = false
+    @State private var vibrateOffset: CGFloat = 0
+    @State private var scrollOffset: CGFloat = .zero
     
     var body: some View {
         GeometryReader { reader in
             ScrollView {
-                VStack(spacing: 10) {
-                    if goodsViewModel.isGoodsDetailLoading {
+                VStack {
+                    VStack(spacing: 10) {
+                        if goodsViewModel.isGoodsDetailLoading {
                             Color("main-shape-bkg-color")
-                            .frame(width: reader.size.width, height: reader.size.width)
+                                .frame(width: reader.size.width, height: reader.size.width - (scrollOffset < 0 ? scrollOffset : 0))
+                                .offset(y: scrollOffset < 0 ? scrollOffset : 0)
                                 .shadow(radius: 1)
-                    } else {
-                        imageView(height: reader.size.width)
-                            .matchedGeometryEffect(id: "이미지", in: heroEffect)
-                            .unredacted()
-                    }
-                    
-                    HStack(spacing: 0) {
-                        Text("\(imagePage) ")
-                            .foregroundColor(Color("main-text-color"))
-                        Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
-                            .foregroundColor(Color("secondary-text-color"))
+                        } else {
+                            imageView(height: reader.size.width)
+                                .matchedGeometryEffect(id: "이미지", in: heroEffect)
+                                .unredacted()
+                        }
                         
-                        Spacer()
+                        HStack(spacing: 0) {
+                            Text("\(imagePage) ")
+                                .foregroundColor(Color("main-text-color"))
+                            Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
+                                .foregroundColor(Color("secondary-text-color"))
+                            
+                            Spacer()
+                        }
+                        .font(.footnote)
+                        .padding(.horizontal)
+                        
+                        nameAndPriceView()
                     }
-                    .font(.footnote)
-                    .padding(.horizontal)
+                    .padding(.bottom)
                     
-                    nameAndPriceView()
+                    Rectangle()
+                        .foregroundColor(Color("shape-bkg-color"))
+                        .frame(height: 10)
+                    
+                    switch service {
+                        case .goodsInformation:
+                            goodsInformationPage()
+                        case .sellerInformation:
+                            sellerInformationPage()
+                    }
                 }
-                .padding(.bottom)
-                
-                Rectangle()
-                    .foregroundColor(Color("shape-bkg-color"))
-                    .frame(height: 10)
-                
-                switch service {
-                    case .goodsInformation:
-                        goodsInformationPage()
-                    case .sellerInformation:
-                        sellerInformationPage()
+                .background {
+                    GeometryReader { reader in
+                        let offset = -reader.frame(in: .named("SCROLL")).minY
+                        Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                    }
                 }
             }
+            .coordinateSpace(name: "SCROLL")
             .overlay(alignment: .bottom) {
                 ZStack(alignment: .bottom) {
                     if showOptionSheet {
@@ -76,14 +88,18 @@ struct GoodsDetailView: View {
                         
                         let isMediumDisplayDevice = UIDevice.current.name == "iPhone 6s Plus" || UIDevice.current.name == "iPhone 7 Plus" || UIDevice.current.name == "iPhone 8 Plus"
                         
-                        OptionSheetView(isOptionSelected: $isOptionSelected)
+                        OptionSheetView(isOptionSelected: $isOptionSelected, vibrateOffset: $vibrateOffset)
                             .frame(height: reader.size.height - (isSmallDisplayDevice ? 270 : (isMediumDisplayDevice ? 350 : reader.size.width)) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
                             .gesture(
                                 DragGesture()
                                     .onChanged({ drag in
-                                        optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
+                                        if !isOptionSelected {
+                                            optionSheetDrag = drag.translation.height > 0 ? drag.translation.height : drag.translation.height / 10
+                                        } else {
+                                            optionSheetDrag = drag.translation.height / 10
+                                        }
                                     })
                                     .onEnded({ drag in
                                         withAnimation(.spring()) {
@@ -100,7 +116,7 @@ struct GoodsDetailView: View {
                     }
                     
                     if !isOptionSelected {
-                        PurchaseBarView(showOptionSheet: $showOptionSheet)
+                        PurchaseBarView(showOptionSheet: $showOptionSheet, vibrateOffset: $vibrateOffset)
                             .transition(.move(edge: .bottom))
                     }
                 }
@@ -109,6 +125,10 @@ struct GoodsDetailView: View {
                 goodsViewModel.seletedGoods.color = nil
                 goodsViewModel.seletedGoods.size = nil
                 goodsViewModel.seletedGoods.quantity = 0
+            }
+            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+                scrollOffset = value
+                print(scrollOffset)
             }
         }
     }
@@ -120,8 +140,8 @@ struct GoodsDetailView: View {
                 AsyncImage(url: URL(string: image.oriImgName)) { img in
                     img
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: height, height: height)
+                        .scaledToFill()
+                        .frame(width: height, height: height - (scrollOffset < 0 ? scrollOffset : 0))
                 } placeholder: {
                     ZStack {
                         Color("shape-bkg-color")
@@ -130,11 +150,12 @@ struct GoodsDetailView: View {
                             .tint(Color("main-highlight-color"))
                     }
                 }
-                .frame(width: height, height: height)
+                .frame(width: height, height: height - (scrollOffset < 0 ? scrollOffset : 0))
                 .tag(image.id - goodsViewModel.goodsDetail.id)
             }
         }
-        .frame(height: height)
+        .frame(height: height - (scrollOffset < 0 ? scrollOffset : 0))
+        .offset(y: scrollOffset < 0 ? scrollOffset : 0)
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
     

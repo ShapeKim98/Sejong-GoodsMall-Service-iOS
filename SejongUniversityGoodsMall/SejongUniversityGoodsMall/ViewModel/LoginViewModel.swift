@@ -13,9 +13,12 @@ class LoginViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     private var token: String = ""
     
+    @Published var error: ApiError?
+    @Published var errorView: ErrorView?
     @Published var showLoginView: Bool = true
     @Published var isSignUpComplete: Bool = false
     @Published var isAuthenticate: Bool = false
+    @Published var isSignInFail: Bool = false
     @Published var findComplete: Bool = false
     @Published var isLoading: Bool = false
     @Published var message: String?
@@ -25,40 +28,51 @@ class LoginViewModel: ObservableObject {
     @Published var memberID: Int?
     
     func signUp() {
-        ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
                         case .alreadyEmail:
                             DispatchQueue.main.async {
                                 self.message = "이미 존재하는 이메일"
+                                self.isLoading = false
                             }
                             print("이미 존재하는 이메일")
                             break
-                        case .invalidResponse(let error):
-                            switch error.code {
-                                case .badServerResponse:
-                                    DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
-                                    }
-                                    print("서버 응답 오류 \(error.errorCode)")
-                                    break
-                                case .badURL:
-                                    DispatchQueue.main.async {
-                                        self.message = "잘못된 url"
-                                    }
-                                    print("잘못된 url")
-                                    break
-                                default:
-                                    DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류"
-                                    }
-                                    print("알 수 없는 오류")
-                                    break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signUp()
+                                })
                             }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signUp()
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signUp()
+                                })
+                            }
+                            break
                         case .jsonDecodeError:
                             DispatchQueue.main.async {
                                 self.message = "데이터 디코딩 에러"
+                                self.isLoading = false
                             }
                             print("데이터 디코딩 에러")
                             break
@@ -70,9 +84,7 @@ class LoginViewModel: ObservableObject {
                             print("알 수 없는 오류")
                             break
                     }
-                    DispatchQueue.main.async {
-                        self.isLoading = false
-                    }
+                    
                 case .finished:
                     print("회원가입 성공")
                     break
@@ -91,40 +103,53 @@ class LoginViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-        ApiService.fetchSignIn(email: email, password: password).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.fetchSignIn(email: email, password: password).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
-                                self.message = "로그인 실패"
+                                withAnimation {
+                                    self.isSignInFail = true
+                                    self.isLoading = false
+                                }
                             }
                             print("로그인 실패")
                             break
-                        case .invalidResponse(let error):
-                            switch error.code {
-                                case .badServerResponse:
-                                    DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
-                                    }
-                                    print("서버 응답 오류 \(error.errorCode)")
-                                    break
-                                case .badURL:
-                                    DispatchQueue.main.async {
-                                        self.message = "잘못된 url"
-                                    }
-                                    print("잘못된 url")
-                                    break
-                                default:
-                                    DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류"
-                                    }
-                                    print("알 수 없는 오류")
-                                    break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signIn(email: email, password: password)
+                                })
                             }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signIn(email: email, password: password)
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.signIn(email: email, password: password)
+                                })
+                            }
+                            break
                         case .jsonDecodeError:
                             DispatchQueue.main.async {
                                 self.message = "데이터 디코딩 에러"
+                                self.isLoading = false
                             }
                             print("데이터 디코딩 에러")
                             break
@@ -136,9 +161,6 @@ class LoginViewModel: ObservableObject {
                             print("알 수 없는 오류")
                             break
                     }
-                    DispatchQueue.main.async {
-                        self.isLoading = false
-                    }
                 case .finished:
                     print("로그인성공")
                     break
@@ -146,6 +168,7 @@ class LoginViewModel: ObservableObject {
         } receiveValue: { loginResponse in
             DispatchQueue.main.async {
                 self.isLoading = false
+                self.isSignInFail = false
                 self.token = loginResponse.token
                 self.memberID = loginResponse.id
                 
@@ -160,37 +183,47 @@ class LoginViewModel: ObservableObject {
     }
     
     func fetchFindEmail() {
-        ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.message = "존재하지 않는 이메일"
+                                self.isLoading = false
                             }
                             print("존재하지 않는 이메일")
                             break
-                        case .invalidResponse(let error):
-                            switch error.code {
-                                case .badServerResponse:
-                                    DispatchQueue.main.async {
-                                        self.message = "서버 응답 오류 \(error.errorCode)"
-                                    }
-                                    print("서버 응답 오류 \(error.errorCode)")
-                                    break
-                                case .badURL:
-                                    DispatchQueue.main.async {
-                                        self.message = "잘못된 url"
-                                    }
-                                    print("잘못된 url")
-                                    break
-                                default:
-                                    DispatchQueue.main.async {
-                                        self.message = "알 수 없는 오류"
-                                    }
-                                    print("알 수 없는 오류")
-                                    break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchFindEmail()
+                                })
                             }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchFindEmail()
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchFindEmail()
+                                })
+                            }
+                            break
                         case .jsonDecodeError:
                             print("데이터 디코딩 에러")
                             break
@@ -200,9 +233,6 @@ class LoginViewModel: ObservableObject {
                             }
                             print("알 수 없는 오류")
                             break
-                    }
-                    DispatchQueue.main.async {
-                        self.isLoading = false
                     }
                 case .finished:
                     print("이메일 찾기 성공")

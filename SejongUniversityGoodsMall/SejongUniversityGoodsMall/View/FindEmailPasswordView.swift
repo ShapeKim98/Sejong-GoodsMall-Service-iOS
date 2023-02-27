@@ -147,7 +147,7 @@ struct FindEmailPasswordView: View {
             Button {
                 withAnimation(.spring()) {
                     currentField = nil
-                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBoxBackground = true
                     showDatePickerFromFindEmailView = true
                 }
             } label: {

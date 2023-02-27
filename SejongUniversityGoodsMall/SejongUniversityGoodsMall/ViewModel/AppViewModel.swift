@@ -9,7 +9,13 @@ import Foundation
 import SwiftUI
 
 class AppViewModel: ObservableObject {
-    @Published var showAlertView: Bool = false
+    @Published var showMessageBoxBackground: Bool = false
     @Published var showMessageBox: Bool = false
-    @Published var messageBox: MessageBoxView?
+    @Published var messageBoxTitle: String = ""
+    @Published var messageBoxSecondaryTitle: String = ""
+    @Published var messageBoxMainButtonTitle: String = ""
+    @Published var messageBoxSecondaryButtonTitle: String = ""
+    @Published var messageBoxMainButtonAction: () -> Void = {}
+    @Published var messageBoxSecondaryButtonAction: () -> Void = {}
+    @Published var messageBoxCloseButtonAction: () -> Void = {}
 }

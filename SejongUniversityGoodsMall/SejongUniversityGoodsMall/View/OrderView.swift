@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct OrderView: View {
+    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
@@ -15,7 +17,6 @@ struct OrderView: View {
     
     @FocusState private var currentField: FocusedTextField?
     
-    @State var orderGoods: [OrderItem]
     @State private var buyerName: String = ""
     @State private var isValidBuyerName: Bool = false
     @State private var phoneNumber: String = ""
@@ -23,12 +24,11 @@ struct OrderView: View {
     @State private var orderPrice: Int = 0
     @State private var postalNumber: String = ""
     @State private var isValidPostalNumber: Bool = false
-    @State private var address1: String = ""
-    @State private var isValidAddress1: Bool = false
-    @State private var address2: String = ""
+    @State private var mainAddress: String = ""
+    @State private var isValidMainAddress: Bool = false
+    @State private var detailAddress: String = ""
     @State private var deliveryRequirements: String = ""
     @State private var showFindAddressView: Bool = false
-    @State private var showOrderCompleteView: Bool = false
     @State private var limitDate: String = ""
     
     private let columns = [
@@ -42,29 +42,40 @@ struct OrderView: View {
                 .frame(height: 10)
             
             ScrollView {
-                    switch goodsViewModel.orderType {
-                        case .pickUpOrder:
-                            pickUpInformation()
-                        case .deliveryOrder:
-                            deliveryInformation()
-                    }
-                
-                    LazyVGrid(columns: columns) {
-                    orderGoodsList()
+                switch goodsViewModel.orderType {
+                    case .pickUpOrder:
+                        pickUpInformation()
+                    case .deliveryOrder:
+                        deliveryInformation()
                 }
+                
+//                LazyVGrid(columns: columns) {
+                    orderGoodsList()
+//                }
                 
                 orderButton()
                     .padding(.top, 30)
+                    .onAppear() {
+                        orderPrice = 0
+                        if !goodsViewModel.cartIDList.isEmpty {
+                            goodsViewModel.orderGoods.forEach { goods in
+                                orderPrice += (goods.price * goods.quantity)
+                            }
+                        } else {
+                            goodsViewModel.orderGoods.forEach { goods in
+                                orderPrice += (goods.price)
+                            }
+                        }
+                    }
             }
         }
         .background(.white)
-        .onAppear() {
-            orderPrice = 0
-            orderGoods.forEach { goods in
-                orderPrice += (goods.price * goods.quantity)
-            }
+        .onDisappear() {
+            goodsViewModel.orderGoods.removeAll()
+            goodsViewModel.orderGoodsListFromCart.removeAll()
+            goodsViewModel.cartIDList.removeAll()
         }
-        .fullScreenCover(isPresented: $showOrderCompleteView) {
+        .fullScreenCover(isPresented: $goodsViewModel.isOrderComplete) {
             if #available(iOS 16.0, *) {
                 NavigationStack {
                     orderCompleteView()
@@ -201,9 +212,9 @@ struct OrderView: View {
             
             Group {
                 TextField("휴대전화", text: $phoneNumber, prompt: Text("휴대전화('-'포함해서 입력)"))
-                    .modifier(TextFieldModifier(text: $phoneNumber, isValidInput: $isValidPhoneNumber, currentField: _currentField, font: .subheadline.bold(), keyboardType: .phonePad, contentType: .telephoneNumber, focusedTextField: .phoneNumberField, submitLabel: .done))
+                    .modifier(TextFieldModifier(text: $phoneNumber, isValidInput: $isValidPhoneNumber, currentField: _currentField, font: .subheadline.bold(), keyboardType: .numbersAndPunctuation, contentType: .telephoneNumber, focusedTextField: .phoneNumberField, submitLabel: .done))
                     .onChange(of: phoneNumber) { newValue in
-                        if(newValue.range(of:"^01([0|1|6|7|8|9]?)-?([0-9]{3,4})-?([0-9]{4})$", options: .regularExpression) != nil) {
+                        if(newValue.range(of:"^01([0|1|6|7|8|9]?)-([0-9]{3,4})-([0-9]{4})$", options: .regularExpression) != nil) {
                             withAnimation {
                                 isValidPhoneNumber = true
                             }
@@ -300,21 +311,21 @@ struct OrderView: View {
             }
             
             Group {
-                TextField("주소", text: $address1, prompt: Text("주소"))
-                    .modifier(TextFieldModifier(text: $address1, isValidInput: $isValidAddress1, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .streetAddressLine1, focusedTextField: .address1, submitLabel: .next))
-                    .onChange(of: address1) { newValue in
+                TextField("주소", text: $mainAddress, prompt: Text("주소"))
+                    .modifier(TextFieldModifier(text: $mainAddress, isValidInput: $isValidMainAddress, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .streetAddressLine1, focusedTextField: .address1, submitLabel: .next))
+                    .onChange(of: mainAddress) { newValue in
                         if newValue != "" {
                             withAnimation {
-                                isValidAddress1 = true
+                                isValidMainAddress = true
                             }
                         } else {
                             withAnimation {
-                                isValidAddress1 = false
+                                isValidMainAddress = false
                             }
                         }
                     }
                     .overlay {
-                        if isValidAddress1 {
+                        if isValidMainAddress {
                             HStack {
                                 Spacer()
                                 
@@ -325,7 +336,7 @@ struct OrderView: View {
                     }
                 
                 HStack {
-                    Text(!isValidAddress1 && address1 != "" ? "필수 항목입니다." : " ")
+                    Text(!isValidMainAddress && mainAddress != "" ? "필수 항목입니다." : " ")
                         .font(.caption2)
                         .foregroundColor(Color("main-highlight-color"))
                     
@@ -335,8 +346,8 @@ struct OrderView: View {
             }
             
             Group {
-                TextField("상세주소", text: $address2, prompt: Text("상세주소"))
-                    .modifier(TextFieldModifier(text: $address2, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .streetAddressLine2, focusedTextField: .address2, submitLabel: .next))
+                TextField("상세주소", text: $detailAddress, prompt: Text("상세주소"))
+                    .modifier(TextFieldModifier(text: $detailAddress, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .streetAddressLine2, focusedTextField: .address2, submitLabel: .next))
                 
                 HStack {
                     Text(" ")
@@ -404,8 +415,14 @@ struct OrderView: View {
             .padding(.horizontal)
             
             LazyVGrid(columns: columns) {
-                ForEach(orderGoods, id: \.hashValue) { goods in
-                    subOrderGoods(goods: goods)
+                if !goodsViewModel.cartIDList.isEmpty {
+                    ForEach(goodsViewModel.orderGoodsListFromCart) { goods in
+                        subOrderGoodsFromCart(goods: goods)
+                    }
+                } else {
+                    ForEach(goodsViewModel.orderGoods, id: \.hashValue) { goods in
+                        subOrderGoods(goods: goods)
+                    }
                 }
             }
         }
@@ -415,34 +432,28 @@ struct OrderView: View {
     func subOrderGoods(goods: OrderItem) -> some View {
         VStack {
             HStack() {
-                if goodsViewModel.isGoodsDetailLoading {
-                    Color("main-shape-bkg-color")
-                        .frame(width: 100, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .shadow(radius: 1)
-                } else {
-                    if let image = goodsViewModel.goodsDetail.goodsImages.first {
-                        AsyncImage(url: URL(string: image.oriImgName)) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
+                if let image = goodsViewModel.goodsDetail.goodsImages.first {
+                    AsyncImage(url: URL(string: image.oriImgName)) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } placeholder: {
+                        ZStack {
+                            Color("main-shape-bkg-color")
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                        } placeholder: {
-                            ZStack {
-                                Color("main-shape-bkg-color")
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                
-                                ProgressView()
-                                    .tint(Color("main-highlight-color"))
-                            }
+                            
+                            ProgressView()
+                                .tint(Color("main-highlight-color"))
                         }
-                        .frame(width: 100, height: 100)
-                        .shadow(radius: 1)
                     }
+                    .frame(width: 100, height: 100)
+                    .shadow(radius: 1)
                 }
                 
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
+                        
                         Text(goodsViewModel.goodsDetail.title)
                             .foregroundColor(Color("main-text-color"))
                             .padding(.trailing)
@@ -503,15 +514,104 @@ struct OrderView: View {
     }
     
     @ViewBuilder
+    func subOrderGoodsFromCart(goods: CartGoodsResponse) -> some View {
+        VStack {
+            HStack() {
+                AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } placeholder: {
+                    ZStack {
+                        Color("main-shape-bkg-color")
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        ProgressView()
+                            .tint(Color("main-highlight-color"))
+                    }
+                }
+                .frame(width: 100, height: 100)
+                .shadow(radius: 1)
+                
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        
+                        Text(goods.title)
+                            .foregroundColor(Color("main-text-color"))
+                            .padding(.trailing)
+                        
+                        Group {
+                            if let color = goods.color, let size = goods.size {
+                                Text("\(color), \(size)")
+                            } else {
+                                Text("\(goods.color ?? "")\(goods.size ?? "")")
+                            }
+                        }
+                        .font(.caption.bold())
+                        .foregroundColor(Color("main-text-color"))
+                        .padding(.leading)
+                        .background(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color("main-text-color"))
+                                .frame(width: 1)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.bottom, 10)
+                    
+                    HStack {
+                        Text(goods.seller)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color("point-color"))
+                        
+                        Spacer()
+                    }
+                    
+                    Spacer()
+                    
+                    HStack {
+                        Text("\(goods.price)원")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color("main-text-color"))
+                        
+                        Spacer()
+                        
+                        Text("수량 \(goods.quantity)개")
+                            .font(.caption.bold())
+                            .foregroundColor(Color("main-text-color"))
+                    }
+                }
+                .padding(10)
+            }
+            .padding(.vertical)
+            
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
+        }
+        .padding(.horizontal)
+    }
+    
+    @ViewBuilder
     func orderButton() -> some View {
         if goodsViewModel.orderType == .pickUpOrder {
             Button {
-                showOrderCompleteView = true
+                goodsViewModel.isSendOrderGoodsLoading = true
+                
+                if goodsViewModel.cartIDList.isEmpty {
+                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, token: loginViewModel.returnToken())
+                } else {
+                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, token: loginViewModel.returnToken())
+                }
             } label: {
                 HStack {
                     Spacer()
                     
-                    if loginViewModel.isLoading {
+                    if goodsViewModel.isSendOrderGoodsLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle())
                             .padding()
@@ -535,12 +635,18 @@ struct OrderView: View {
             .padding(.bottom, 20)
         } else {
             Button {
-                showOrderCompleteView = true
+                goodsViewModel.isSendOrderGoodsLoading = true
+                
+                if goodsViewModel.cartIDList.isEmpty {
+                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), token: loginViewModel.returnToken())
+                } else {
+                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), token: loginViewModel.returnToken())
+                }
             } label: {
                 HStack {
                     Spacer()
                     
-                    if loginViewModel.isLoading {
+                    if goodsViewModel.isSendOrderGoodsLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle())
                             .padding()
@@ -556,10 +662,10 @@ struct OrderView: View {
                 }
                 .background {
                     RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(isValidBuyerName && isValidPhoneNumber && isValidPostalNumber && isValidAddress1 ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                        .foregroundColor(isValidBuyerName && isValidPhoneNumber && isValidPostalNumber && isValidMainAddress ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                 }
             }
-            .disabled(!isValidBuyerName || !isValidPhoneNumber || !isValidPostalNumber || !isValidAddress1)
+            .disabled(!isValidBuyerName || !isValidPhoneNumber || !isValidPostalNumber || !isValidMainAddress)
             .padding([.horizontal, .bottom])
             .padding(.bottom, 20)
         }
@@ -581,14 +687,18 @@ struct OrderView: View {
                     .foregroundColor(Color("main-highlight-color"))
                     .padding(.vertical)
                     .onAppear() {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "yyyy.MM.dd HH시 mm분"
-                        limitDate = formatter.string(from: .now.addingTimeInterval(3600 * 24 * 2))
+                        if let date = goodsViewModel.orderCompleteGoods?.createdAt {
+                            let formatter = DateFormatter()
+                            formatter.dateFormat = "yyyy.MM.dd HH시 mm분"
+                            limitDate = formatter.string(from: date.addingTimeInterval(3600 * 24 * 2 + 3600 * 9))
+                        }
                     }
                 
                 LazyVGrid(columns: columns) {
-                    ForEach(orderGoods, id: \.hashValue) { goods in
-                        orderCompleteGoods(goods: goods)
+                    if let orderCompletGoods = goodsViewModel.orderCompleteGoods?.orderItems {
+                        ForEach(orderCompletGoods, id: \.hashValue) { goods in
+                            orderCompleteGoods(goods: goods)
+                        }
                     }
                 }
                 
@@ -618,7 +728,8 @@ struct OrderView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    showOrderCompleteView = false
+                    dismiss()
+                    goodsViewModel.isOrderComplete = false
                 } label: {
                     Label("닫기", systemImage: "xmark")
                         .labelStyle(.iconOnly)
@@ -626,8 +737,6 @@ struct OrderView: View {
                         .foregroundColor(Color("main-text-color"))
                 }
             }
-        }
-        .overlay(alignment: .bottom) {
         }
     }
     
@@ -640,14 +749,16 @@ struct OrderView: View {
                        
             subOrderGoods(goods: goods)
             
-            Group {
-                orderCompleteInfo(title: "예금주명", content: "김세종")
-                
-                orderCompleteInfo(title: "입금은행", content: "국민은행")
-                
-                orderCompleteInfo(title: "계좌번호", content: "304102-02-175615")
+            if let seller = goods.seller {
+                Group {
+                    orderCompleteInfo(title: "예금주", content: seller.accountHolder)
+                    
+                    orderCompleteInfo(title: "입금은행", content: seller.bank)
+                    
+                    orderCompleteInfo(title: "계좌번호", content: seller.account)
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
         }
     }
     
@@ -675,7 +786,7 @@ struct OrderView: View {
 
 struct OrderView_Previews: PreviewProvider {
     static var previews: some View {
-        OrderView(isPresented: .constant(false), orderGoods: [OrderItem(color: "블랙", size: "M", quantity: 1, price: 85000)])
+        OrderView(isPresented: .constant(false))
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }

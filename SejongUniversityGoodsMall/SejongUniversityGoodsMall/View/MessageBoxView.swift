@@ -8,31 +8,28 @@
 import SwiftUI
 
 struct MessageBoxView: View {
+    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var appViewModel: AppViewModel
     
-    @Binding var showMessageBox: Bool
+//    var title: String
+//    var secondaryTitle: String
+//    var mainButtonTitle: String
+//    var secondaryButtonTitle: String
+//
+//    var mainButtonAction: () -> Void
+//    var secondaryButtonAction: () -> Void
+//    var closeButtonAction: () -> Void
     
-    @State private var title: String
-    @State private var secondaryTitle: String
-    @State private var mainButtonTitle: String
-    @State private var secondaryButtonTitle: String
-    
-    private let mainButtonAction: () -> Void
-    private let secondaryButtonAction: () -> Void
-    private let closeButtonAction: () -> Void
-    private let onDisAppearAction: () -> Void
-    
-    init(showMessageBox: Binding<Bool>, title: String, secondaryTitle: String, mainButtonTitle: String, secondaryButtonTitle: String, mainButtonAction: @escaping () -> Void, secondaryButtonAction: @escaping () -> Void, closeButtonAction: @escaping () -> Void, onDisAppearAction: @escaping () -> Void) {
-        self._showMessageBox = showMessageBox
-        self.title = title
-        self.secondaryTitle = secondaryTitle
-        self.mainButtonTitle = mainButtonTitle
-        self.secondaryButtonTitle = secondaryButtonTitle
-        self.mainButtonAction = mainButtonAction
-        self.secondaryButtonAction = secondaryButtonAction
-        self.closeButtonAction = closeButtonAction
-        self.onDisAppearAction = onDisAppearAction
-    }
+//    init(title: String, secondaryTitle: String, mainButtonTitle: String, secondaryButtonTitle: String, mainButtonAction: @escaping () -> Void, secondaryButtonAction: @escaping () -> Void, closeButtonAction: @escaping () -> Void) {
+//        self.title = title
+//        self.secondaryTitle = secondaryTitle
+//        self.mainButtonTitle = mainButtonTitle
+//        self.secondaryButtonTitle = secondaryButtonTitle
+//        self.mainButtonAction = mainButtonAction
+//        self.secondaryButtonAction = secondaryButtonAction
+//        self.closeButtonAction = closeButtonAction
+//    }
     
     var body: some View {
         VStack {
@@ -40,7 +37,7 @@ struct MessageBoxView: View {
             
             VStack {
                 HStack {
-                    Text(title)
+                    Text(appViewModel.messageBoxTitle)
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(Color("main-text-color"))
@@ -50,7 +47,7 @@ struct MessageBoxView: View {
                 
                 VStack {
                     HStack {
-                        Text(secondaryTitle)
+                        Text(appViewModel.messageBoxSecondaryTitle)
                             .font(.subheadline)
                             .foregroundColor(Color("main-text-color"))
                         
@@ -62,10 +59,10 @@ struct MessageBoxView: View {
                 }
                 .padding(.top)
                 
-                Button(action: mainButtonAction) {
+                Button(action: appViewModel.messageBoxMainButtonAction) {
                     HStack {
                         Spacer()
-                        Text(mainButtonTitle)
+                        Text(appViewModel.messageBoxMainButtonTitle)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding()
@@ -79,10 +76,10 @@ struct MessageBoxView: View {
                 }
                 .padding(.top)
                 
-                Button(action: secondaryButtonAction) {
+                Button(action: appViewModel.messageBoxSecondaryButtonAction) {
                     HStack {
                         Spacer()
-                        Text(secondaryButtonTitle)
+                        Text(appViewModel.messageBoxSecondaryButtonTitle)
                             .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
                             .padding()
@@ -94,13 +91,19 @@ struct MessageBoxView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color("main-shape-bkg-color"))
                 }
-                .padding(.bottom)
                 
-                Button(action: closeButtonAction) {
-                    Text("닫기")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                Button(action: appViewModel.messageBoxCloseButtonAction) {
+                    HStack {
+                        Spacer()
+                        
+                        Text("닫기")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                         .foregroundColor(Color("secondary-text-color"))
+                        .padding()
+                        
+                        Spacer()
+                    }
                 }
                 
             }
@@ -115,21 +118,19 @@ struct MessageBoxView: View {
             Spacer()
         }
         .frame(maxWidth: 500)
-        .onDisappear(perform: onDisAppearAction)
     }
 }
 
 struct MessageBoxView_Previews: PreviewProvider {
     static var previews: some View {
-        MessageBoxView(showMessageBox: .constant(true), title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
-            
-        } secondaryButtonAction: {
-            
-        } closeButtonAction: {
-            
-        } onDisAppearAction: {
-            
-        }
+//        MessageBoxView(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+//
+//        } secondaryButtonAction: {
+//
+//        } closeButtonAction: {
+//
+//        }
+        MessageBoxView()
         .environmentObject(AppViewModel())
     }
 }

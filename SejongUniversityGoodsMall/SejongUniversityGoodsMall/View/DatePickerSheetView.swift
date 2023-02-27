@@ -31,7 +31,7 @@ struct DatePickerSheetView: View {
                 Button {
                     withAnimation(.spring()) {
                         showDatePicker = false
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                     }
                 } label: {
                     Text("취소")
@@ -45,7 +45,7 @@ struct DatePickerSheetView: View {
                     userBirthdayString = dateFormatter.string(from: userBirthday)
                     withAnimation(.spring()) {
                         showDatePicker = false
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                     }
                 } label: {
                     Text("확인")

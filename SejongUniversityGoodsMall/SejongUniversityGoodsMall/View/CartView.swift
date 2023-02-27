@@ -17,6 +17,8 @@ struct CartView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var isAllSelected: Bool = false
+    @State private var scrollOffset: CGFloat = .zero
+    @State private var showOrderView: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -29,14 +31,36 @@ struct CartView: View {
             
             allSeletionAndDeleteSeleted()
             
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
-            
             cartGoodsList()
             
-            Button {
-                
+            NavigationLink {
+                OrderView(isPresented: $showOrderView)
+                    .onAppear() {
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder:
+                                goodsViewModel.pickUpCart.forEach { goods in
+                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                        goodsViewModel.cartIDList.append(goods.id)
+                                        goodsViewModel.orderGoodsListFromCart.append(goods)
+                                    }
+                                }
+                                
+                                break
+                            case .deliveryOrder:
+                                goodsViewModel.deliveryCart.forEach { goods in
+                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                        goodsViewModel.cartIDList.append(goods.id)
+                                        goodsViewModel.orderGoodsListFromCart.append(goods)
+                                    }
+                                }
+                        }
+                    }
+                    .onDisappear() {
+                        goodsViewModel.cartGoodsSelections.removeAll()
+                        goodsViewModel.updateCartData()
+                    }
             } label: {
                 HStack {
                     Spacer()
@@ -66,33 +90,48 @@ struct CartView: View {
             goodsViewModel.orderType = .pickUpOrder
             
             if !loginViewModel.isAuthenticate {
-                appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                appViewModel.messageBoxTitle = "로그인이 필요한 서비스 입니다"
+                appViewModel.messageBoxSecondaryTitle = "로그인 하시겠습니까?"
+                appViewModel.messageBoxMainButtonTitle = "로그인 하러 가기"
+                appViewModel.messageBoxSecondaryButtonTitle = "계속 둘러보기"
+                appViewModel.messageBoxMainButtonAction = {
                     withAnimation(.spring()) {
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
                     
                     loginViewModel.showLoginView = true
-                } secondaryButtonAction: {
+                    
+                    dismiss()
+                }
+                appViewModel.messageBoxSecondaryButtonAction = {
                     withAnimation(.spring()) {
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
                     dismiss()
-                } closeButtonAction: {
+                }
+                appViewModel.messageBoxCloseButtonAction = {
+                    appViewModel.messageBoxTitle = ""
+                    appViewModel.messageBoxSecondaryTitle = ""
+                    appViewModel.messageBoxMainButtonTitle = ""
+                    appViewModel.messageBoxSecondaryButtonTitle = ""
+                    appViewModel.messageBoxMainButtonAction = {}
+                    appViewModel.messageBoxSecondaryButtonAction = {}
+                    appViewModel.messageBoxCloseButtonAction = {}
+                    
                     withAnimation(.spring()) {
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
+                    
                     dismiss()
-                } onDisAppearAction: {
-                    dismiss()
-                    appViewModel.messageBox = nil
                 }
                 
                 withAnimation(.spring()) {
-                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBoxBackground = true
                     appViewModel.showMessageBox = true
+                    
                 }
             } else {
                 goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
@@ -260,29 +299,43 @@ struct CartView: View {
             Spacer()
             
             Button {
-                appViewModel.messageBox = MessageBoxView(showMessageBox: $appViewModel.showMessageBox, title: "선택하신 상품을 삭제하시겠습니까?", secondaryTitle: "다음에 구매하실 예정이라면 찜하기에 잠시 보관해두세요.", mainButtonTitle: "찜하기에 보관하기", secondaryButtonTitle: "삭제하기") {
+                appViewModel.messageBoxTitle = "선택하신 상품을 삭제하시겠습니까?"
+                appViewModel.messageBoxSecondaryTitle = "다음에 구매하실 예정이라면 찜하기에 잠시 보관해두세요."
+                appViewModel.messageBoxMainButtonTitle = "찜하기에 보관하기"
+                appViewModel.messageBoxSecondaryButtonTitle = "삭제하기"
+                appViewModel.messageBoxMainButtonAction = {
                     withAnimation(.spring()) {
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
-                } secondaryButtonAction: {
+                }
+                appViewModel.messageBoxSecondaryButtonAction = {
                     withAnimation(.spring()) {
                         goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
-                } closeButtonAction: {
+                }
+                appViewModel.messageBoxCloseButtonAction = {
+                    appViewModel.messageBoxTitle = ""
+                    appViewModel.messageBoxSecondaryTitle = ""
+                    appViewModel.messageBoxMainButtonTitle = ""
+                    appViewModel.messageBoxSecondaryButtonTitle = ""
+                    appViewModel.messageBoxMainButtonAction = {}
+                    appViewModel.messageBoxSecondaryButtonAction = {}
+                    appViewModel.messageBoxCloseButtonAction = {}
+                    
                     withAnimation(.spring()) {
-                        appViewModel.showAlertView = false
+                        appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
-                } onDisAppearAction: {
-                    appViewModel.messageBox = nil
                 }
                 
+                
                 withAnimation(.spring()) {
-                    appViewModel.showAlertView = true
+                    appViewModel.showMessageBoxBackground = true
                     appViewModel.showMessageBox = true
+                    
                 }
             } label: {
                 Text("선택 삭제")
@@ -299,6 +352,11 @@ struct CartView: View {
         VStack {
             ScrollView {
                 LazyVGrid(columns: columns) {
+                    Rectangle()
+                        .fill(Color("shape-bkg-color"))
+                        .offset(y: scrollOffset < 0 ? scrollOffset : 0)
+                        .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
+                    
                     switch goodsViewModel.orderType {
                         case .pickUpOrder:
                             ForEach(goodsViewModel.pickUpCart, id: \.id) { goods in
@@ -320,6 +378,16 @@ struct CartView: View {
                             }
                     }
                 }
+                .background {
+                    GeometryReader { reader in
+                        let offset = -reader.frame(in: .named("SCROLL")).minY
+                        Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                    }
+                }
+            }
+            .coordinateSpace(name: "SCROLL")
+            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+                scrollOffset = value
             }
         }
     }

@@ -19,13 +19,14 @@ struct OptionSheetView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @Binding var isOptionSelected: Bool
+    @Binding var vibrateOffset: CGFloat
     
     @State private var optionChevronDegree: Double = 180
     @State private var showMessage: Bool = false
     @State private var extendSizeOptions: Bool = false
     @State private var extendColorOptions: Bool = false
-    @State private var noneOption: String?
     @State private var extendNoneOption: Bool = false
+    @State private var noneOption: String?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -105,8 +106,10 @@ struct OptionSheetView: View {
                             if goodsViewModel.goodsDetail.color != nil && goodsViewModel.goodsDetail.size != nil {
                                 if goodsViewModel.seletedGoods.color == nil {
                                     alertMessageView(message: "색상 옵션을 선택해 주세요")
+                                        .modifier(VibrateAnimation(animatableData: vibrateOffset))
                                 } else if goodsViewModel.seletedGoods.size == nil {
                                     alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                                        .modifier(VibrateAnimation(animatableData: vibrateOffset))
                                 } else {
                                     selectedGoodsOptions()
                                         .onAppear() {
@@ -120,6 +123,7 @@ struct OptionSheetView: View {
                                 if goodsViewModel.goodsDetail.color != nil {
                                     if goodsViewModel.seletedGoods.color == nil {
                                         alertMessageView(message: "색상 옵션을 선택해 주세요")
+                                            .modifier(VibrateAnimation(animatableData: vibrateOffset))
                                     } else {
                                         selectedGoodsOptions()
                                             .onAppear() {
@@ -132,6 +136,7 @@ struct OptionSheetView: View {
                                 } else if goodsViewModel.goodsDetail.size != nil {
                                     if goodsViewModel.seletedGoods.size == nil {
                                         alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                                            .modifier(VibrateAnimation(animatableData: vibrateOffset))
                                     } else {
                                         selectedGoodsOptions()
                                             .onAppear() {
@@ -144,6 +149,7 @@ struct OptionSheetView: View {
                                 } else {
                                     if goodsViewModel.seletedGoods.quantity < 1 {
                                         alertMessageView(message: "상품을 선택해 주세요")
+                                            .modifier(VibrateAnimation(animatableData: vibrateOffset))
                                     } else {
                                         selectedGoodsOptions()
                                             .onAppear() {
@@ -381,7 +387,7 @@ struct OptionSheetView: View {
 
 struct OptionSheetView_Previews: PreviewProvider {
     static var previews: some View {
-        OptionSheetView(isOptionSelected: .constant(false))
+        OptionSheetView(isOptionSelected: .constant(false), vibrateOffset: .constant(0))
             .environmentObject(GoodsViewModel())
     }
 }

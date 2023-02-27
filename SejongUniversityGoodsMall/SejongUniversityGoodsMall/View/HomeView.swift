@@ -14,13 +14,15 @@ struct HomeView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
    
-    @State private var currentCategory: Category = Category(id: 0, name: "ALLPRODUCT")
+    @Binding var currentCategory: Category
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
     
-    init() {
+    init(currentCategory: Binding<Category>) {
+        self._currentCategory = currentCategory
+        
         if #available(iOS 16.0, *) {
             
         } else {
@@ -47,21 +49,13 @@ struct HomeView: View {
                 .tint(Color("main-text-color"))
                 .overlay {
                     ZStack {
-                        if appViewModel.showAlertView {
+                        if appViewModel.showMessageBoxBackground {
                             Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        appViewModel.showAlertView = false
-                                        appViewModel.showMessageBox = false
-                                    }
-                                }
                         }
                         
                         if appViewModel.showMessageBox {
-                            if let messageBox = appViewModel.messageBox {
-                                messageBox
-                                    .transition(.move(edge: .bottom))
-                            }
+                            MessageBoxView()
+                                .transition(.move(edge: .bottom))
                         }
                     }
                     .ignoresSafeArea()
@@ -83,22 +77,13 @@ struct HomeView: View {
                 .navigationViewStyle(.stack)
                 .overlay {
                     ZStack {
-                        if appViewModel.showAlertView {
+                        if appViewModel.showMessageBoxBackground {
                             Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        appViewModel.showAlertView = false
-                                        appViewModel.showMessageBox = false
-                                        appViewModel.messageBox = nil
-                                    }
-                                }
                         }
                         
                         if appViewModel.showMessageBox {
-                            if let messageBox = appViewModel.messageBox {
-                                messageBox
-                                    .transition(.move(edge: .bottom))
-                            }
+                            MessageBoxView()
+                                .transition(.move(edge: .bottom))
                         }
                     }
                     .ignoresSafeArea()
@@ -136,7 +121,12 @@ struct HomeView: View {
                         withAnimation {
                             goodsViewModel.isGoodsListLoading = true
                         }
-                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                        
+                        if currentCategory.id == 0 {
+                            goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                        } else {
+                            goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                        }
                     }
             } label: {
                 Label("장바구니", systemImage: "cart")
@@ -309,7 +299,12 @@ struct HomeView: View {
                     withAnimation {
                         goodsViewModel.isGoodsListLoading = true
                     }
-                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                    
+                    if currentCategory.id == 0 {
+                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                    } else {
+                        goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                    }
                 }
         } label: {
             VStack {
@@ -380,7 +375,7 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        HomeView(currentCategory: .constant(Category(id: 0, name: "ALLPRODUCT")))
             .environmentObject(AppViewModel())
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())

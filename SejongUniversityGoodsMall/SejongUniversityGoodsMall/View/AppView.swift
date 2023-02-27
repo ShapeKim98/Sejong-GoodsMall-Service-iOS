@@ -17,9 +17,10 @@ struct AppView: View {
     
     @State var showMessage: Bool = false
     @State var message: String = ""
+    @State private var currentCategory: Category = Category(id: 0, name: "ALLPRODUCT")
     
     var body: some View {
-        HomeView()
+        HomeView(currentCategory: $currentCategory)
             .onAppear() {
                 withAnimation {
                     goodsViewModel.isGoodsListLoading = true
@@ -66,15 +67,34 @@ struct AppView: View {
                     }
                     .onDisappear() {
                         withAnimation {
+                            loginViewModel.isSignInFail = false
                             goodsViewModel.isGoodsListLoading = true
                         }
-                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                        
+                        if currentCategory.id == 0 {
+                            goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                        } else {
+                            goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                        }
+                    }
+                    .overlay {
+                        if let errorView = loginViewModel.errorView {
+                            errorView
+                        }
                     }
             }
-            .disabled(!networkManager.isConnected)
             .overlay {
-                if !networkManager.isConnected {
-                    ErrorView()
+                if let errorView = goodsViewModel.errorView {
+                    errorView
+                }
+            }
+            .onChange(of: networkManager.isConnected) { newValue in
+                if !newValue {
+                    goodsViewModel.errorView = ErrorView(retryAction: {})
+                    loginViewModel.errorView = ErrorView(retryAction: {})
+                } else {
+                    goodsViewModel.errorView = nil
+                    loginViewModel.errorView = nil
                 }
             }
     }
