@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum OrderType: String {
+enum OrderType: String, Codable {
     case pickUpOrder = "pickup"
     case deliveryOrder = "delivery"
 }

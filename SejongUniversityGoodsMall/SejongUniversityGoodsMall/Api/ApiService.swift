@@ -205,30 +205,10 @@ enum ApiService {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONEncoder().encode(body)
         
-        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
-            }
-            
-            guard httpResponse.statusCode == 200 else {
-                if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
-                } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
-                }
-            }
-            
-            return data
-        }
-        .decode(type: GoodsList.self, decoder: JSONDecoder())
-        .mapError { error in
-            ApiError.convert(error: error)
-        }
-        .eraseToAnyPublisher()
-    }
-    
-    static func fetchGoodsDetail(id: Int) -> AnyPublisher<Goods, ApiError> {
-        let request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        decoder.dateDecodingStrategy = .formatted(formatter)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -245,7 +225,37 @@ enum ApiService {
             
             return data
         }
-        .decode(type: Goods.self, decoder: JSONDecoder())
+        .decode(type: GoodsList.self, decoder: decoder)
+        .mapError { error in
+            ApiError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func fetchGoodsDetail(id: Int) -> AnyPublisher<Goods, ApiError> {
+        let request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
+        
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        decoder.dateDecodingStrategy = .formatted(formatter)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw ApiError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw ApiError.authenticationFailure
+                } else {
+                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: Goods.self, decoder: decoder)
         .mapError { error in
             ApiError.convert(error: error)
         }
@@ -280,6 +290,11 @@ enum ApiService {
     static func fetchGoodsListFromCategory(id: Int) -> AnyPublisher<GoodsList, ApiError> {
         let request = URLRequest(url: APIURL.fetchGoodsListFromCategory.url(id: id)!)
         
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        decoder.dateDecodingStrategy = .formatted(formatter)
+        
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw ApiError.cannotNetworkConnect
@@ -295,7 +310,7 @@ enum ApiService {
             
             return data
         }
-        .decode(type: GoodsList.self, decoder: JSONDecoder())
+        .decode(type: GoodsList.self, decoder: decoder)
         .mapError { error in
             ApiError.convert(error: error)
         }

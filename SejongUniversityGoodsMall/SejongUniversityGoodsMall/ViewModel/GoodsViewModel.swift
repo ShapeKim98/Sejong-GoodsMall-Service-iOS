@@ -14,31 +14,21 @@ class GoodsViewModel: ObservableObject {
     
     @Published var error: ApiError?
     @Published var errorView: ErrorView?
-    @Published var goodsList: GoodsList = [Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
-                                           Goods(id: 1, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
-                                           Goods(id: 2, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0),
-                                           Goods(id: 3, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0)
-    ]
-    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "loading...", title: "loading...", color: "loading...", size: "loading...", price: 99999, seller: Seller(createdAt: "loading...", modifiedAt: "loading...", id: 0, name: "loading...", phoneNumber: "loading...", method: "loading..."), goodsImages: [], goodsInfos: [], description: "loading...", cartItemCount: 0)
+    @Published var goodsList: GoodsList = GoodsList()
+    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0)
     @Published var isGoodsListLoading: Bool = true
     @Published var isGoodsDetailLoading: Bool = true
     @Published var isCategoryLoading: Bool = true
     @Published var isCartGoodsListLoading: Bool = true
     @Published var isSendOrderGoodsLoading: Bool = false
     @Published var message: String?
-    @Published var pickUpCart: CartGoodsList = [CartGoodsResponse(id: 0, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup"),
-                                                CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup"),
-                                                CartGoodsResponse(id: 2, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "pickup")
-    ]
-    @Published var deliveryCart: CartGoodsList = [CartGoodsResponse(id: 0, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "delivery"),
-                                                  CartGoodsResponse(id: 1, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "delivery"),
-                                                  CartGoodsResponse(id: 2, memberID: 0, goodsID: 0, quantity: 0, color: "loading...", size: "loading...", price: 99999, title: "loading...", repImage: RepImage(id: 0, imgName: "loading...", oriImgName: "loading...", imgURL: "loading...", repImgURL: "loading..."), seller: "loading...", cartMethod: "delivery")
-    ]
-    @Published var seletedGoods: CartGoodsRequest = CartGoodsRequest(quantity: 0)
-    @Published var categoryList: CategoryList = [Category(id: 0, name: "loading..."),
-                                                 Category(id: 1, name: "loading..."),
-                                                 Category(id: 2, name: "loading..."),
-                                                 Category(id: 3, name: "loading...")
+    @Published var pickUpCart: CartGoodsList = CartGoodsList()
+    @Published var deliveryCart: CartGoodsList = CartGoodsList()
+    @Published var seletedGoods: CartGoodsRequest = CartGoodsRequest(quantity: 0, cartMethod: .pickUpOrder)
+    @Published var categoryList: CategoryList = [Category(id: 0, name: "PLACEHOLDER"),
+                                                 Category(id: 1, name: "PLACEHOLDER"),
+                                                 Category(id: 2, name: "PLACEHOLDER"),
+                                                 Category(id: 3, name: "PLACEHOLDER")
     ]
     @Published var cartGoodsSelections: [Int: Bool] = [Int: Bool]()
     @Published var selectedCartGoodsCount: Int = 0
@@ -55,7 +45,7 @@ class GoodsViewModel: ObservableObject {
     @Published var isOrderComplete: Bool = false
     
     func fetchGoodsList(id: Int? = nil) {
-        ApiService.fetchGoodsList(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchGoodsList(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -137,7 +127,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchCategory(token: String) {
-        ApiService.fetchCategory(token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchCategory(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -213,7 +203,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchGoodsListFromCatefory(id: Int) {
-        ApiService.fetchGoodsListFromCategory(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchGoodsListFromCategory(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -288,7 +278,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchGoodsDetail(id: Int) {
-        ApiService.fetchGoodsDetail(id: id).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchGoodsDetail(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -442,7 +432,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchCartGoods(token: String) {
-        ApiService.fetchCartGoods(token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchCartGoods(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -509,11 +499,11 @@ class GoodsViewModel: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
                     self.pickUpCart = cartGoodsList.filter({ goods in
-                        return goods.cartMethod == "pickup"
+                        return goods.cartMethod == .pickUpOrder
                     })
                     
                     self.deliveryCart = cartGoodsList.filter({ goods in
-                        return goods.cartMethod == "delivery"
+                        return goods.cartMethod == .deliveryOrder
                     })
                     
                     self.updateCartData()
@@ -547,7 +537,7 @@ class GoodsViewModel: ObservableObject {
                 }
         }
         
-        Publishers.MergeMany(publishers).eraseToAnyPublisher().receive(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        Publishers.MergeMany(publishers).eraseToAnyPublisher().subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -623,7 +613,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func deleteIndividualCartGoods(id: Int, token: String) {
-        ApiService.deleteCartGoods(id: id, token: token).receive(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        ApiService.deleteCartGoods(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -699,7 +689,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func updateCartGoods(id: Int, quantity: Int, token: String) {
-        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).receive(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -772,7 +762,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendOrderGoodsFromDetailGoods(buyerName: String, phoneNumber: String, address: Address?, token: String) {
-        ApiService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -851,7 +841,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendOrderGoodsFromCart(buyerName: String, phoneNumber: String, address: Address?, token: String) {
-        ApiService.sendOrderGoodsFromCart(cartIDList: self.cartIDList, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).receive(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        ApiService.sendOrderGoodsFromCart(cartIDList: self.cartIDList, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {

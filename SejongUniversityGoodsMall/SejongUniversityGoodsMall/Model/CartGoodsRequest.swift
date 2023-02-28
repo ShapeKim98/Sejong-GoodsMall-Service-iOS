@@ -11,5 +11,5 @@ struct CartGoodsRequest: Codable {
     var quantity: Int
     var color: String?
     var size: String?
-    var cartMethod: String?
+    var cartMethod: OrderType
 }

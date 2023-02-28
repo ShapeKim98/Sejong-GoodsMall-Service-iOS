@@ -34,6 +34,12 @@ struct OrderView: View {
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
+    private var orderCompleteCloseAction: () -> Void
+    
+    init(isPresented: Binding<Bool>, orderCompleteCloseAction: @escaping () -> Void) {
+        self._isPresented = isPresented
+        self.orderCompleteCloseAction = orderCompleteCloseAction
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -49,21 +55,19 @@ struct OrderView: View {
                         deliveryInformation()
                 }
                 
-//                LazyVGrid(columns: columns) {
-                    orderGoodsList()
-//                }
+                orderGoodsList()
                 
                 orderButton()
                     .padding(.top, 30)
                     .onAppear() {
                         orderPrice = 0
-                        if !goodsViewModel.cartIDList.isEmpty {
+                        if goodsViewModel.cartIDList.isEmpty {
                             goodsViewModel.orderGoods.forEach { goods in
-                                orderPrice += (goods.price * goods.quantity)
+                                orderPrice += (goods.price)
                             }
                         } else {
                             goodsViewModel.orderGoods.forEach { goods in
-                                orderPrice += (goods.price)
+                                orderPrice += (goods.price * goods.quantity)
                             }
                         }
                     }
@@ -490,10 +494,17 @@ struct OrderView: View {
                     Spacer()
                     
                     HStack {
-                        Text("\(goods.price * goods.quantity)원")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color("main-text-color"))
+                        if goodsViewModel.cartIDList.isEmpty {
+                            Text("\(goods.price)원")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(Color("main-text-color"))
+                        } else {
+                            Text("\(goods.price * goods.quantity)원")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(Color("main-text-color"))
+                        }
                         
                         Spacer()
                         
@@ -727,10 +738,7 @@ struct OrderView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    dismiss()
-                    goodsViewModel.isOrderComplete = false
-                } label: {
+                Button(action: orderCompleteCloseAction){
                     Label("닫기", systemImage: "xmark")
                         .labelStyle(.iconOnly)
                         .font(.footnote)
@@ -786,8 +794,10 @@ struct OrderView: View {
 
 struct OrderView_Previews: PreviewProvider {
     static var previews: some View {
-        OrderView(isPresented: .constant(false))
-            .environmentObject(LoginViewModel())
-            .environmentObject(GoodsViewModel())
+        OrderView(isPresented: .constant(false)) {
+            
+        }
+        .environmentObject(LoginViewModel())
+        .environmentObject(GoodsViewModel())
     }
 }

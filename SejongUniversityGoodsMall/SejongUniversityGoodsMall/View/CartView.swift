@@ -31,10 +31,24 @@ struct CartView: View {
             
             allSeletionAndDeleteSeleted()
             
-            cartGoodsList()
+            if (goodsViewModel.pickUpCart.isEmpty && goodsViewModel.isCartGoodsListLoading) || (goodsViewModel.deliveryCart.isEmpty && goodsViewModel.isCartGoodsListLoading) {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .padding()
+                    .tint(Color("main-highlight-color"))
+                    .unredacted()
+            } else {
+                cartGoodsList()
+            }
+            
+            Spacer()
             
             NavigationLink {
-                OrderView(isPresented: $showOrderView)
+                OrderView(isPresented: $showOrderView) {
+                    dismiss()
+                    showOrderView = false
+                    goodsViewModel.isOrderComplete = false
+                }
                     .onAppear() {
                         switch goodsViewModel.orderType {
                             case .pickUpOrder:
@@ -349,46 +363,44 @@ struct CartView: View {
     
     @ViewBuilder
     func cartGoodsList() -> some View {
-        VStack {
-            ScrollView {
-                LazyVGrid(columns: columns) {
-                    Rectangle()
-                        .fill(Color("shape-bkg-color"))
-                        .offset(y: scrollOffset < 0 ? scrollOffset : 0)
-                        .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
-                    
-                    switch goodsViewModel.orderType {
-                        case .pickUpOrder:
-                            ForEach(goodsViewModel.pickUpCart, id: \.id) { goods in
-                                subCartGoods(goods: goods)
-                                    .onAppear() {
-                                        if goodsViewModel.cartGoodsSelections[goods.id] == nil {
-                                            goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
-                                        }
+        ScrollView {
+            LazyVGrid(columns: columns) {
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .offset(y: scrollOffset < 0 ? scrollOffset : 0)
+                    .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
+                
+                switch goodsViewModel.orderType {
+                    case .pickUpOrder:
+                        ForEach(goodsViewModel.pickUpCart, id: \.id) { goods in
+                            subCartGoods(goods: goods)
+                                .onAppear() {
+                                    if goodsViewModel.cartGoodsSelections[goods.id] == nil {
+                                        goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
                                     }
-                            }
-                        case .deliveryOrder:
-                            ForEach(goodsViewModel.deliveryCart, id: \.id) { goods in
-                                subCartGoods(goods: goods)
-                                    .onAppear() {
-                                        if goodsViewModel.cartGoodsSelections[goods.id] == nil {
-                                            goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
-                                        }
+                                }
+                        }
+                    case .deliveryOrder:
+                        ForEach(goodsViewModel.deliveryCart, id: \.id) { goods in
+                            subCartGoods(goods: goods)
+                                .onAppear() {
+                                    if goodsViewModel.cartGoodsSelections[goods.id] == nil {
+                                        goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
                                     }
-                            }
-                    }
-                }
-                .background {
-                    GeometryReader { reader in
-                        let offset = -reader.frame(in: .named("SCROLL")).minY
-                        Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
-                    }
+                                }
+                        }
                 }
             }
-            .coordinateSpace(name: "SCROLL")
-            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-                scrollOffset = value
+            .background {
+                GeometryReader { reader in
+                    let offset = -reader.frame(in: .named("SCROLL")).minY
+                    Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                }
             }
+        }
+        .coordinateSpace(name: "SCROLL")
+        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+            scrollOffset = value
         }
     }
     

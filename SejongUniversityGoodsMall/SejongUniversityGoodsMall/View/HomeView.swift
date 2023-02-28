@@ -41,7 +41,17 @@ struct HomeView: View {
                             
                             categorySelection()
                             
-                            goodList()
+                            if goodsViewModel.goodsList.isEmpty {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                    .padding()
+                                    .tint(Color("main-highlight-color"))
+                                    .unredacted()
+                            } else {
+                                goodList()
+                            }
+                            
+                            Spacer()
                         }
                     }
                     .navigationTitle("")
@@ -69,7 +79,17 @@ struct HomeView: View {
                             
                             categorySelection()
                             
-                            goodList()
+                            if goodsViewModel.goodsList.isEmpty {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                    .padding()
+                                    .tint(Color("main-highlight-color"))
+                                    .unredacted()
+                            } else {
+                                goodList()
+                            }
+                            
+                            Spacer()
                         }
                     }
                     .navigationTitle("")

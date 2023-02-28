@@ -86,6 +86,7 @@ struct AppView: View {
             .overlay {
                 if let errorView = goodsViewModel.errorView {
                     errorView
+                        .transition(.opacity.animation(.easeInOut))
                 }
             }
             .onChange(of: networkManager.isConnected) { newValue in
