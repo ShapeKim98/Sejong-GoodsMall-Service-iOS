@@ -408,6 +408,7 @@ struct CartView: View {
                         .labelStyle(.iconOnly)
                         .foregroundColor(goodsViewModel.cartGoodsSelections[goods.id] ?? false ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                 }
+                
                 NavigationLink {
                     GoodsDetailView()
                         .onAppear(){
@@ -446,54 +447,54 @@ struct CartView: View {
                     }
                 }
                 
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            Text(goods.title)
-                                .foregroundColor(Color("main-text-color"))
-                                .padding(.trailing)
-                            
-                            Group {
-                                if let color = goods.color, let size = goods.size {
-                                    Text("\(color), \(size)")
-                                } else {
-                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
-                                }
-                            }
-                            .font(.caption.bold())
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        Text(goods.title)
                             .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
-                            }
-                            
-                            Spacer()
-                            
-                            Button {
-                                withAnimation(.spring()) {
-                                    goodsViewModel.deleteIndividualCartGoods(id: goods.id, token: loginViewModel.returnToken())
-                                }
-                            } label: {
-                                Label("삭제", systemImage: "xmark")
-                                    .labelStyle(.iconOnly)
-                                    .frame(minWidth: 21, minHeight: 21)
-                                    .foregroundColor(Color("main-text-color"))
-                            }
-                            .unredacted()
-                        }
-                        .padding(.bottom, 10)
+                            .padding(.trailing)
                         
-                        HStack {
-                            Text(goods.seller)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color("point-color"))
-                            
-                            Spacer()
+                        Group {
+                            if let color = goods.color, let size = goods.size {
+                                Text("\(color), \(size)")
+                            } else {
+                                Text("\(goods.color ?? "")\(goods.size ?? "")")
+                            }
+                        }
+                        .font(.caption.bold())
+                        .foregroundColor(Color("main-text-color"))
+                        .padding(.leading)
+                        .background(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color("main-text-color"))
+                                .frame(width: 1)
                         }
                         
                         Spacer()
+                        
+                        Button {
+                            withAnimation(.spring()) {
+                                goodsViewModel.deleteIndividualCartGoods(id: goods.id, token: loginViewModel.returnToken())
+                            }
+                        } label: {
+                            Label("삭제", systemImage: "xmark")
+                                .labelStyle(.iconOnly)
+                                .frame(minWidth: 21, minHeight: 21)
+                                .foregroundColor(Color("main-text-color"))
+                        }
+                        .unredacted()
+                    }
+                    .padding(.bottom, 10)
+                    
+                    HStack {
+                        Text(goods.seller)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color("point-color"))
+                        
+                        Spacer()
+                    }
+                    
+                    Spacer()
                     
                     HStack {
                         Button {

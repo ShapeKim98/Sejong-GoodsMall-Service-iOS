@@ -38,7 +38,6 @@ struct GoodsDetailView: View {
                                 .shadow(radius: 1)
                         } else {
                             imageView(height: reader.size.width)
-                                .matchedGeometryEffect(id: "이미지", in: heroEffect)
                                 .unredacted()
                         }
                         
@@ -299,5 +298,7 @@ struct GoodsDetailView_Previews: PreviewProvider {
     static var previews: some View {
         GoodsDetailView()
             .environmentObject(GoodsViewModel())
+            .environmentObject(LoginViewModel())
+            .environmentObject(AppViewModel())
     }
 }

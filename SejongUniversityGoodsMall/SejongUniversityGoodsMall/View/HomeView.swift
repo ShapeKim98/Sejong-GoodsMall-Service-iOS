@@ -22,6 +22,7 @@ struct HomeView: View {
     
     init(currentCategory: Binding<Category>) {
         self._currentCategory = currentCategory
+        UIRefreshControl.appearance().tintColor = UIColor(Color("main-highlight-color"))
         
         if #available(iOS 16.0, *) {
             
