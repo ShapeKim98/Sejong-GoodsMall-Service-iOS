@@ -46,6 +46,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.signUp()
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -56,6 +60,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.signUp()
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -66,6 +74,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.signUp()
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -123,6 +135,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.signIn(email: email, password: password)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -133,6 +149,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.signIn(email: email, password: password)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -143,6 +163,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.signIn(email: email, password: password)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -201,6 +225,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchFindEmail()
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -211,6 +239,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchFindEmail()
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break
@@ -221,6 +253,10 @@ class LoginViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchFindEmail()
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.isLoading = false
                                 })
                             }
                             break

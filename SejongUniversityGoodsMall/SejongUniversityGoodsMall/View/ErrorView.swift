@@ -13,13 +13,28 @@ struct ErrorView: View {
     @EnvironmentObject var networkManager: NetworkManager
     
     private let retryAction: () -> Void
+    private let closeAction: () -> Void
     
-    init(retryAction: @escaping () -> Void) {
+    init(retryAction: @escaping () -> Void, closeAction: @escaping () -> Void) {
         self.retryAction = retryAction
+        self.closeAction = closeAction
     }
     
     var body: some View {
         VStack {
+            if networkManager.isConnected {
+                HStack {
+                    Spacer()
+                    
+                    Button(action: closeAction) {
+                        Label("닫기", systemImage: "xmark")
+                            .labelStyle(.iconOnly)
+                            .foregroundColor(Color("main-text-color"))
+                            .padding()
+                    }
+                }
+            }
+            
             Spacer()
             
             HStack {
@@ -292,7 +307,7 @@ struct ErrorView: View {
 
 struct ErrorView_Previews: PreviewProvider {
     static var previews: some View {
-        ErrorView(retryAction: {})
+        ErrorView(retryAction: {}, closeAction: {})
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
             .environmentObject(NetworkManager())

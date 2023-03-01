@@ -53,7 +53,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: {})
+                                self.errorView = ErrorView(retryAction: {}, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -64,6 +67,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -74,6 +80,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -84,6 +93,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -106,6 +118,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -135,7 +150,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -146,6 +164,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -156,6 +177,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -166,6 +190,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -182,6 +209,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -211,7 +241,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -222,6 +255,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -232,6 +268,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -242,6 +281,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -258,6 +300,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -286,7 +331,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -297,6 +345,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -307,6 +358,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -317,6 +371,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -333,6 +390,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -376,6 +436,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -386,6 +449,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -396,6 +462,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -412,6 +481,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -440,7 +512,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -451,6 +526,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -461,6 +539,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -471,6 +552,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -487,6 +571,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -556,6 +643,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -566,6 +656,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -576,6 +669,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -592,6 +688,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -632,6 +731,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -642,6 +744,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -652,6 +757,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -668,6 +776,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -708,6 +819,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -718,6 +832,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -728,6 +845,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -744,6 +864,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -770,7 +893,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                                 self.isSendOrderGoodsLoading = false
                             }
                             print("접근 권한이 없습니다")
@@ -782,6 +908,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -792,6 +921,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -802,6 +934,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -819,6 +954,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -850,7 +988,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                                 self.isSendOrderGoodsLoading = false
                             }
                             print("접근 권한이 없습니다")
@@ -862,6 +1003,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -872,6 +1016,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -882,6 +1029,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -899,6 +1049,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")

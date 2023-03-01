@@ -96,8 +96,8 @@ struct AppView: View {
             }
             .onChange(of: networkManager.isConnected) { newValue in
                 if !newValue {
-                    goodsViewModel.errorView = ErrorView(retryAction: {})
-                    loginViewModel.errorView = ErrorView(retryAction: {})
+                    goodsViewModel.errorView = ErrorView(retryAction: {}, closeAction: {})
+                    loginViewModel.errorView = ErrorView(retryAction: {}, closeAction: {})
                 } else {
                     goodsViewModel.errorView = nil
                     loginViewModel.errorView = nil
