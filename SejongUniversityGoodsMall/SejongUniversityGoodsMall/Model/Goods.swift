@@ -68,10 +68,4 @@ struct GoodsInfo: Codable {
     }
 }
 
-struct Seller: Codable {
-    let createdAt, modifiedAt: String
-    let id: Int
-    let name, phoneNumber, method: String
-}
-
 typealias GoodsList = [Goods]

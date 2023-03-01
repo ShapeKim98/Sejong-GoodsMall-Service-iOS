@@ -18,7 +18,6 @@ struct CartView: View {
     
     @State private var isAllSelected: Bool = false
     @State private var scrollOffset: CGFloat = .zero
-    @State private var showOrderView: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -31,36 +30,20 @@ struct CartView: View {
             
             allSeletionAndDeleteSeleted()
             
-            cartGoodsList()
+            if (goodsViewModel.pickUpCart.isEmpty && goodsViewModel.isCartGoodsListLoading) || (goodsViewModel.deliveryCart.isEmpty && goodsViewModel.isCartGoodsListLoading) {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .padding()
+                    .tint(Color("main-highlight-color"))
+                    .unredacted()
+            } else {
+                cartGoodsList()
+            }
             
-            NavigationLink {
-                OrderView(isPresented: $showOrderView)
-                    .onAppear() {
-                        switch goodsViewModel.orderType {
-                            case .pickUpOrder:
-                                goodsViewModel.pickUpCart.forEach { goods in
-                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                        goodsViewModel.cartIDList.append(goods.id)
-                                        goodsViewModel.orderGoodsListFromCart.append(goods)
-                                    }
-                                }
-                                
-                                break
-                            case .deliveryOrder:
-                                goodsViewModel.deliveryCart.forEach { goods in
-                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                        goodsViewModel.cartIDList.append(goods.id)
-                                        goodsViewModel.orderGoodsListFromCart.append(goods)
-                                    }
-                                }
-                        }
-                    }
-                    .onDisappear() {
-                        goodsViewModel.cartGoodsSelections.removeAll()
-                        goodsViewModel.updateCartData()
-                    }
+            Spacer()
+            
+            Button {
+                goodsViewModel.showOrderView = true
             } label: {
                 HStack {
                     Spacer()
@@ -135,6 +118,86 @@ struct CartView: View {
                 }
             } else {
                 goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
+            }
+        }
+        .fullScreenCover(isPresented: $goodsViewModel.showOrderView) {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    OrderView()
+                        .onAppear() {
+                            switch goodsViewModel.orderType {
+                                case .pickUpOrder:
+                                    goodsViewModel.pickUpCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                                    
+                                    break
+                                case .deliveryOrder:
+                                    goodsViewModel.deliveryCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                            }
+                        }
+                        .onDisappear() {
+                            goodsViewModel.cartGoodsSelections.removeAll()
+                            goodsViewModel.updateCartData()
+                        }
+                }
+            } else {
+                NavigationView {
+                    OrderView()
+                        .onAppear() {
+                            switch goodsViewModel.orderType {
+                                case .pickUpOrder:
+                                    goodsViewModel.pickUpCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                                    
+                                    break
+                                case .deliveryOrder:
+                                    goodsViewModel.deliveryCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                            }
+                        }
+                        .onDisappear() {
+                            goodsViewModel.cartGoodsSelections.removeAll()
+                            goodsViewModel.updateCartData()
+                        }
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $goodsViewModel.isOrderComplete) {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    OrderCompleteView {
+                        dismiss()
+                        goodsViewModel.isOrderComplete = false
+                    }
+                }
+            } else {
+                NavigationView {
+                    OrderCompleteView {
+                        dismiss()
+                        goodsViewModel.isOrderComplete = false
+                    }
+                }
             }
         }
     }
@@ -349,46 +412,44 @@ struct CartView: View {
     
     @ViewBuilder
     func cartGoodsList() -> some View {
-        VStack {
-            ScrollView {
-                LazyVGrid(columns: columns) {
-                    Rectangle()
-                        .fill(Color("shape-bkg-color"))
-                        .offset(y: scrollOffset < 0 ? scrollOffset : 0)
-                        .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
-                    
-                    switch goodsViewModel.orderType {
-                        case .pickUpOrder:
-                            ForEach(goodsViewModel.pickUpCart, id: \.id) { goods in
-                                subCartGoods(goods: goods)
-                                    .onAppear() {
-                                        if goodsViewModel.cartGoodsSelections[goods.id] == nil {
-                                            goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
-                                        }
+        ScrollView {
+            LazyVGrid(columns: columns) {
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .offset(y: scrollOffset < 0 ? scrollOffset : 0)
+                    .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
+                
+                switch goodsViewModel.orderType {
+                    case .pickUpOrder:
+                        ForEach(goodsViewModel.pickUpCart, id: \.id) { goods in
+                            subCartGoods(goods: goods)
+                                .onAppear() {
+                                    if goodsViewModel.cartGoodsSelections[goods.id] == nil {
+                                        goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
                                     }
-                            }
-                        case .deliveryOrder:
-                            ForEach(goodsViewModel.deliveryCart, id: \.id) { goods in
-                                subCartGoods(goods: goods)
-                                    .onAppear() {
-                                        if goodsViewModel.cartGoodsSelections[goods.id] == nil {
-                                            goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
-                                        }
+                                }
+                        }
+                    case .deliveryOrder:
+                        ForEach(goodsViewModel.deliveryCart, id: \.id) { goods in
+                            subCartGoods(goods: goods)
+                                .onAppear() {
+                                    if goodsViewModel.cartGoodsSelections[goods.id] == nil {
+                                        goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
                                     }
-                            }
-                    }
-                }
-                .background {
-                    GeometryReader { reader in
-                        let offset = -reader.frame(in: .named("SCROLL")).minY
-                        Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
-                    }
+                                }
+                        }
                 }
             }
-            .coordinateSpace(name: "SCROLL")
-            .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-                scrollOffset = value
+            .background {
+                GeometryReader { reader in
+                    let offset = -reader.frame(in: .named("SCROLL")).minY
+                    Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                }
             }
+        }
+        .coordinateSpace(name: "SCROLL")
+        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
+            scrollOffset = value
         }
     }
     
@@ -408,6 +469,7 @@ struct CartView: View {
                         .labelStyle(.iconOnly)
                         .foregroundColor(goodsViewModel.cartGoodsSelections[goods.id] ?? false ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                 }
+                
                 NavigationLink {
                     GoodsDetailView()
                         .onAppear(){
@@ -446,54 +508,54 @@ struct CartView: View {
                     }
                 }
                 
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            Text(goods.title)
-                                .foregroundColor(Color("main-text-color"))
-                                .padding(.trailing)
-                            
-                            Group {
-                                if let color = goods.color, let size = goods.size {
-                                    Text("\(color), \(size)")
-                                } else {
-                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
-                                }
-                            }
-                            .font(.caption.bold())
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        Text(goods.title)
                             .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
-                            }
-                            
-                            Spacer()
-                            
-                            Button {
-                                withAnimation(.spring()) {
-                                    goodsViewModel.deleteIndividualCartGoods(id: goods.id, token: loginViewModel.returnToken())
-                                }
-                            } label: {
-                                Label("삭제", systemImage: "xmark")
-                                    .labelStyle(.iconOnly)
-                                    .frame(minWidth: 21, minHeight: 21)
-                                    .foregroundColor(Color("main-text-color"))
-                            }
-                            .unredacted()
-                        }
-                        .padding(.bottom, 10)
+                            .padding(.trailing)
                         
-                        HStack {
-                            Text(goods.seller)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color("point-color"))
-                            
-                            Spacer()
+                        Group {
+                            if let color = goods.color, let size = goods.size {
+                                Text("\(color), \(size)")
+                            } else {
+                                Text("\(goods.color ?? "")\(goods.size ?? "")")
+                            }
+                        }
+                        .font(.caption.bold())
+                        .foregroundColor(Color("main-text-color"))
+                        .padding(.leading)
+                        .background(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color("main-text-color"))
+                                .frame(width: 1)
                         }
                         
                         Spacer()
+                        
+                        Button {
+                            withAnimation(.spring()) {
+                                goodsViewModel.deleteIndividualCartGoods(id: goods.id, token: loginViewModel.returnToken())
+                            }
+                        } label: {
+                            Label("삭제", systemImage: "xmark")
+                                .labelStyle(.iconOnly)
+                                .frame(minWidth: 21, minHeight: 21)
+                                .foregroundColor(Color("main-text-color"))
+                        }
+                        .unredacted()
+                    }
+                    .padding(.bottom, 10)
+                    
+                    HStack {
+                        Text(goods.seller)
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color("point-color"))
+                        
+                        Spacer()
+                    }
+                    
+                    Spacer()
                     
                     HStack {
                         Button {

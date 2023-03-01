@@ -15,7 +15,7 @@ struct CartGoodsResponse: Codable, Identifiable {
     let title: String
     let repImage: RepImage
     let seller: String
-    let cartMethod: String
+    let cartMethod: OrderType
 
     enum CodingKeys: String, CodingKey {
         case id

@@ -10,5 +10,5 @@ import Foundation
 struct OrderItem: Codable, Hashable {
     let color, size: String?
     let quantity, price: Int
-    var seller: SellerForOrderGoodsResponse?
+    var seller: Seller?
 }

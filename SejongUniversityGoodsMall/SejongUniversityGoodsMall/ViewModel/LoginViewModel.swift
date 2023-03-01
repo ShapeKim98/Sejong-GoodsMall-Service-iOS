@@ -28,7 +28,7 @@ class LoginViewModel: ObservableObject {
     @Published var memberID: Int?
     
     func signUp() {
-        ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -103,7 +103,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-        ApiService.fetchSignIn(email: email, password: password).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchSignIn(email: email, password: password).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -183,7 +183,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func fetchFindEmail() {
-        ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).receive(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -244,7 +244,6 @@ class LoginViewModel: ObservableObject {
                 self.isLoading = false
                 withAnimation(.spring()) {
                     self.findComplete = true
-                    self.showLoginView = false
                 }
             }
             print(findEmailResponse)

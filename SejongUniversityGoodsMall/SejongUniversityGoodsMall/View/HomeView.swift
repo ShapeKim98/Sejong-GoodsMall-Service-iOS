@@ -22,6 +22,7 @@ struct HomeView: View {
     
     init(currentCategory: Binding<Category>) {
         self._currentCategory = currentCategory
+        UIRefreshControl.appearance().tintColor = UIColor(Color("main-highlight-color"))
         
         if #available(iOS 16.0, *) {
             
@@ -40,11 +41,22 @@ struct HomeView: View {
                             
                             categorySelection()
                             
-                            goodList()
+                            if goodsViewModel.goodsList.isEmpty {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                    .padding()
+                                    .tint(Color("main-highlight-color"))
+                                    .unredacted()
+                            } else {
+                                goodList()
+                            }
+                            
+                            Spacer()
                         }
                     }
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()
+                    .ignoresSafeArea(edges: .bottom)
                 }
                 .tint(Color("main-text-color"))
                 .overlay {
@@ -68,11 +80,22 @@ struct HomeView: View {
                             
                             categorySelection()
                             
-                            goodList()
+                            if goodsViewModel.goodsList.isEmpty {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                    .padding()
+                                    .tint(Color("main-highlight-color"))
+                                    .unredacted()
+                            } else {
+                                goodList()
+                            }
+                            
+                            Spacer()
                         }
                     }
                     .navigationTitle("")
                     .navigationBarHidden(true)
+                    .ignoresSafeArea(edges: .bottom)
                 }
                 .navigationViewStyle(.stack)
                 .overlay {
