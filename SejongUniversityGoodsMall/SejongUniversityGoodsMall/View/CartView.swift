@@ -18,7 +18,6 @@ struct CartView: View {
     
     @State private var isAllSelected: Bool = false
     @State private var scrollOffset: CGFloat = .zero
-    @State private var showOrderView: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -43,38 +42,8 @@ struct CartView: View {
             
             Spacer()
             
-            NavigationLink {
-                OrderView(isPresented: $showOrderView) {
-                    dismiss()
-                    showOrderView = false
-                    goodsViewModel.isOrderComplete = false
-                }
-                    .onAppear() {
-                        switch goodsViewModel.orderType {
-                            case .pickUpOrder:
-                                goodsViewModel.pickUpCart.forEach { goods in
-                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                        goodsViewModel.cartIDList.append(goods.id)
-                                        goodsViewModel.orderGoodsListFromCart.append(goods)
-                                    }
-                                }
-                                
-                                break
-                            case .deliveryOrder:
-                                goodsViewModel.deliveryCart.forEach { goods in
-                                    if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                        goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                        goodsViewModel.cartIDList.append(goods.id)
-                                        goodsViewModel.orderGoodsListFromCart.append(goods)
-                                    }
-                                }
-                        }
-                    }
-                    .onDisappear() {
-                        goodsViewModel.cartGoodsSelections.removeAll()
-                        goodsViewModel.updateCartData()
-                    }
+            Button {
+                goodsViewModel.showOrderView = true
             } label: {
                 HStack {
                     Spacer()
@@ -149,6 +118,86 @@ struct CartView: View {
                 }
             } else {
                 goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
+            }
+        }
+        .fullScreenCover(isPresented: $goodsViewModel.showOrderView) {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    OrderView()
+                        .onAppear() {
+                            switch goodsViewModel.orderType {
+                                case .pickUpOrder:
+                                    goodsViewModel.pickUpCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                                    
+                                    break
+                                case .deliveryOrder:
+                                    goodsViewModel.deliveryCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                            }
+                        }
+                        .onDisappear() {
+                            goodsViewModel.cartGoodsSelections.removeAll()
+                            goodsViewModel.updateCartData()
+                        }
+                }
+            } else {
+                NavigationView {
+                    OrderView()
+                        .onAppear() {
+                            switch goodsViewModel.orderType {
+                                case .pickUpOrder:
+                                    goodsViewModel.pickUpCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                                    
+                                    break
+                                case .deliveryOrder:
+                                    goodsViewModel.deliveryCart.forEach { goods in
+                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.cartIDList.append(goods.id)
+                                            goodsViewModel.orderGoodsListFromCart.append(goods)
+                                        }
+                                    }
+                            }
+                        }
+                        .onDisappear() {
+                            goodsViewModel.cartGoodsSelections.removeAll()
+                            goodsViewModel.updateCartData()
+                        }
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $goodsViewModel.isOrderComplete) {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    OrderCompleteView {
+                        dismiss()
+                        goodsViewModel.isOrderComplete = false
+                    }
+                }
+            } else {
+                NavigationView {
+                    OrderCompleteView {
+                        dismiss()
+                        goodsViewModel.isOrderComplete = false
+                    }
+                }
             }
         }
     }

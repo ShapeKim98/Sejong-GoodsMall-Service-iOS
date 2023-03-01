@@ -8,12 +8,8 @@
 import SwiftUI
 
 struct OrderView: View {
-    @Environment(\.dismiss) var dismiss
-    
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
-    
-    @Binding var isPresented: Bool
     
     @FocusState private var currentField: FocusedTextField?
     
@@ -29,17 +25,10 @@ struct OrderView: View {
     @State private var detailAddress: String = ""
     @State private var deliveryRequirements: String = ""
     @State private var showFindAddressView: Bool = false
-    @State private var limitDate: String = ""
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
-    private var orderCompleteCloseAction: () -> Void
-    
-    init(isPresented: Binding<Bool>, orderCompleteCloseAction: @escaping () -> Void) {
-        self._isPresented = isPresented
-        self.orderCompleteCloseAction = orderCompleteCloseAction
-    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -73,30 +62,14 @@ struct OrderView: View {
                     }
             }
         }
+        .navigationTitle("주문서 작성")
+        .navigationBarTitleDisplayMode(.inline)
+        .modifier(NavigationColorModifier())
         .background(.white)
         .onDisappear() {
             goodsViewModel.orderGoods.removeAll()
             goodsViewModel.orderGoodsListFromCart.removeAll()
             goodsViewModel.cartIDList.removeAll()
-        }
-        .fullScreenCover(isPresented: $goodsViewModel.isOrderComplete) {
-            if #available(iOS 16.0, *) {
-                NavigationStack {
-                    orderCompleteView()
-                        .navigationTitle("주문완료")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
-                        .background(.white)
-                }
-            } else {
-                NavigationView {
-                    orderCompleteView()
-                        .navigationTitle("주문완료")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
-                        .background(.white)
-                }
-            }
         }
     }
     
@@ -681,122 +654,11 @@ struct OrderView: View {
             .padding(.bottom, 20)
         }
     }
-    
-    @ViewBuilder
-    func orderCompleteView() -> some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(Color("shape-bkg-color"))
-                    .frame(height: 10)
-                
-                Text("상품 주문이 완료되었습니다.")
-                    .font(.title3)
-                    .padding(.top)
-                
-                Text("입금 기한: \(limitDate) 까지")
-                    .foregroundColor(Color("main-highlight-color"))
-                    .padding(.vertical)
-                    .onAppear() {
-                        if let date = goodsViewModel.orderCompleteGoods?.createdAt {
-                            let formatter = DateFormatter()
-                            formatter.dateFormat = "yyyy.MM.dd HH시 mm분"
-                            limitDate = formatter.string(from: date.addingTimeInterval(3600 * 24 * 2 + 3600 * 9))
-                        }
-                    }
-                
-                LazyVGrid(columns: columns) {
-                    if let orderCompletGoods = goodsViewModel.orderCompleteGoods?.orderItems {
-                        ForEach(orderCompletGoods, id: \.hashValue) { goods in
-                            orderCompleteGoods(goods: goods)
-                        }
-                    }
-                }
-                
-                Button {
-                    
-                } label: {
-                    HStack {
-                        Spacer()
-                        
-                        Text("주문 내역 확인하기")
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding()
-                        
-                        Spacer()
-                    }
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(Color("main-highlight-color"))
-                    }
-                }
-                .padding([.horizontal, .bottom])
-                .padding(.vertical, 20)
-                .padding(.top, 20)
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: orderCompleteCloseAction){
-                    Label("닫기", systemImage: "xmark")
-                        .labelStyle(.iconOnly)
-                        .font(.footnote)
-                        .foregroundColor(Color("main-text-color"))
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func orderCompleteGoods(goods: OrderItem) -> some View {
-        VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
-                       
-            subOrderGoods(goods: goods)
-            
-            if let seller = goods.seller {
-                Group {
-                    orderCompleteInfo(title: "예금주", content: seller.accountHolder)
-                    
-                    orderCompleteInfo(title: "입금은행", content: seller.bank)
-                    
-                    orderCompleteInfo(title: "계좌번호", content: seller.account)
-                }
-                .padding(.horizontal)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func orderCompleteInfo(title: String, content: String) -> some View {
-        HStack {
-            Text(title)
-                .foregroundColor(Color("secondary-text-color-strong"))
-                .frame(minWidth: 100)
-            
-            Text(content)
-                .foregroundColor(Color("main-text-color"))
-                .textSelection(.enabled)
-            
-            Spacer()
-        }
-        .padding(.vertical)
-        .background(alignment: .bottom) {
-            Rectangle()
-                .foregroundColor(Color("shape-bkg-color"))
-                .frame(height: 1)
-        }
-    }
 }
 
 struct OrderView_Previews: PreviewProvider {
     static var previews: some View {
-        OrderView(isPresented: .constant(false)) {
-            
-        }
+        OrderView()
         .environmentObject(LoginViewModel())
         .environmentObject(GoodsViewModel())
     }

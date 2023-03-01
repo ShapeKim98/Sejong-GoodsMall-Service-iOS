@@ -43,6 +43,7 @@ class GoodsViewModel: ObservableObject {
     @Published var orderCompleteGoodsList = OrderGoodsRespnoseList()
     @Published var orderCompleteGoods: OrderGoodsRespnose?
     @Published var isOrderComplete: Bool = false
+    @Published var showOrderView: Bool = false
     
     func fetchGoodsList(id: Int? = nil) {
         ApiService.fetchGoodsList(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
@@ -358,7 +359,7 @@ class GoodsViewModel: ObservableObject {
             return
         }
         
-        ApiService.sendCartGoods(goods: seletedGoods, goodsID: goodsDetail.id, token: token).receive(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
+        ApiService.sendCartGoods(goods: seletedGoods, goodsID: goodsDetail.id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
@@ -834,6 +835,7 @@ class GoodsViewModel: ObservableObject {
                 self.cartIDList.removeAll()
                 self.orderCompleteGoods = goods
                 self.isSendOrderGoodsLoading = false
+                self.showOrderView = false
                 self.isOrderComplete = true
             }
         }
@@ -913,6 +915,7 @@ class GoodsViewModel: ObservableObject {
                 self.cartIDList.removeAll()
                 self.orderCompleteGoods = goods
                 self.isSendOrderGoodsLoading = false
+                self.showOrderView = false
                 self.isOrderComplete = true
             }
         }

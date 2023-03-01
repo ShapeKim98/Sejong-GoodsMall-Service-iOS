@@ -56,6 +56,7 @@ struct HomeView: View {
                     }
                     .navigationTitle("")
                     .navigationBarBackButtonHidden()
+                    .ignoresSafeArea(edges: .bottom)
                 }
                 .tint(Color("main-text-color"))
                 .overlay {
@@ -94,6 +95,7 @@ struct HomeView: View {
                     }
                     .navigationTitle("")
                     .navigationBarHidden(true)
+                    .ignoresSafeArea(edges: .bottom)
                 }
                 .navigationViewStyle(.stack)
                 .overlay {

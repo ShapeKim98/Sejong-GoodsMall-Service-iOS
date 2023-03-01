@@ -44,6 +44,7 @@
 		C5BB655B299F84320083CA69 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5BB655A299F84320083CA69 /* Launch Screen.storyboard */; };
 		C5C5402A2997BC4E00EF9AEC /* CartGoodsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C540292997BC4E00EF9AEC /* CartGoodsRequest.swift */; };
 		C5C576F529AE10B30040627D /* Seller.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C576F429AE10B30040627D /* Seller.swift */; };
+		C5C576F729AF279F0040627D /* OrderCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C576F629AF279F0040627D /* OrderCompleteView.swift */; };
 		C5C73AD02983B57700D42719 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73ACF2983B57700D42719 /* LoginView.swift */; };
 		C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AD12983CE5100D42719 /* SignUpView.swift */; };
 		C5C73AEE2986542B00D42719 /* Goods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C73AED2986542B00D42719 /* Goods.swift */; };
@@ -105,6 +106,7 @@
 		C5BB655A299F84320083CA69 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		C5C540292997BC4E00EF9AEC /* CartGoodsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartGoodsRequest.swift; sourceTree = "<group>"; };
 		C5C576F429AE10B30040627D /* Seller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Seller.swift; sourceTree = "<group>"; };
+		C5C576F629AF279F0040627D /* OrderCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderCompleteView.swift; sourceTree = "<group>"; };
 		C5C73ACF2983B57700D42719 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		C5C73AD12983CE5100D42719 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		C5C73AED2986542B00D42719 /* Goods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goods.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				C592F317299A2857003CF15E /* CartView.swift */,
 				C592F31B299B4D17003CF15E /* UserInformationView.swift */,
 				C5231D1F29A2135600A720DC /* OrderView.swift */,
+				C5C576F629AF279F0040627D /* OrderCompleteView.swift */,
 				C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */,
 				C592F31D299B51E2003CF15E /* WishListView.swift */,
 				C5543B5929A6483C008D0FEC /* ErrorView.swift */,
@@ -392,6 +395,7 @@
 				C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
 				C5231D2429A2281100A720DC /* OrderType.swift in Sources */,
+				C5C576F729AF279F0040627D /* OrderCompleteView.swift in Sources */,
 				C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */,
 				C5D32C7929794C4A00644BFD /* AppView.swift in Sources */,
 				C5231D2229A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift in Sources */,

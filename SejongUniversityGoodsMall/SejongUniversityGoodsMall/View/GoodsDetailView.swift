@@ -29,7 +29,6 @@ struct GoodsDetailView: View {
     @State private var showHelpAlert: Bool = false
     @State private var vibrateOffset: CGFloat = 0
     @State private var scrollOffset: CGFloat = .zero
-    @State private var isPresented: Bool = false
     @State private var isWished: Bool = false
     
     var body: some View {
@@ -126,17 +125,13 @@ struct GoodsDetailView: View {
                     }
                 }
             }
-            .fullScreenCover(isPresented: $isPresented) {
+            .fullScreenCover(isPresented: $goodsViewModel.showOrderView) {
                 NavigationView {
-                    OrderView(isPresented: $isPresented) {
-                        dismiss()
-                        isPresented = false
-                        goodsViewModel.isOrderComplete = false
-                    }
+                    OrderView()
                         .toolbar {
                             ToolbarItem(placement: .navigationBarTrailing) {
                                 Button {
-                                    isPresented = false
+                                    goodsViewModel.showOrderView = false
                                 } label: {
                                     Label("닫기", systemImage: "xmark")
                                         .labelStyle(.iconOnly)
@@ -145,12 +140,26 @@ struct GoodsDetailView: View {
                                 }
                             }
                         }
-                        .navigationTitle("주문서 작성")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
                         .onAppear() {
                             goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
                         }
+                }
+            }
+            .fullScreenCover(isPresented: $goodsViewModel.isOrderComplete) {
+                if #available(iOS 16.0, *) {
+                    NavigationStack {
+                        OrderCompleteView {
+                            dismiss()
+                            goodsViewModel.isOrderComplete = false
+                        }
+                    }
+                } else {
+                    NavigationView {
+                        OrderCompleteView {
+                            dismiss()
+                            goodsViewModel.isOrderComplete = false
+                        }
+                    }
                 }
             }
             .onDisappear() {
@@ -604,7 +613,7 @@ struct GoodsDetailView: View {
                                             appViewModel.showMessageBox = false
                                             
                                             goodsViewModel.orderType = .pickUpOrder
-                                            isPresented = true
+                                            goodsViewModel.showOrderView = true
                                         }
                                     }
                                     appViewModel.messageBoxSecondaryButtonAction = {
@@ -614,7 +623,7 @@ struct GoodsDetailView: View {
                                         }
                                         
                                         goodsViewModel.orderType = .deliveryOrder
-                                        isPresented = true
+                                        goodsViewModel.showOrderView = true
                                     }
                                     appViewModel.messageBoxCloseButtonAction = {
                                         appViewModel.messageBoxTitle = ""
@@ -646,7 +655,7 @@ struct GoodsDetailView: View {
                                             appViewModel.showMessageBox = false
                                             
                                             goodsViewModel.orderType = goodsViewModel.goodsDetail.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
-                                            isPresented = true
+                                            goodsViewModel.showOrderView = true
                                         }
                                     }
                                     appViewModel.messageBoxSecondaryButtonAction = {
@@ -738,15 +747,6 @@ struct GoodsDetailView: View {
                 .background(.white)
         }
         .background(.clear)
-//        .modifier(ShowOrderViewModifier(isPresented: $isPresented, destination: {
-//            OrderView(isPresented: $isPresented)
-//                .navigationTitle("주문서 작성")
-//                .navigationBarTitleDisplayMode(.inline)
-//                .modifier(NavigationColorModifier())
-//                .onAppear() {
-//                    goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
-//                }
-//        }))
     }
 }
 
