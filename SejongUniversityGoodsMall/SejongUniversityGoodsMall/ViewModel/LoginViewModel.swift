@@ -172,10 +172,10 @@ class LoginViewModel: ObservableObject {
                 self.token = loginResponse.token
                 self.memberID = loginResponse.id
                 
-                withAnimation(.easeInOut) {
+//                withAnimation(.easeInOut) {
                     self.isAuthenticate = true
                     self.showLoginView = false
-                }
+//                }
             }
             print(loginResponse)
         }

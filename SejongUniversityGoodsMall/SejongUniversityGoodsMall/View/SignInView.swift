@@ -83,6 +83,7 @@ struct SignInView: View {
                     loginViewModel.isSignInFail = false
                 }
                 loginViewModel.signIn(email: email, password: password)
+                
             } label: {
                 HStack {
                     Spacer()

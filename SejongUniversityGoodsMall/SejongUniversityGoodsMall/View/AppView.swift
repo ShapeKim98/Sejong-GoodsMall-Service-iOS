@@ -88,6 +88,11 @@ struct AppView: View {
                     errorView
                         .transition(.opacity.animation(.easeInOut))
                 }
+                
+                if let errorView = loginViewModel.errorView {
+                    errorView
+                        .transition(.opacity.animation(.easeInOut))
+                }
             }
             .onChange(of: networkManager.isConnected) { newValue in
                 if !newValue {

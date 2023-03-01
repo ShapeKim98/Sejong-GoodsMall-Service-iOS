@@ -41,7 +41,24 @@ struct ErrorView: View {
                             case .unknown(_):
                                 unknown()
                             default:
-                                EmptyView()
+                                unknown()
+                        }
+                    }
+                    
+                    if let error = loginViewModel.error {
+                        switch error {
+                            case .authenticationFailure:
+                                authenticationFailure()
+                            case .invalidResponse(statusCode: let statusCode):
+                                invalidResponse(statusCode: statusCode)
+                            case .cannotNetworkConnect:
+                                cannotNetworkConnect()
+                            case .urlError(let error):
+                                urlError(error: error)
+                            case .unknown(_):
+                                unknown()
+                            default:
+                                unknown()
                         }
                     }
                 }
@@ -119,7 +136,6 @@ struct ErrorView: View {
                 .frame(width: 100)
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
-            
             
             Text("서버와의 통신중에 오류가 발생했어요 :(\n다시 시도해 주세요.\n오류코드 : \(statusCode)")
                 .foregroundColor(Color("secondary-text-color"))
