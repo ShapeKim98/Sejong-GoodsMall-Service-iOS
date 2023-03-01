@@ -12,25 +12,6 @@ struct MessageBoxView: View {
     
     @EnvironmentObject var appViewModel: AppViewModel
     
-//    var title: String
-//    var secondaryTitle: String
-//    var mainButtonTitle: String
-//    var secondaryButtonTitle: String
-//
-//    var mainButtonAction: () -> Void
-//    var secondaryButtonAction: () -> Void
-//    var closeButtonAction: () -> Void
-    
-//    init(title: String, secondaryTitle: String, mainButtonTitle: String, secondaryButtonTitle: String, mainButtonAction: @escaping () -> Void, secondaryButtonAction: @escaping () -> Void, closeButtonAction: @escaping () -> Void) {
-//        self.title = title
-//        self.secondaryTitle = secondaryTitle
-//        self.mainButtonTitle = mainButtonTitle
-//        self.secondaryButtonTitle = secondaryButtonTitle
-//        self.mainButtonAction = mainButtonAction
-//        self.secondaryButtonAction = secondaryButtonAction
-//        self.closeButtonAction = closeButtonAction
-//    }
-    
     var body: some View {
         VStack {
             Spacer()
@@ -123,13 +104,6 @@ struct MessageBoxView: View {
 
 struct MessageBoxView_Previews: PreviewProvider {
     static var previews: some View {
-//        MessageBoxView(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
-//
-//        } secondaryButtonAction: {
-//
-//        } closeButtonAction: {
-//
-//        }
         MessageBoxView()
         .environmentObject(AppViewModel())
     }

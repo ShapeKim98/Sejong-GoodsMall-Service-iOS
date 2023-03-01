@@ -14,6 +14,9 @@ struct UserInformationView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
+    @State private var pickUpOrderCount: Int = 0
+    @State private var deliveryOrderCount: Int = 0
+    
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
@@ -21,10 +24,10 @@ struct UserInformationView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                wishListArea()
+                wishList()
                     .padding([.horizontal, .top])
                 
-                orderHistoryArea()
+                orderHistory()
                     .padding([.horizontal, .top])
                 
                 helpArea()
@@ -84,7 +87,7 @@ struct UserInformationView: View {
     }
     
     @ViewBuilder
-    func wishListArea() -> some View {
+    func wishList() -> some View {
         VStack {
             NavigationLink {
                 WishListView()
@@ -166,10 +169,22 @@ struct UserInformationView: View {
     }
     
     @ViewBuilder
-    func orderHistoryArea() -> some View {
+    func orderHistory() -> some View {
         VStack(spacing: 0) {
             NavigationLink {
                 OrderHistoryView()
+                    .navigationTitle("주문 내역")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .modifier(NavigationColorModifier())
+                    .onAppear() {
+                        withAnimation(.easeInOut) {
+                            goodsViewModel.isOrderGoodsListLoading = true
+                        }
+                        
+                        goodsViewModel.orderGoodsInfoList.removeAll()
+                        
+                        goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
+                    }
             } label: {
                 HStack {
                     Text("주문 내역")

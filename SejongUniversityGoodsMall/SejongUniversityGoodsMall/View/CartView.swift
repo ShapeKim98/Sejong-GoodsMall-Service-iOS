@@ -121,83 +121,50 @@ struct CartView: View {
             }
         }
         .fullScreenCover(isPresented: $goodsViewModel.showOrderView) {
-            if #available(iOS 16.0, *) {
-                NavigationStack {
-                    OrderView()
-                        .onAppear() {
-                            switch goodsViewModel.orderType {
-                                case .pickUpOrder:
-                                    goodsViewModel.pickUpCart.forEach { goods in
-                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                            goodsViewModel.cartIDList.append(goods.id)
-                                            goodsViewModel.orderGoodsListFromCart.append(goods)
-                                        }
-                                    }
-                                    
-                                    break
-                                case .deliveryOrder:
-                                    goodsViewModel.deliveryCart.forEach { goods in
-                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                            goodsViewModel.cartIDList.append(goods.id)
-                                            goodsViewModel.orderGoodsListFromCart.append(goods)
-                                        }
-                                    }
-                            }
+            OrderView()
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            goodsViewModel.showOrderView = false
+                        } label: {
+                            Label("닫기", systemImage: "xmark")
+                                .labelStyle(.iconOnly)
+                                .font(.footnote)
+                                .foregroundColor(Color("main-text-color"))
                         }
-                        .onDisappear() {
-                            goodsViewModel.cartGoodsSelections.removeAll()
-                            goodsViewModel.updateCartData()
-                        }
+                    }
                 }
-            } else {
-                NavigationView {
-                    OrderView()
-                        .onAppear() {
-                            switch goodsViewModel.orderType {
-                                case .pickUpOrder:
-                                    goodsViewModel.pickUpCart.forEach { goods in
-                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                            goodsViewModel.cartIDList.append(goods.id)
-                                            goodsViewModel.orderGoodsListFromCart.append(goods)
-                                        }
-                                    }
-                                    
-                                    break
-                                case .deliveryOrder:
-                                    goodsViewModel.deliveryCart.forEach { goods in
-                                        if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
-                                            goodsViewModel.cartIDList.append(goods.id)
-                                            goodsViewModel.orderGoodsListFromCart.append(goods)
-                                        }
-                                    }
+                .onAppear() {
+                    switch goodsViewModel.orderType {
+                        case .pickUpOrder:
+                            goodsViewModel.pickUpCart.forEach { goods in
+                                if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                    goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                    goodsViewModel.cartIDList.append(goods.id)
+                                    goodsViewModel.orderGoodsListFromCart.append(goods)
+                                }
                             }
-                        }
-                        .onDisappear() {
-                            goodsViewModel.cartGoodsSelections.removeAll()
-                            goodsViewModel.updateCartData()
-                        }
+                            
+                            break
+                        case .deliveryOrder:
+                            goodsViewModel.deliveryCart.forEach { goods in
+                                if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
+                                    goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                    goodsViewModel.cartIDList.append(goods.id)
+                                    goodsViewModel.orderGoodsListFromCart.append(goods)
+                                }
+                            }
+                    }
                 }
-            }
+                .onDisappear() {
+                    goodsViewModel.cartGoodsSelections.removeAll()
+                    goodsViewModel.updateCartData()
+                }
         }
         .fullScreenCover(isPresented: $goodsViewModel.isOrderComplete) {
-            if #available(iOS 16.0, *) {
-                NavigationStack {
-                    OrderCompleteView {
-                        dismiss()
-                        goodsViewModel.isOrderComplete = false
-                    }
-                }
-            } else {
-                NavigationView {
-                    OrderCompleteView {
-                        dismiss()
-                        goodsViewModel.isOrderComplete = false
-                    }
-                }
+            OrderCompleteView {
+                dismiss()
+                goodsViewModel.isOrderComplete = false
             }
         }
     }

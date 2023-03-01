@@ -43,7 +43,7 @@ struct ErrorView: View {
                 if !networkManager.isConnected {
                     networkDisconnected()
                 } else {
-                    if let error = goodsViewModel.error {
+                    if let error = loginViewModel.error {
                         switch error {
                             case .authenticationFailure:
                                 authenticationFailure()
@@ -58,9 +58,7 @@ struct ErrorView: View {
                             default:
                                 unknown()
                         }
-                    }
-                    
-                    if let error = loginViewModel.error {
+                    } else if let error = goodsViewModel.error {
                         switch error {
                             case .authenticationFailure:
                                 authenticationFailure()

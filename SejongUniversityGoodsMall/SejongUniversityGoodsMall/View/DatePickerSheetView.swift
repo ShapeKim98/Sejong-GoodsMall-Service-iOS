@@ -22,7 +22,7 @@ struct DatePickerSheetView: View {
         self._showDatePicker = showDatePicker
         
         self.dateFormatter.locale = Locale(identifier: "ko_kr")
-        self.dateFormatter.dateFormat = "yyyy/MM/dd"
+        self.dateFormatter.dateFormat = "yyyy-MM-dd"
     }
     
     var body: some View {

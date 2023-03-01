@@ -31,45 +31,92 @@ struct OrderView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
-            
-            ScrollView {
-                switch goodsViewModel.orderType {
-                    case .pickUpOrder:
-                        pickUpInformation()
-                    case .deliveryOrder:
-                        deliveryInformation()
-                }
-                
-                orderGoodsList()
-                
-                orderButton()
-                    .padding(.top, 30)
-                    .onAppear() {
-                        orderPrice = 0
-                        if goodsViewModel.cartIDList.isEmpty {
-                            goodsViewModel.orderGoods.forEach { goods in
-                                orderPrice += (goods.price)
-                            }
-                        } else {
-                            goodsViewModel.orderGoods.forEach { goods in
-                                orderPrice += (goods.price * goods.quantity)
-                            }
+        if #available(iOS 16.0, *) {
+            NavigationStack {
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color("shape-bkg-color"))
+                        .frame(height: 10)
+                    
+                    ScrollView {
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder:
+                                pickUpInformation()
+                            case .deliveryOrder:
+                                deliveryInformation()
                         }
+                        
+                        orderGoodsList()
+                        
+                        orderButton()
+                            .padding(.top, 30)
+                            .onAppear() {
+                                orderPrice = 0
+                                if goodsViewModel.cartIDList.isEmpty {
+                                    goodsViewModel.orderGoods.forEach { goods in
+                                        orderPrice += (goods.price)
+                                    }
+                                } else {
+                                    goodsViewModel.orderGoods.forEach { goods in
+                                        orderPrice += (goods.price * goods.quantity)
+                                    }
+                                }
+                            }
                     }
+                }
+                .navigationTitle("주문서 작성")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
+                .background(.white)
+                .onDisappear() {
+                    goodsViewModel.orderGoods.removeAll()
+                    goodsViewModel.orderGoodsListFromCart.removeAll()
+                    goodsViewModel.cartIDList.removeAll()
+                }
             }
-        }
-        .navigationTitle("주문서 작성")
-        .navigationBarTitleDisplayMode(.inline)
-        .modifier(NavigationColorModifier())
-        .background(.white)
-        .onDisappear() {
-            goodsViewModel.orderGoods.removeAll()
-            goodsViewModel.orderGoodsListFromCart.removeAll()
-            goodsViewModel.cartIDList.removeAll()
+        } else {
+            NavigationView {
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color("shape-bkg-color"))
+                        .frame(height: 10)
+                    
+                    ScrollView {
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder:
+                                pickUpInformation()
+                            case .deliveryOrder:
+                                deliveryInformation()
+                        }
+                        
+                        orderGoodsList()
+                        
+                        orderButton()
+                            .padding(.top, 30)
+                            .onAppear() {
+                                orderPrice = 0
+                                if goodsViewModel.cartIDList.isEmpty {
+                                    goodsViewModel.orderGoods.forEach { goods in
+                                        orderPrice += (goods.price)
+                                    }
+                                } else {
+                                    goodsViewModel.orderGoods.forEach { goods in
+                                        orderPrice += (goods.price * goods.quantity)
+                                    }
+                                }
+                            }
+                    }
+                }
+                .navigationTitle("주문서 작성")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
+                .background(.white)
+                .onDisappear() {
+                    goodsViewModel.orderGoods.removeAll()
+                    goodsViewModel.orderGoodsListFromCart.removeAll()
+                    goodsViewModel.cartIDList.removeAll()
+                }
+            }
         }
     }
     
@@ -587,9 +634,9 @@ struct OrderView: View {
                 goodsViewModel.isSendOrderGoodsLoading = true
                 
                 if goodsViewModel.cartIDList.isEmpty {
-                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, token: loginViewModel.returnToken())
+                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, deliveryRequest: nil, token: loginViewModel.returnToken())
                 } else {
-                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, token: loginViewModel.returnToken())
+                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, deliveryRequest: nil, token: loginViewModel.returnToken())
                 }
             } label: {
                 HStack {
@@ -622,9 +669,9 @@ struct OrderView: View {
                 goodsViewModel.isSendOrderGoodsLoading = true
                 
                 if goodsViewModel.cartIDList.isEmpty {
-                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), token: loginViewModel.returnToken())
+                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
                 } else {
-                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), token: loginViewModel.returnToken())
+                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
                 }
             } label: {
                 HStack {
