@@ -312,7 +312,7 @@ struct HomeView: View {
                     withAnimation {
                         goodsViewModel.isGoodsDetailLoading = true
                     }
-                    goodsViewModel.fetchGoodsDetail(id: goods.id)
+                    goodsViewModel.fetchGoodsDetail(id: goods.id, token: loginViewModel.returnToken())
                 }
                 .navigationTitle("상품 정보")
                 .navigationBarTitleDisplayMode(.inline)
@@ -364,6 +364,21 @@ struct HomeView: View {
                                     .font(.subheadline)
                                 
                                 Spacer()
+                            }
+                            
+                            switch goods.seller.method {
+                                case .both:
+                                    Text("현장수령, 택배수령")
+                                        .font(.caption)
+                                        .foregroundColor(Color("point-color"))
+                                case .pickUp:
+                                    Text("현장수령")
+                                        .font(.caption)
+                                        .foregroundColor(Color("point-color"))
+                                case .delivery:
+                                    Text("택배수령")
+                                        .font(.caption)
+                                        .foregroundColor(Color("point-color"))
                             }
                             
                             HStack(spacing: 3) {

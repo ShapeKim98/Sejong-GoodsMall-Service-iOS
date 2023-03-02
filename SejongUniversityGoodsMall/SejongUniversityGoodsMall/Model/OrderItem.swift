@@ -8,7 +8,13 @@
 import Foundation
 
 struct OrderItem: Codable, Hashable {
-    let color, size: String?
+    var itemID: Int?
+    var color, size: String?
     let quantity, price: Int
     var seller: Seller?
+    
+    enum CodingKeys: String, CodingKey {
+        case color, size, quantity, price, seller
+        case itemID = "itemId"
+    }
 }

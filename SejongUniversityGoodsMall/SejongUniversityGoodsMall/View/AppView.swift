@@ -88,11 +88,16 @@ struct AppView: View {
                     errorView
                         .transition(.opacity.animation(.easeInOut))
                 }
+                
+                if let errorView = loginViewModel.errorView {
+                    errorView
+                        .transition(.opacity.animation(.easeInOut))
+                }
             }
             .onChange(of: networkManager.isConnected) { newValue in
                 if !newValue {
-                    goodsViewModel.errorView = ErrorView(retryAction: {})
-                    loginViewModel.errorView = ErrorView(retryAction: {})
+                    goodsViewModel.errorView = ErrorView(retryAction: {}, closeAction: {})
+                    loginViewModel.errorView = ErrorView(retryAction: {}, closeAction: {})
                 } else {
                     goodsViewModel.errorView = nil
                     loginViewModel.errorView = nil

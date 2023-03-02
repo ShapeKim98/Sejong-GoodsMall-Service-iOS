@@ -12,5 +12,6 @@ struct OrderGoodsRequestFromDetailGoods: Codable {
     let buyerName, phoneNumber: String
     let address: Address?
     let orderMethod: String
+    let deliveryRequest: String?
     let orderItems: [OrderItem]
 }

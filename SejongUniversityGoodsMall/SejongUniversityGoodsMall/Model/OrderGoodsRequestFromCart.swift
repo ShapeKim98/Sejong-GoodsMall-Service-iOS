@@ -11,10 +11,11 @@ struct OrderGoodsRequestFromCart: Codable {
     let buyerName, phoneNumber: String
     let address: Address?
     let orderMethod: String
+    let deliveryRequest: String?
     let cartIDList: [Int]
     
     enum CodingKeys: String, CodingKey {
-        case buyerName, phoneNumber, address, orderMethod
+        case buyerName, phoneNumber, address, orderMethod, deliveryRequest
         case cartIDList = "cartIdList"
     }
 }

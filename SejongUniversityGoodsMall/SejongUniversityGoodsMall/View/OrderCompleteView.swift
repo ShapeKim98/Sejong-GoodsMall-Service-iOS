@@ -12,28 +12,72 @@ struct OrderCompleteView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var limitDate: String = ""
-    
-    private var orderCompleteCloseAction: () -> Void
+    @State private var showOrderHistory: Bool = false
+    @State private var showOrderCompleteText: Bool = false
+    @State private var showLimitDate: Bool = false
+    @State private var showOrderCompleteList: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
     
-    init(orderCompleteCloseAction: @escaping () -> Void) {
-        self.orderCompleteCloseAction = orderCompleteCloseAction
-    }
-    
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
+            orderComplete()
+            
+            if showOrderCompleteList {
                 Rectangle()
                     .fill(Color("shape-bkg-color"))
                     .frame(height: 10)
                 
+                ScrollView {
+                    orderCompleteGoodsList()
+                        .transition(.opacity)
+                    
+                    orderHistoryButton()
+                        .transition(.opacity)
+                }
+            }
+        }
+        .background(.white)
+        .onAppear() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(.spring()) {
+                    showOrderCompleteText = true
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                withAnimation(.spring()) {
+                    showLimitDate = true
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    showOrderCompleteList = true
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func orderComplete() -> some View {
+        VStack {
+            if showOrderCompleteList {
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+            }
+            
+            if showOrderCompleteText {
                 Text("상품 주문이 완료되었습니다.")
                     .font(.title3)
                     .padding(.top)
-                
+                    .transition(.opacity)
+            }
+            
+            if showLimitDate {
                 Text("입금 기한: \(limitDate) 까지")
                     .foregroundColor(Color("main-highlight-color"))
                     .padding(.vertical)
@@ -44,61 +88,25 @@ struct OrderCompleteView: View {
                             limitDate = formatter.string(from: date.addingTimeInterval(3600 * 24 * 2 + 3600 * 9))
                         }
                     }
-                
-                LazyVGrid(columns: columns) {
-                    if let orderCompletGoods = goodsViewModel.orderCompleteGoods?.orderItems {
-                        ForEach(orderCompletGoods, id: \.hashValue) { goods in
-                            orderCompleteGoods(goods: goods)
-                        }
-                    }
-                }
-                
-                Button {
-                    
-                } label: {
-                    HStack {
-                        Spacer()
-                        
-                        Text("주문 내역 확인하기")
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding()
-                        
-                        Spacer()
-                    }
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .foregroundColor(Color("main-highlight-color"))
-                    }
-                }
-                .padding([.horizontal, .bottom])
-                .padding(.vertical, 20)
-                .padding(.top, 20)
+                    .transition(.opacity)
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: orderCompleteCloseAction){
-                    Label("닫기", systemImage: "xmark")
-                        .labelStyle(.iconOnly)
-                        .font(.footnote)
-                        .foregroundColor(Color("main-text-color"))
+    }
+    
+    @ViewBuilder
+    func orderCompleteGoodsList() -> some View {
+        LazyVGrid(columns: columns) {
+            if let orderCompletGoods = goodsViewModel.orderCompleteGoods?.orderItems {
+                ForEach(orderCompletGoods, id: \.hashValue) { goods in
+                    orderCompleteGoods(goods: goods)
                 }
             }
         }
-        .navigationTitle("주문완료")
-        .navigationBarTitleDisplayMode(.inline)
-        .modifier(NavigationColorModifier())
-        .background(.white)
     }
     
     @ViewBuilder
     func orderCompleteGoods(goods: OrderItem) -> some View {
         VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
-                       
             subOrderGoods(goods: goods)
             
             if let seller = goods.seller {
@@ -117,162 +125,145 @@ struct OrderCompleteView: View {
     @ViewBuilder
     func subOrderGoods(goods: OrderItem) -> some View {
         VStack {
-            HStack() {
-                if let image = goodsViewModel.goodsDetail.goodsImages.first {
-                    AsyncImage(url: URL(string: image.oriImgName)) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    } placeholder: {
-                        ZStack {
-                            Color("main-shape-bkg-color")
+            if let id = goods.itemID, let info = goodsViewModel.orderGoodsInfoList[id] {
+                HStack() {
+                    if let image = info.representativeImage() {
+                        AsyncImage(url: URL(string: image.oriImgName)) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
-                            
-                            ProgressView()
-                                .tint(Color("main-highlight-color"))
-                        }
-                    }
-                    .frame(width: 100, height: 100)
-                    .shadow(radius: 1)
-                }
-                
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        
-                        Text(goodsViewModel.goodsDetail.title)
-                            .foregroundColor(Color("main-text-color"))
-                            .padding(.trailing)
-                        
-                        Group {
-                            if let color = goods.color, let size = goods.size {
-                                Text("\(color), \(size)")
-                            } else {
-                                Text("\(goods.color ?? "")\(goods.size ?? "")")
+                        } placeholder: {
+                            ZStack {
+                                Color("main-shape-bkg-color")
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
+                                ProgressView()
+                                    .tint(Color("main-highlight-color"))
                             }
                         }
-                        .font(.caption.bold())
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.leading)
-                        .background(alignment: .leading) {
-                            Rectangle()
-                                .fill(Color("main-text-color"))
-                                .frame(width: 1)
+                        .frame(width: 100, height: 100)
+                        .shadow(radius: 1)
+                    }
+                    
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            Text(info.title)
+                                .foregroundColor(Color("main-text-color"))
+                                .padding(.trailing)
+                            
+                            if goods.color != nil || goods.size != nil {
+                                Group {
+                                    if let color = goods.color, let size = goods.size {
+                                        Text("\(color), \(size)")
+                                    } else {
+                                        Text("\(goods.color ?? "")\(goods.size ?? "")")
+                                    }
+                                }
+                                .font(.caption.bold())
+                                .foregroundColor(Color("main-text-color"))
+                                .padding(.leading)
+                                .background(alignment: .leading) {
+                                    Rectangle()
+                                        .fill(Color("main-text-color"))
+                                        .frame(width: 1)
+                                }
+                            }
+                            
+                            Spacer()
                         }
+                        .padding(.bottom, 5)
                         
-                        Spacer()
-                    }
-                    .padding(.bottom, 10)
-                    
-                    HStack {
-                        Text(goodsViewModel.goodsDetail.seller.name)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color("point-color"))
+                        HStack {
+                            Text(info.seller.name)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("point-color"))
+                            
+                            Spacer()
+                        }
+                        .padding(.bottom, 5)
                         
-                        Spacer()
-                    }
-                    
-                    Spacer()
-                    
-                    HStack {
+                        HStack {
+                            Text("수량 \(goods.quantity)개")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("secondary-text-color"))
+                            
+                            Spacer()
+                        }
+                        .padding(.bottom, 5)
+                        
+                        HStack {
                             Text("\(goods.price)원")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(Color("main-text-color"))
-                        
-                        Spacer()
-                        
-                        Text("수량 \(goods.quantity)개")
+                            
+                            Spacer()
+                        }
+                    }
+                    .padding(10)
+                }
+                .padding(.vertical)
+            } else {
+                HStack() {
+                    Color("main-shape-bkg-color")
+                        .frame(width: 100, height: 100)
+                        .shadow(radius: 1)
+                    
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            
+                            Text("PLACEHOLDER")
+                                .foregroundColor(Color("main-text-color"))
+                                .padding(.trailing)
+                            
+                            Group {
+                                Text("PLACEHOLDER, PLACEHOLDER")
+                            }
                             .font(.caption.bold())
                             .foregroundColor(Color("main-text-color"))
-                    }
-                }
-                .padding(10)
-            }
-            .padding(.vertical)
-            
-            Rectangle()
-                .foregroundColor(Color("shape-bkg-color"))
-                .frame(height: 1)
-        }
-        .padding(.horizontal)
-    }
-    
-    @ViewBuilder
-    func subOrderCartGoods(goods: CartGoodsResponse) -> some View {
-        VStack {
-            HStack() {
-                AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    } placeholder: {
-                        ZStack {
-                            Color("main-shape-bkg-color")
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                            
-                            ProgressView()
-                                .tint(Color("main-highlight-color"))
-                        }
-                    }
-                    .frame(width: 100, height: 100)
-                    .shadow(radius: 1)
-                
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        Text(goods.title)
-                            .foregroundColor(Color("main-text-color"))
-                            .padding(.trailing)
-                        
-                        Group {
-                            if let color = goods.color, let size = goods.size {
-                                Text("\(color), \(size)")
-                            } else {
-                                Text("\(goods.color ?? "")\(goods.size ?? "")")
+                            .padding(.leading)
+                            .background(alignment: .leading) {
+                                Rectangle()
+                                    .fill(Color("main-text-color"))
+                                    .frame(width: 1)
                             }
+                            
+                            Spacer()
                         }
-                        .font(.caption.bold())
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.leading)
-                        .background(alignment: .leading) {
-                            Rectangle()
-                                .fill(Color("main-text-color"))
-                                .frame(width: 1)
+                        .padding(.bottom, 10)
+                        
+                        HStack {
+                            Text("PLACEHOLDER")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("point-color"))
+                            
+                            Spacer()
                         }
                         
                         Spacer()
-                    }
-                    .padding(.bottom, 10)
-                    
-                    HStack {
-                        Text(goods.seller)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color("point-color"))
                         
-                        Spacer()
-                    }
-                    
-                    Spacer()
-                    
-                    HStack {
-                            Text("\(goods.price * goods.quantity)원")
+                        HStack {
+                            Text("\(999999)원")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(Color("main-text-color"))
-                        
-                        Spacer()
-                        
-                        Text("수량 \(goods.quantity)개")
-                            .font(.caption.bold())
-                            .foregroundColor(Color("main-text-color"))
+                            
+                            Spacer()
+                            
+                            Text("수량 \(0)개")
+                                .font(.caption.bold())
+                                .foregroundColor(Color("main-text-color"))
+                        }
                     }
+                    .padding(10)
                 }
-                .padding(10)
+                .redacted(reason: .placeholder)
+                .padding(.vertical)
             }
-            .padding(.vertical)
             
             Rectangle()
                 .foregroundColor(Color("shape-bkg-color"))
@@ -301,13 +292,48 @@ struct OrderCompleteView: View {
                 .frame(height: 1)
         }
     }
+    
+    @ViewBuilder
+    func orderHistoryButton() -> some View {
+        NavigationLink {
+            OrderHistoryView()
+                .navigationTitle("주문 내역")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
+                .onAppear() {
+                    withAnimation(.easeInOut) {
+                        goodsViewModel.isOrderGoodsListLoading = true
+                    }
+                    
+                    goodsViewModel.orderGoodsInfoList.removeAll()
+                    
+                    goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
+                }
+        } label: {
+            HStack {
+                Spacer()
+                
+                Text("주문 내역 확인하기")
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding()
+                
+                Spacer()
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 10)
+                    .foregroundColor(Color("main-highlight-color"))
+            }
+        }
+        .padding([.horizontal, .bottom])
+        .padding(.vertical, 20)
+        .padding(.top, 20)
+    }
 }
 
 struct OrderCompleteView_Previews: PreviewProvider {
     static var previews: some View {
-        OrderCompleteView() {
-            
-        }
+        OrderCompleteView()
         .environmentObject(GoodsViewModel())
         .environmentObject(LoginViewModel())
     }

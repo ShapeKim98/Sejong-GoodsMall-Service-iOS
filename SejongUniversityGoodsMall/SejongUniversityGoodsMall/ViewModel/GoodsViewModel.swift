@@ -12,10 +12,10 @@ import Combine
 class GoodsViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     
-    @Published var error: ApiError?
+    @Published var error: APIError?
     @Published var errorView: ErrorView?
     @Published var goodsList: GoodsList = GoodsList()
-    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0)
+    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false)
     @Published var isGoodsListLoading: Bool = true
     @Published var isGoodsDetailLoading: Bool = true
     @Published var isCategoryLoading: Bool = true
@@ -41,9 +41,15 @@ class GoodsViewModel: ObservableObject {
     @Published var orderGoods: [OrderItem] = [OrderItem]()
     @Published var cartIDList: [Int] = [Int]()
     @Published var orderCompleteGoodsList = OrderGoodsRespnoseList()
+    @Published var pickUpOrderCount: Int = 0
+    @Published var deliveryOrderCount: Int = 0
     @Published var orderCompleteGoods: OrderGoodsRespnose?
+    @Published var isOrderGoodsListLoading: Bool = true
     @Published var isOrderComplete: Bool = false
     @Published var showOrderView: Bool = false
+    @Published var orderGoodsInfoList: [Int: Goods] = [Int: Goods]()
+    @Published var scrapGoodsList: ScrapGoodsList = ScrapGoodsList()
+    @Published var isScrapListLoading: Bool = true
     
     func fetchGoodsList(id: Int? = nil) {
         ApiService.fetchGoodsList(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
@@ -53,7 +59,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: {})
+                                self.errorView = ErrorView(retryAction: {}, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -64,6 +73,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -74,6 +86,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -84,6 +99,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -106,6 +124,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -135,7 +156,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -146,6 +170,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -156,6 +183,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -166,6 +196,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -182,6 +215,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCategory(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -211,7 +247,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -222,6 +261,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -232,6 +274,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -242,6 +287,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -258,6 +306,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsListFromCatefory(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -278,15 +329,18 @@ class GoodsViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func fetchGoodsDetail(id: Int) {
-        ApiService.fetchGoodsDetail(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+    func fetchGoodsDetail(id: Int, token: String? = nil) {
+        ApiService.fetchGoodsDetail(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -297,6 +351,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -307,6 +364,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -317,6 +377,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -333,6 +396,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -348,6 +414,95 @@ class GoodsViewModel: ObservableObject {
                 
                 withAnimation {
                     self.isGoodsDetailLoading = false
+                }
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func fetchOrderGoodsInfo(id: Int) {
+        ApiService.fetchGoodsDetail(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsDetail(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("패치 성공")
+                    break
+            }
+        } receiveValue: { goodsInfo in
+            withAnimation(.easeInOut) {
+                DispatchQueue.main.async {
+                    self.orderGoodsInfoList.updateValue(goodsInfo, forKey: id)
                 }
             }
         }
@@ -376,6 +531,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -386,6 +544,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -396,6 +557,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -412,6 +576,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.sendCartGoodsRequest(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -440,7 +607,10 @@ class GoodsViewModel: ObservableObject {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                             }
                             print("접근 권한 없음")
                             break
@@ -451,6 +621,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -461,6 +634,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -471,6 +647,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -487,6 +666,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -516,10 +698,10 @@ class GoodsViewModel: ObservableObject {
     }
     
     func deleteCartGoods(token: String) {
-        withAnimation {
+        withAnimation(.easeInOut) {
             self.isCartGoodsListLoading = true
         }
-        var publishers = [AnyPublisher<Data, ApiError>]()
+        var publishers = [AnyPublisher<Data, APIError>]()
         switch orderType {
             case .pickUpOrder:
                 self.pickUpCart.forEach { goods in
@@ -536,6 +718,7 @@ class GoodsViewModel: ObservableObject {
                         cartGoodsSelections.removeValue(forKey: goods.id)
                     }
                 }
+                break
         }
         
         Publishers.MergeMany(publishers).eraseToAnyPublisher().subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
@@ -556,6 +739,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -566,6 +752,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -576,6 +765,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -592,6 +784,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -603,6 +798,10 @@ class GoodsViewModel: ObservableObject {
             }
         } receiveValue: { data in
             DispatchQueue.main.async {
+                withAnimation(.easeInOut) {
+                    self.completeSendCartGoods = true
+                }
+                
                 withAnimation(.spring()) {
                     self.fetchCartGoods(token: token)
                     self.updateCartData()
@@ -632,6 +831,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -642,6 +844,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -652,6 +857,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -668,6 +876,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.deleteIndividualCartGoods(id: id, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -708,6 +919,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -718,6 +932,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -728,6 +945,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -744,6 +964,9 @@ class GoodsViewModel: ObservableObject {
                                     self.error = nil
                                     self.errorView = nil
                                     self.updateCartGoods(id: id, quantity: quantity, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -762,15 +985,18 @@ class GoodsViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func sendOrderGoodsFromDetailGoods(buyerName: String, phoneNumber: String, address: Address?, token: String) {
-        ApiService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+    func sendOrderGoodsFromDetailGoods(buyerName: String, phoneNumber: String, address: Address?, deliveryRequest: String?, token: String) {
+        ApiService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequest: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                                 self.isSendOrderGoodsLoading = false
                             }
                             print("접근 권한이 없습니다")
@@ -781,7 +1007,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -791,7 +1020,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -801,7 +1033,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -818,7 +1053,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -828,29 +1066,36 @@ class GoodsViewModel: ObservableObject {
                     print("보내기 성공")
                     break
             }
-        } receiveValue: { goods in
+        } receiveValue: { orderGoods in
             DispatchQueue.main.async {
                 self.orderGoods.removeAll()
                 self.orderGoodsListFromCart.removeAll()
                 self.cartIDList.removeAll()
-                self.orderCompleteGoods = goods
+                self.orderCompleteGoods = orderGoods
+                orderGoods.orderItems.forEach { goods in
+                    if let id = goods.itemID {
+                        self.fetchOrderGoodsInfo(id: id)
+                    }
+                }
                 self.isSendOrderGoodsLoading = false
-                self.showOrderView = false
                 self.isOrderComplete = true
             }
         }
         .store(in: &subscriptions)
     }
     
-    func sendOrderGoodsFromCart(buyerName: String, phoneNumber: String, address: Address?, token: String) {
-        ApiService.sendOrderGoodsFromCart(cartIDList: self.cartIDList, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+    func sendOrderGoodsFromCart(buyerName: String, phoneNumber: String, address: Address?, deliveryRequest: String?, token: String) {
+        ApiService.sendOrderGoodsFromCart(cartIDList: self.cartIDList, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequset: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             switch completion {
                 case .failure(let error):
                     switch error {
                         case .authenticationFailure:
                             DispatchQueue.main.async {
                                 self.error = .authenticationFailure
-                                self.errorView = ErrorView(retryAction: { })
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
                                 self.isSendOrderGoodsLoading = false
                             }
                             print("접근 권한이 없습니다")
@@ -861,7 +1106,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -871,7 +1119,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -881,7 +1132,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             break
@@ -898,7 +1152,10 @@ class GoodsViewModel: ObservableObject {
                                 self.errorView = ErrorView(retryAction: {
                                     self.error = nil
                                     self.errorView = nil
-                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, token: token)
+                                    self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
                                 })
                             }
                             print("알 수 없는 오류")
@@ -908,15 +1165,496 @@ class GoodsViewModel: ObservableObject {
                     print("보내기 성공")
                     break
             }
-        } receiveValue: { goods in
+        } receiveValue: { orderGoods in
             DispatchQueue.main.async {
                 self.orderGoods.removeAll()
                 self.orderGoodsListFromCart.removeAll()
                 self.cartIDList.removeAll()
-                self.orderCompleteGoods = goods
+                self.orderCompleteGoods = orderGoods
+                orderGoods.orderItems.forEach { goods in
+                    if let id = goods.itemID {
+                        self.fetchOrderGoodsInfo(id: id)
+                    }
+                }
                 self.isSendOrderGoodsLoading = false
-                self.showOrderView = false
                 self.isOrderComplete = true
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func fetchOrderGoodsList(token: String) {
+        ApiService.fetchOrderGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("패치 성공")
+                    break
+            }
+        } receiveValue: { orderGoodsList in
+            DispatchQueue.main.async {
+                self.orderCompleteGoodsList = orderGoodsList
+                
+                self.pickUpOrderCount = 0
+                self.deliveryOrderCount = 0
+                
+                self.orderCompleteGoodsList.forEach { orderGoods in
+                    if orderGoods.orderMethod == .pickUpOrder {
+                        self.pickUpOrderCount += orderGoods.orderItems.count
+                    } else {
+                        self.deliveryOrderCount += orderGoods.orderItems.count
+                    }
+                    
+                    orderGoods.orderItems.forEach { goods in
+                        if let id = goods.itemID {
+                            self.fetchOrderGoodsInfo(id: id)
+                        }
+                    }
+                }
+                
+                withAnimation(.easeInOut) {
+                    self.isOrderGoodsListLoading = false
+                }
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func sendIsScrap(id: Int, token: String) {
+        ApiService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: {}, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        case .jsonEncodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 인코딩 에러"
+                            }
+                            print("데이터 인코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("패치 성공")
+                    break
+            }
+        } receiveValue: { message in
+            DispatchQueue.main.async {
+                self.fetchGoodsDetail(id: id, token: token)
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func sendIsScrapFromCart(id: Int, token: String) {
+        ApiService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: {}, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        case .jsonEncodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 인코딩 에러"
+                            }
+                            print("데이터 인코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("찜하기 성공")
+                    break
+            }
+        } receiveValue: { message in
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut) {
+                    self.completeSendCartGoods = true
+                }
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func deleteIsScrap(id: Int, token: String) {
+        ApiService.deleteIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: {}, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        case .jsonEncodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 인코딩 에러"
+                            }
+                            print("데이터 인코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchGoodsList(id: id)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("패치 성공")
+                    break
+            }
+        } receiveValue: { message in
+            DispatchQueue.main.async {
+                self.fetchGoodsDetail(id: id, token: token)
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func fetchScrapList(token: String) {
+        ApiService.fetchScrapList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            switch completion {
+                case .failure(let error):
+                    switch error {
+                        case .authenticationFailure:
+                            DispatchQueue.main.async {
+                                self.error = .authenticationFailure
+                                self.errorView = ErrorView(retryAction: { }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("접근 권한 없음")
+                            break
+                        case .invalidResponse(statusCode: let statusCode):
+                            DispatchQueue.main.async {
+                                self.error = .invalidResponse(statusCode: statusCode)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .cannotNetworkConnect:
+                            DispatchQueue.main.async {
+                                self.error = .cannotNetworkConnect
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .urlError(let error):
+                            DispatchQueue.main.async {
+                                self.error = .urlError(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            break
+                        case .jsonDecodeError:
+                            DispatchQueue.main.async {
+                                self.message = "데이터 디코딩 에러"
+                            }
+                            print("데이터 디코딩 에러")
+                            break
+                        default:
+                            DispatchQueue.main.async {
+                                self.error = .unknown(error)
+                                self.errorView = ErrorView(retryAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                    self.fetchCartGoods(token: token)
+                                }, closeAction: {
+                                    self.error = nil
+                                    self.errorView = nil
+                                })
+                            }
+                            print("알 수 없는 오류")
+                            break
+                    }
+                case .finished:
+                    print("패치 성공")
+                    break
+            }
+        } receiveValue: { scrapList in
+            DispatchQueue.main.async {
+                self.scrapGoodsList = scrapList
+                self.isScrapListLoading = false
             }
         }
         .store(in: &subscriptions)

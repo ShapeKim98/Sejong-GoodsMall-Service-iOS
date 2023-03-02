@@ -13,13 +13,28 @@ struct ErrorView: View {
     @EnvironmentObject var networkManager: NetworkManager
     
     private let retryAction: () -> Void
+    private let closeAction: () -> Void
     
-    init(retryAction: @escaping () -> Void) {
+    init(retryAction: @escaping () -> Void, closeAction: @escaping () -> Void) {
         self.retryAction = retryAction
+        self.closeAction = closeAction
     }
     
     var body: some View {
         VStack {
+            if networkManager.isConnected {
+                HStack {
+                    Spacer()
+                    
+                    Button(action: closeAction) {
+                        Label("닫기", systemImage: "xmark")
+                            .labelStyle(.iconOnly)
+                            .foregroundColor(Color("main-text-color"))
+                            .padding()
+                    }
+                }
+            }
+            
             Spacer()
             
             HStack {
@@ -28,7 +43,7 @@ struct ErrorView: View {
                 if !networkManager.isConnected {
                     networkDisconnected()
                 } else {
-                    if let error = goodsViewModel.error {
+                    if let error = loginViewModel.error {
                         switch error {
                             case .authenticationFailure:
                                 authenticationFailure()
@@ -41,7 +56,22 @@ struct ErrorView: View {
                             case .unknown(_):
                                 unknown()
                             default:
-                                EmptyView()
+                                unknown()
+                        }
+                    } else if let error = goodsViewModel.error {
+                        switch error {
+                            case .authenticationFailure:
+                                authenticationFailure()
+                            case .invalidResponse(statusCode: let statusCode):
+                                invalidResponse(statusCode: statusCode)
+                            case .cannotNetworkConnect:
+                                cannotNetworkConnect()
+                            case .urlError(let error):
+                                urlError(error: error)
+                            case .unknown(_):
+                                unknown()
+                            default:
+                                unknown()
                         }
                     }
                 }
@@ -119,7 +149,6 @@ struct ErrorView: View {
                 .frame(width: 100)
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
-            
             
             Text("서버와의 통신중에 오류가 발생했어요 :(\n다시 시도해 주세요.\n오류코드 : \(statusCode)")
                 .foregroundColor(Color("secondary-text-color"))
@@ -276,7 +305,7 @@ struct ErrorView: View {
 
 struct ErrorView_Previews: PreviewProvider {
     static var previews: some View {
-        ErrorView(retryAction: {})
+        ErrorView(retryAction: {}, closeAction: {})
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
             .environmentObject(NetworkManager())

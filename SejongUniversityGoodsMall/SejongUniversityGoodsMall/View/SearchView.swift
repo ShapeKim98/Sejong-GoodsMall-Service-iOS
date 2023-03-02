@@ -16,56 +16,8 @@ struct SearchView: View {
     var body: some View {
         GeometryReader { reader in
             VStack(alignment: .leading) {
-                HStack {
-                    Text("최근 검색어")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color("main-text-color"))
-                    
-                    Spacer()
-                    
-                    Button("전체삭제", role: .destructive) {
-                        //                    recentSearches.removeAll()
-                    }
-                    .font(.footnote)
-                    .foregroundColor(Color("main-highlight-color"))
-                }
-                .padding()
-                .padding(.horizontal, 5)
-                
                 VStack {
-                    //                ForEach(recentSearches, id: \.hashValue) { keyword in
-                    //                    HStack {
-                    //                        Button {
-                    //
-                    //                        } label: {
-                    //                            HStack(spacing: 20) {
-                    //                                Label("검색어", systemImage: "magnifyingglass")
-                    //                                    .labelStyle(.iconOnly)
-                    //                                    .foregroundColor(Color("main-text-color").opacity(0.7))
-                    //                                    .padding(8)
-                    //                                    .background {
-                    //                                        Circle()
-                    //                                            .foregroundColor(Color("shape-bkg-color"))
-                    //                                    }
-                    //
-                    //                                Text(keyword)
-                    //                                    .foregroundColor(Color("main-text-color"))
-                    //
-                    //                                Spacer()
-                    //                            }
-                    //                        }
-                    //
-                    //                        Button(role: .destructive) {
-                    //
-                    //                        } label: {
-                    //                            Label("삭제", systemImage: "xmark")
-                    //                                .labelStyle(.iconOnly)
-                    //                        }
-                    //                    }
-                    //                    .padding(.horizontal)
-                    //                    .padding(.vertical, 5)
-                    //                }
+                    
                 }
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
@@ -89,7 +41,7 @@ struct SearchView: View {
                             .keyboardType(.default)
                             .submitLabel(.search)
                             .onSubmit {
-                                //                            recentSearches.insert(searchText, at: 0)
+                                
                             }
                             .focused($searchingFocused)
                         
@@ -125,7 +77,7 @@ struct SearchView: View {
                     .padding(.horizontal, 5)
                     .foregroundColor(Color("secondary-text-color"))
                 }
-        }
+            }
         }
     }
 }

@@ -23,6 +23,10 @@ enum APIURL {
     case updateCartGoods
     case sendOrderGoodsFromDetailGoods
     case sendOrderGoodsFromCart
+    case fetchOrderGoodsList
+    case sendIsScrap
+    case deleteIsScrap
+    case fetchScrapList
     
     func url(id: Int? = nil) -> URL? {
         switch self {
@@ -74,11 +78,28 @@ enum APIURL {
                 return URL(string: "order/\(id)", relativeTo: APIURL.server.url())
             case .sendOrderGoodsFromCart:
                 return URL(string: "order/cart", relativeTo: APIURL.server.url())
+            case .fetchOrderGoodsList:
+                return URL(string: "order/list/all", relativeTo: APIURL.server.url())
+            case .sendIsScrap:
+                guard let id = id else {
+                    return nil
+                }
+                
+                return URL(string: "scrap/\(id)", relativeTo: APIURL.server.url())
+            case .deleteIsScrap:
+                guard let id = id else {
+                    return nil
+                }
+                
+                return URL(string: "scrap/delete/\(id)", relativeTo: APIURL.server.url())
+                
+            case .fetchScrapList:
+                return URL(string: "scrap/list", relativeTo: APIURL.server.url())
         }
     }
 }
 
-enum ApiError: Error {
+enum APIError: Error {
     case alreadyEmail
     case authenticationFailure
     case alreadyCartGoods
@@ -90,10 +111,10 @@ enum ApiError: Error {
     case urlError(URLError)
     case unknown(Error)
     
-    static func convert(error: Error) -> ApiError {
+    static func convert(error: Error) -> APIError {
         switch error {
-            case is ApiError:
-                return error as! ApiError
+            case is APIError:
+                return error as! APIError
             case is URLError:
                 return .urlError(error as! URLError)
             case is DecodingError:
@@ -107,7 +128,7 @@ enum ApiError: Error {
 }
 
 enum ApiService {
-    static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, ApiError> {
+    static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, APIError> {
         let body = UserRequest(email: email, password: password, userName: userName, birth: birth)
         
         var request = URLRequest(url: APIURL.fetchSignUp.url()!)
@@ -117,14 +138,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.alreadyEmail
+                    throw APIError.alreadyEmail
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -132,12 +153,12 @@ enum ApiService {
         }
         .decode(type: UserResponse.self, decoder: JSONDecoder())
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func fetchSignIn(email: String, password: String) -> AnyPublisher<LoginResponse, ApiError> {
+    static func fetchSignIn(email: String, password: String) -> AnyPublisher<LoginResponse, APIError> {
         let body = LoginRequest(email: email, password: password)
         
         var request = URLRequest(url: APIURL.fetchSignIn.url()!)
@@ -147,14 +168,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -162,12 +183,12 @@ enum ApiService {
         }
         .decode(type: LoginResponse.self, decoder: JSONDecoder())
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func fetchFindEmail(userName: String, birth: String) -> AnyPublisher<FindEmailRespnose, ApiError> {
+    static func fetchFindEmail(userName: String, birth: String) -> AnyPublisher<FindEmailRespnose, APIError> {
         let body = FindEmailRequest(userName: userName, birth: birth)
         
         var request = URLRequest(url: APIURL.fetchFindEmail.url()!)
@@ -177,14 +198,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -192,12 +213,12 @@ enum ApiService {
         }
         .decode(type: FindEmailRespnose.self, decoder: JSONDecoder())
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func fetchGoodsList(id: Int?) -> AnyPublisher<GoodsList, ApiError> {
+    static func fetchGoodsList(id: Int?) -> AnyPublisher<GoodsList, APIError> {
         let body = GoodsListRequest(memberID: id)
         
         var request = URLRequest(url: APIURL.fetchGoodsList.url()!)
@@ -212,14 +233,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -227,13 +248,17 @@ enum ApiService {
         }
         .decode(type: GoodsList.self, decoder: decoder)
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func fetchGoodsDetail(id: Int) -> AnyPublisher<Goods, ApiError> {
-        let request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
+    static func fetchGoodsDetail(id: Int, token: String? = nil) -> AnyPublisher<Goods, APIError> {
+        var request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
+        
+        if let bearerToken = token {
+            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        }
         
         let decoder = JSONDecoder()
         let formatter = DateFormatter()
@@ -242,14 +267,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -257,24 +282,24 @@ enum ApiService {
         }
         .decode(type: Goods.self, decoder: decoder)
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func fetchCategory(token: String) -> AnyPublisher<CategoryList, ApiError> {
+    static func fetchCategory(token: String) -> AnyPublisher<CategoryList, APIError> {
         let request = URLRequest(url: APIURL.fetchCategory.url()!)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -282,12 +307,12 @@ enum ApiService {
         }
         .decode(type: CategoryList.self, decoder: JSONDecoder())
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func fetchGoodsListFromCategory(id: Int) -> AnyPublisher<GoodsList, ApiError> {
+    static func fetchGoodsListFromCategory(id: Int) -> AnyPublisher<GoodsList, APIError> {
         let request = URLRequest(url: APIURL.fetchGoodsListFromCategory.url(id: id)!)
         
         let decoder = JSONDecoder()
@@ -297,14 +322,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -312,12 +337,12 @@ enum ApiService {
         }
         .decode(type: GoodsList.self, decoder: decoder)
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func sendCartGoods(goods: CartGoodsRequest, goodsID: Int, token: String) -> AnyPublisher<Data, ApiError> {
+    static func sendCartGoods(goods: CartGoodsRequest, goodsID: Int, token: String) -> AnyPublisher<Data, APIError> {
         let body = goods
         
         var request = URLRequest(url: APIURL.sendCartGoods.url(id: goodsID)!)
@@ -328,39 +353,39 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
             return data
         }
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func fetchCartGoods(token: String) -> AnyPublisher<CartGoodsList, ApiError> {
+    static func fetchCartGoods(token: String) -> AnyPublisher<CartGoodsList, APIError> {
         var request = URLRequest(url: APIURL.fetchCartGoods.url()!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -368,12 +393,12 @@ enum ApiService {
         }
         .decode(type: CartGoodsList.self, decoder: JSONDecoder())
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func deleteCartGoods(id: Int, token: String) -> AnyPublisher<Data, ApiError> {
+    static func deleteCartGoods(id: Int, token: String) -> AnyPublisher<Data, APIError> {
         var request = URLRequest(url: APIURL.deleteCartGoods.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
@@ -382,26 +407,26 @@ enum ApiService {
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             print(Thread.current)
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
 
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.isNoneCartGoods
+                    throw APIError.isNoneCartGoods
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
 
             return data
         }
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func updateCartGoods(id: Int, quantity: Int, token: String) -> AnyPublisher<Data, ApiError> {
+    static func updateCartGoods(id: Int, quantity: Int, token: String) -> AnyPublisher<Data, APIError> {
         let body = UpdateCartGoodsRequest(id: id, quantity: quantity)
         
         var request = URLRequest(url: APIURL.updateCartGoods.url()!)
@@ -412,27 +437,27 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.isNoneCartGoods
+                    throw APIError.isNoneCartGoods
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
             return data
         }
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func sendOrderGoodsFromDetailGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderMethod: String, orderItems: [OrderItem], token: String) -> AnyPublisher<OrderGoodsRespnose, ApiError> {
-        let body = OrderGoodsRequestFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: orderMethod, orderItems: orderItems)
+    static func sendOrderGoodsFromDetailGoods(id: Int, buyerName: String, phoneNumber: String, address: Address?, orderMethod: String, deliveryRequest: String?, orderItems: [OrderItem], token: String) -> AnyPublisher<OrderGoodsRespnose, APIError> {
+        let body = OrderGoodsRequestFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: orderMethod, deliveryRequest: deliveryRequest, orderItems: orderItems)
         
         var request = URLRequest(url: APIURL.sendOrderGoodsFromDetailGoods.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -447,14 +472,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -462,13 +487,13 @@ enum ApiService {
         }
         .decode(type: OrderGoodsRespnose.self, decoder: decoder)
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func sendOrderGoodsFromCart(cartIDList: [Int], buyerName: String, phoneNumber: String, address: Address?, orderMethod: String, orderItems: [OrderItem], token: String) -> AnyPublisher<OrderGoodsRespnose, ApiError> {
-        let body = OrderGoodsRequestFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: orderMethod, cartIDList: cartIDList)
+    static func sendOrderGoodsFromCart(cartIDList: [Int], buyerName: String, phoneNumber: String, address: Address?, orderMethod: String, deliveryRequset: String?, orderItems: [OrderItem], token: String) -> AnyPublisher<OrderGoodsRespnose, APIError> {
+        let body = OrderGoodsRequestFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: orderMethod, deliveryRequest: deliveryRequset, cartIDList: cartIDList)
         
         var request = URLRequest(url: APIURL.sendOrderGoodsFromCart.url()!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -483,14 +508,14 @@ enum ApiService {
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {
-                throw ApiError.cannotNetworkConnect
+                throw APIError.cannotNetworkConnect
             }
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw ApiError.authenticationFailure
+                    throw APIError.authenticationFailure
                 } else {
-                    throw ApiError.invalidResponse(statusCode: httpResponse.statusCode)
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
             }
             
@@ -498,7 +523,117 @@ enum ApiService {
         }
         .decode(type: OrderGoodsRespnose.self, decoder: decoder)
         .mapError { error in
-            ApiError.convert(error: error)
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func fetchOrderGoodsList(token: String) -> AnyPublisher<OrderGoodsRespnoseList, APIError> {
+        var request = URLRequest(url: APIURL.fetchOrderGoodsList.url()!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let decoder = JSONDecoder()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        decoder.dateDecodingStrategy = .formatted(formatter)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.authenticationFailure
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: OrderGoodsRespnoseList.self, decoder: decoder)
+        .mapError { error in
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func sendIsScrap(id: Int, token: String) -> AnyPublisher<Data, APIError> {
+        var request = URLRequest(url: APIURL.sendIsScrap.url(id: id)!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.authenticationFailure
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .mapError { error in
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func deleteIsScrap(id: Int, token: String) -> AnyPublisher<Data, APIError> {
+        var request = URLRequest(url: APIURL.deleteIsScrap.url(id: id)!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "DELETE"
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.authenticationFailure
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .mapError { error in
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func fetchScrapList(token: String) -> AnyPublisher<ScrapGoodsList, APIError> {
+        var request = URLRequest(url: APIURL.fetchScrapList.url()!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "GET"
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.authenticationFailure
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .decode(type: ScrapGoodsList.self, decoder: JSONDecoder())
+        .mapError { error in
+            APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
