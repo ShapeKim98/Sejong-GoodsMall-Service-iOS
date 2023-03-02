@@ -15,6 +15,12 @@ struct OrderHistoryView: View {
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
     
+    private let formatter = DateFormatter()
+    
+    init() {
+        self.formatter.dateFormat = "yyyyMMddHHmmss"
+    }
+    
     var body: some View {
         VStack {
             if goodsViewModel.isOrderGoodsListLoading {
@@ -35,9 +41,11 @@ struct OrderHistoryView: View {
     }
     
     @ViewBuilder
-    func orderDateHeader(title: String) -> some View {
+    func orderDateHeader(date: Date) -> some View {
+        let dateString = formatter.string(from: date)
+        
         HStack {
-            Text(title)
+            Text(dateString)
                 .font(.title3)
                 .fontWeight(.semibold)
                 .padding()
@@ -58,10 +66,10 @@ struct OrderHistoryView: View {
                 LazyVStack(pinnedViews: [.sectionHeaders]) {
                     Section {
                         ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in
-                            subOrderGoods(goods: goods)
+                            subOrderGoods(orderCompleteGoods: orderCompleteGoods, goods: goods)
                         }
                     } header: {
-                        orderDateHeader(title: "주문일자 : 202302171055")
+                        orderDateHeader(date: orderCompleteGoods.createdAt)
                     }
                 }
             }
@@ -70,7 +78,7 @@ struct OrderHistoryView: View {
     }
     
     @ViewBuilder
-    func subOrderGoods(goods: OrderItem) -> some View {
+    func subOrderGoods(orderCompleteGoods: OrderGoodsRespnose, goods: OrderItem) -> some View {
         VStack {
             if let id = goods.itemID, let info = goodsViewModel.orderGoodsInfoList[id] {
                 HStack() {
@@ -100,25 +108,27 @@ struct OrderHistoryView: View {
                                 .foregroundColor(Color("main-text-color"))
                                 .padding(.trailing)
                             
-                            Group {
-                                if let color = goods.color, let size = goods.size {
-                                    Text("\(color), \(size)")
-                                } else {
-                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
+                            if goods.color != nil || goods.size != nil {
+                                Group {
+                                    if let color = goods.color, let size = goods.size {
+                                        Text("\(color), \(size)")
+                                    } else {
+                                        Text("\(goods.color ?? "")\(goods.size ?? "")")
+                                    }
                                 }
-                            }
-                            .font(.caption.bold())
-                            .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
+                                .font(.caption.bold())
+                                .foregroundColor(Color("main-text-color"))
+                                .padding(.leading)
+                                .background(alignment: .leading) {
+                                    Rectangle()
+                                        .fill(Color("main-text-color"))
+                                        .frame(width: 1)
+                                }
                             }
                             
                             Spacer()
                         }
-                        .padding(.bottom, 10)
+                        .padding(.bottom, 5)
                         
                         HStack {
                             Text(info.seller.name)
@@ -127,9 +137,22 @@ struct OrderHistoryView: View {
                                 .foregroundColor(Color("point-color"))
                             
                             Spacer()
+                            
+                            Text(orderCompleteGoods.status ?? "")
+                                .font(.subheadline)
+                                .foregroundColor(Color("main-highlight-color"))
                         }
+                        .padding(.bottom, 5)
                         
-                        Spacer()
+                        HStack {
+                            Text("수량 \(goods.quantity)개")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("secondary-text-color"))
+                            
+                            Spacer()
+                        }
+                        .padding(.bottom, 5)
                         
                         HStack {
                             Text("\(goods.price)원")
@@ -138,10 +161,6 @@ struct OrderHistoryView: View {
                                 .foregroundColor(Color("main-text-color"))
                             
                             Spacer()
-                            
-                            Text("수량 \(goods.quantity)개")
-                                .font(.caption.bold())
-                                .foregroundColor(Color("main-text-color"))
                         }
                     }
                     .padding(10)

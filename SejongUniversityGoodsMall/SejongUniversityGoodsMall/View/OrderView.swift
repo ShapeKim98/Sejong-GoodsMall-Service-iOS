@@ -31,92 +31,47 @@ struct OrderView: View {
     ]
     
     var body: some View {
-        if #available(iOS 16.0, *) {
-            NavigationStack {
-                VStack(spacing: 0) {
-                    Rectangle()
-                        .fill(Color("shape-bkg-color"))
-                        .frame(height: 10)
+        VStack(spacing: 0) {
+            if goodsViewModel.isOrderComplete {
+                OrderCompleteView()
+            } else {
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+                
+                ScrollView {
+                    switch goodsViewModel.orderType {
+                        case .pickUpOrder:
+                            pickUpInformation()
+                        case .deliveryOrder:
+                            deliveryInformation()
+                    }
                     
-                    ScrollView {
-                        switch goodsViewModel.orderType {
-                            case .pickUpOrder:
-                                pickUpInformation()
-                            case .deliveryOrder:
-                                deliveryInformation()
-                        }
-                        
-                        orderGoodsList()
-                        
-                        orderButton()
-                            .padding(.top, 30)
-                            .onAppear() {
-                                orderPrice = 0
-                                if goodsViewModel.cartIDList.isEmpty {
-                                    goodsViewModel.orderGoods.forEach { goods in
-                                        orderPrice += (goods.price)
-                                    }
-                                } else {
-                                    goodsViewModel.orderGoods.forEach { goods in
-                                        orderPrice += (goods.price * goods.quantity)
-                                    }
+                    orderGoodsList()
+                    
+                    orderButton()
+                        .padding(.top, 30)
+                        .onAppear() {
+                            orderPrice = 0
+                            if goodsViewModel.cartIDList.isEmpty {
+                                goodsViewModel.orderGoods.forEach { goods in
+                                    orderPrice += (goods.price)
+                                }
+                            } else {
+                                goodsViewModel.orderGoods.forEach { goods in
+                                    orderPrice += (goods.price * goods.quantity)
                                 }
                             }
-                    }
-                }
-                .navigationTitle("주문서 작성")
-                .navigationBarTitleDisplayMode(.inline)
-                .modifier(NavigationColorModifier())
-                .background(.white)
-                .onDisappear() {
-                    goodsViewModel.orderGoods.removeAll()
-                    goodsViewModel.orderGoodsListFromCart.removeAll()
-                    goodsViewModel.cartIDList.removeAll()
-                }
-            }
-        } else {
-            NavigationView {
-                VStack(spacing: 0) {
-                    Rectangle()
-                        .fill(Color("shape-bkg-color"))
-                        .frame(height: 10)
-                    
-                    ScrollView {
-                        switch goodsViewModel.orderType {
-                            case .pickUpOrder:
-                                pickUpInformation()
-                            case .deliveryOrder:
-                                deliveryInformation()
                         }
-                        
-                        orderGoodsList()
-                        
-                        orderButton()
-                            .padding(.top, 30)
-                            .onAppear() {
-                                orderPrice = 0
-                                if goodsViewModel.cartIDList.isEmpty {
-                                    goodsViewModel.orderGoods.forEach { goods in
-                                        orderPrice += (goods.price)
-                                    }
-                                } else {
-                                    goodsViewModel.orderGoods.forEach { goods in
-                                        orderPrice += (goods.price * goods.quantity)
-                                    }
-                                }
-                            }
-                    }
-                }
-                .navigationTitle("주문서 작성")
-                .navigationBarTitleDisplayMode(.inline)
-                .modifier(NavigationColorModifier())
-                .background(.white)
-                .onDisappear() {
-                    goodsViewModel.orderGoods.removeAll()
-                    goodsViewModel.orderGoodsListFromCart.removeAll()
-                    goodsViewModel.cartIDList.removeAll()
                 }
             }
+        }
+        .navigationTitle(goodsViewModel.isOrderComplete ? "주문 완료" : "주문서 작성")
+        .navigationBarTitleDisplayMode(.inline)
+        .modifier(NavigationColorModifier())
+        .background(.white)
+        .onDisappear() {
+            
         }
     }
     
@@ -482,25 +437,27 @@ struct OrderView: View {
                             .foregroundColor(Color("main-text-color"))
                             .padding(.trailing)
                         
-                        Group {
-                            if let color = goods.color, let size = goods.size {
-                                Text("\(color), \(size)")
-                            } else {
-                                Text("\(goods.color ?? "")\(goods.size ?? "")")
+                        if goods.color != nil || goods.size != nil {
+                            Group {
+                                if let color = goods.color, let size = goods.size {
+                                    Text("\(color), \(size)")
+                                } else {
+                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
+                                }
                             }
-                        }
-                        .font(.caption.bold())
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.leading)
-                        .background(alignment: .leading) {
-                            Rectangle()
-                                .fill(Color("main-text-color"))
-                                .frame(width: 1)
+                            .font(.caption.bold())
+                            .foregroundColor(Color("main-text-color"))
+                            .padding(.leading)
+                            .background(alignment: .leading) {
+                                Rectangle()
+                                    .fill(Color("main-text-color"))
+                                    .frame(width: 1)
+                            }
                         }
                         
                         Spacer()
                     }
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 5)
                     
                     HStack {
                         Text(goodsViewModel.goodsDetail.seller.name)
@@ -510,8 +467,17 @@ struct OrderView: View {
                         
                         Spacer()
                     }
+                    .padding(.bottom, 5)
                     
-                    Spacer()
+                    HStack {
+                        Text("수량 \(goods.quantity)개")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color("secondary-text-color"))
+                        
+                        Spacer()
+                    }
+                    .padding(.bottom, 5)
                     
                     HStack {
                         if goodsViewModel.cartIDList.isEmpty {
@@ -527,10 +493,6 @@ struct OrderView: View {
                         }
                         
                         Spacer()
-                        
-                        Text("수량 \(goods.quantity)개")
-                            .font(.caption.bold())
-                            .foregroundColor(Color("main-text-color"))
                     }
                 }
                 .padding(10)

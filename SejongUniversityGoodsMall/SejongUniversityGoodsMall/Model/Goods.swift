@@ -19,13 +19,15 @@ struct Goods: Codable, Identifiable {
     let goodsInfos: [GoodsInfo]
     let description: String?
     let cartItemCount: Int
+    let scrapCount: Int
+    let scraped: Bool
 
     enum CodingKeys: String, CodingKey {
         case id
         case categoryID = "categoryId"
         case goodsImages = "itemImages"
         case goodsInfos = "itemInfos"
-        case categoryName, title, color, size, price, seller, description, cartItemCount
+        case categoryName, title, color, size, price, seller, description, cartItemCount, scrapCount, scraped
     }
  
     func representativeImage() -> GoodsImage? {
@@ -39,25 +41,6 @@ struct Goods: Codable, Identifiable {
         
         return self.goodsImages[i]
     }
-}
-
-struct GoodsImage: Codable {
-    let id: Int
-    let imgName: String
-    let oriImgName: String
-    let imgURL: String
-    let repImgURL: RepImgURL
-
-    enum CodingKeys: String, CodingKey {
-        case id, imgName, oriImgName
-        case imgURL = "imgUrl"
-        case repImgURL = "repImgUrl"
-    }
-}
-
-enum RepImgURL: String, Codable {
-    case n = "N"
-    case y = "Y"
 }
 
 struct GoodsInfo: Codable {

@@ -13,7 +13,7 @@ class LoginViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     private var token: String = ""
     
-    @Published var error: ApiError?
+    @Published var error: APIError?
     @Published var errorView: ErrorView?
     @Published var showLoginView: Bool = true
     @Published var isSignUpComplete: Bool = false

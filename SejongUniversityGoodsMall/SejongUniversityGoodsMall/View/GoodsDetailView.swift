@@ -29,7 +29,7 @@ struct GoodsDetailView: View {
     @State private var showHelpAlert: Bool = false
     @State private var vibrateOffset: CGFloat = 0
     @State private var scrollOffset: CGFloat = .zero
-    @State private var isWished: Bool = false
+    @State private var showScrapMessage: Bool = false
     
     var body: some View {
         GeometryReader { reader in
@@ -126,27 +126,62 @@ struct GoodsDetailView: View {
                 }
             }
             .fullScreenCover(isPresented: $goodsViewModel.showOrderView) {
-                OrderView()
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                goodsViewModel.showOrderView = false
-                            } label: {
-                                Label("닫기", systemImage: "xmark")
-                                    .labelStyle(.iconOnly)
-                                    .font(.footnote)
-                                    .foregroundColor(Color("main-text-color"))
+                if #available(iOS 16.0, *) {
+                    NavigationStack {
+                        OrderView()
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button {
+                                        if goodsViewModel.isOrderComplete {
+                                            dismiss()
+                                        }
+                                        
+                                        goodsViewModel.orderGoods.removeAll()
+                                        goodsViewModel.orderGoodsListFromCart.removeAll()
+                                        goodsViewModel.cartIDList.removeAll()
+                                        goodsViewModel.isOrderComplete = false
+                                        
+                                        goodsViewModel.showOrderView = false
+                                    } label: {
+                                        Label("닫기", systemImage: "xmark")
+                                            .labelStyle(.iconOnly)
+                                            .font(.footnote)
+                                            .foregroundColor(Color("main-text-color"))
+                                    }
+                                }
                             }
-                        }
+                            .onAppear() {
+                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
+                            }
                     }
-                    .onAppear() {
-                        goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
+                } else {
+                    NavigationView {
+                        OrderView()
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button {
+                                        if goodsViewModel.isOrderComplete {
+                                            dismiss()
+                                        }
+                                        
+                                        goodsViewModel.orderGoods.removeAll()
+                                        goodsViewModel.orderGoodsListFromCart.removeAll()
+                                        goodsViewModel.cartIDList.removeAll()
+                                        goodsViewModel.isOrderComplete = false
+                                        
+                                        goodsViewModel.showOrderView = false
+                                    } label: {
+                                        Label("닫기", systemImage: "xmark")
+                                            .labelStyle(.iconOnly)
+                                            .font(.footnote)
+                                            .foregroundColor(Color("main-text-color"))
+                                    }
+                                }
+                            }
+                            .onAppear() {
+                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
+                            }
                     }
-            }
-            .fullScreenCover(isPresented: $goodsViewModel.isOrderComplete) {
-                OrderCompleteView {
-                    dismiss()
-                    goodsViewModel.isOrderComplete = false
                 }
             }
             .onDisappear() {
@@ -350,12 +385,12 @@ struct GoodsDetailView: View {
                 ZStack {
                     if !showOptionSheet {
                         Button {
-                            withAnimation {
-                                isWished.toggle()
+                            withAnimation(.easeInOut) {
+                                goodsViewModel.goodsDetail.scraped ? goodsViewModel.deleteIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken()) : goodsViewModel.sendIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken())
                             }
                         } label: {
                             VStack(spacing: 0) {
-                                if isWished {
+                                if goodsViewModel.goodsDetail.scraped {
                                     Image(systemName: "heart.fill")
                                         .font(.title2)
                                         .foregroundColor(Color("main-highlight-color"))
@@ -364,7 +399,7 @@ struct GoodsDetailView: View {
                                         .font(.title2)
                                 }
                                 
-                                Text("찜하기")
+                                Text("\(goodsViewModel.goodsDetail.scrapCount)")
                                     .font(.caption2)
                             }
                         }

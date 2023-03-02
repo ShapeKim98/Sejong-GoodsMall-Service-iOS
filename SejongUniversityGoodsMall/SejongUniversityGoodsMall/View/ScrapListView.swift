@@ -7,39 +7,54 @@
 
 import SwiftUI
 
-struct WishListView: View {
+struct ScrapListView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
-    
-    @State private var isWisedGoods: [Int: Bool] = [Int: Bool]()
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns) {
-                ForEach(goodsViewModel.goodsList) { item in
-                    subGoodsView(item)
+        VStack {
+            if goodsViewModel.scrapGoodsList.isEmpty {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .padding()
+                    .tint(Color("main-highlight-color"))
+                    .unredacted()
+                
+                Spacer()
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns) {
+                        ForEach(goodsViewModel.scrapGoodsList) { goods in
+                            subGoodsView(goods)
+                        }
+                        .redacted(reason: goodsViewModel.isScrapListLoading ? .placeholder : [])
+                    }
+                    .padding(.top)
                 }
-                .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
             }
-            .padding(.top)
         }
         .onAppear() {
-            goodsViewModel.goodsList.forEach { goods in
-                isWisedGoods.updateValue(true, forKey: goods.id)
+            withAnimation(.easeInOut) {
+                goodsViewModel.isScrapListLoading = true
             }
+            
+            goodsViewModel.fetchScrapList(token: loginViewModel.returnToken())
         }
     }
     
     @ViewBuilder
-    func subGoodsView(_ goods: Goods) -> some View {
+    func subGoodsView(_ goods: ScrapGoods) -> some View {
         NavigationLink {
             GoodsDetailView()
                 .onAppear(){
-                    goodsViewModel.fetchGoodsDetail(id: goods.id)
+                    withAnimation {
+                        goodsViewModel.isGoodsDetailLoading = true
+                    }
+                    goodsViewModel.fetchGoodsDetail(id: goods.id, token: loginViewModel.returnToken())
                 }
                 .navigationTitle("상품 정보")
                 .navigationBarTitleDisplayMode(.inline)
@@ -48,8 +63,7 @@ struct WishListView: View {
         } label: {
             VStack {
                 HStack(alignment: .top) {
-                    if let image = goods.representativeImage() {
-                        AsyncImage(url: URL(string: image.oriImgName)) { image in
+                    AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
                             image
                                 .resizable()
                                 .scaledToFit()
@@ -65,12 +79,6 @@ struct WishListView: View {
                         }
                         .frame(width: 115, height: 115)
                         .shadow(radius: 1)
-                    } else {
-                        Color("main-shape-bkg-color")
-                            .frame(width: 115, height: 115)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .shadow(radius: 1)
-                    }
                     
                     VStack(alignment: .leading, spacing: 10) {
                         VStack(alignment: .leading, spacing: 5) {
@@ -80,33 +88,12 @@ struct WishListView: View {
                                     .font(.subheadline)
                                 
                                 Spacer()
-                                
-                                Button {
-                                    withAnimation {
-                                        isWisedGoods[goods.id] = isWisedGoods[goods.id] ?? false ? false : true
-                                    }
-                                } label: {
-                                    VStack(spacing: 0) {
-                                        if isWisedGoods[goods.id] ?? false {
-                                            Image(systemName: "heart.fill")
-                                                .font(.title2)
-                                                .foregroundColor(Color("main-highlight-color"))
-                                        } else {
-                                            Image(systemName: "heart")
-                                                .font(.title2)
-                                        }
-                                    }
-                                }
-                                .foregroundColor(Color("main-text-color"))
-                                .unredacted()
                             }
                             
                             HStack(spacing: 3) {
-                                if let description = goods.description {
-                                    Text(description)
-                                        .font(.caption)
-                                        .foregroundColor(Color("secondary-text-color"))
-                                }
+                                Text(goods.description)
+                                    .font(.caption)
+                                    .foregroundColor(Color("secondary-text-color"))
                             }
                         }
                         
@@ -133,7 +120,7 @@ struct WishListView: View {
 
 struct WishListView_Previews: PreviewProvider {
     static var previews: some View {
-        WishListView()
+        ScrapListView()
             .environmentObject(LoginViewModel())
             .environmentObject(GoodsViewModel())
     }

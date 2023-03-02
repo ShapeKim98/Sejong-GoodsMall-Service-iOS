@@ -13,122 +13,49 @@ struct OrderCompleteView: View {
     
     @State private var limitDate: String = ""
     @State private var showOrderHistory: Bool = false
-    
-    private var orderCompleteCloseAction: () -> Void
+    @State private var showOrderCompleteText: Bool = false
+    @State private var showLimitDate: Bool = false
+    @State private var showOrderCompleteList: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
     
-    init(orderCompleteCloseAction: @escaping () -> Void) {
-        self.orderCompleteCloseAction = orderCompleteCloseAction
-    }
-    
     var body: some View {
-        if #available(iOS 16.0, *) {
-            NavigationStack {
+        VStack(spacing: 0) {
+            orderComplete()
+            
+            if showOrderCompleteList {
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+                
                 ScrollView {
-                    VStack(spacing: 0) {
-                        orderComplete()
-                        
-                        orderCompleteGoodsList()
-                        
-                        orderHistoryButton()
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: orderCompleteCloseAction){
-                            Label("닫기", systemImage: "xmark")
-                                .labelStyle(.iconOnly)
-                                .font(.footnote)
-                                .foregroundColor(Color("main-text-color"))
-                        }
-                    }
-                }
-                .navigationTitle("주문완료")
-                .navigationBarTitleDisplayMode(.inline)
-                .modifier(NavigationColorModifier())
-                .background(.white)
-            }
-            .fullScreenCover(isPresented: $showOrderHistory) {
-                NavigationStack {
-                    OrderHistoryView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: orderCompleteCloseAction){
-                                    Label("닫기", systemImage: "xmark")
-                                        .labelStyle(.iconOnly)
-                                        .font(.footnote)
-                                        .foregroundColor(Color("main-text-color"))
-                                }
-                            }
-                        }
-                        .navigationTitle("주문 내역")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
-                        .onAppear() {
-                            withAnimation(.easeInOut) {
-                                goodsViewModel.isOrderGoodsListLoading = true
-                            }
-                            
-                            goodsViewModel.orderGoodsInfoList.removeAll()
-                            
-                            goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
-                        }
+                    orderCompleteGoodsList()
+                        .transition(.opacity)
+                    
+                    orderHistoryButton()
+                        .transition(.opacity)
                 }
             }
-        } else {
-            NavigationView {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        orderComplete()
-                        
-                        orderCompleteGoodsList()
-                        
-                        orderHistoryButton()
-                    }
+        }
+        .background(.white)
+        .onAppear() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(.spring()) {
+                    showOrderCompleteText = true
                 }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: orderCompleteCloseAction){
-                            Label("닫기", systemImage: "xmark")
-                                .labelStyle(.iconOnly)
-                                .font(.footnote)
-                                .foregroundColor(Color("main-text-color"))
-                        }
-                    }
-                }
-                .navigationTitle("주문완료")
-                .navigationBarTitleDisplayMode(.inline)
-                .modifier(NavigationColorModifier())
-                .background(.white)
             }
-            .fullScreenCover(isPresented: $showOrderHistory) {
-                NavigationView {
-                    OrderHistoryView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: orderCompleteCloseAction){
-                                    Label("닫기", systemImage: "xmark")
-                                        .labelStyle(.iconOnly)
-                                        .font(.footnote)
-                                        .foregroundColor(Color("main-text-color"))
-                                }
-                            }
-                        }
-                        .navigationTitle("주문 내역")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
-                        .onAppear() {
-                            withAnimation(.easeInOut) {
-                                goodsViewModel.isOrderGoodsListLoading = true
-                            }
-                            
-                            goodsViewModel.orderGoodsInfoList.removeAll()
-                            
-                            goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
-                        }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                withAnimation(.spring()) {
+                    showLimitDate = true
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    showOrderCompleteList = true
                 }
             }
         }
@@ -137,24 +64,32 @@ struct OrderCompleteView: View {
     @ViewBuilder
     func orderComplete() -> some View {
         VStack {
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
+            if showOrderCompleteList {
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+            }
             
-            Text("상품 주문이 완료되었습니다.")
-                .font(.title3)
-                .padding(.top)
+            if showOrderCompleteText {
+                Text("상품 주문이 완료되었습니다.")
+                    .font(.title3)
+                    .padding(.top)
+                    .transition(.opacity)
+            }
             
-            Text("입금 기한: \(limitDate) 까지")
-                .foregroundColor(Color("main-highlight-color"))
-                .padding(.vertical)
-                .onAppear() {
-                    if let date = goodsViewModel.orderCompleteGoods?.createdAt {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "yyyy.MM.dd HH시 mm분"
-                        limitDate = formatter.string(from: date.addingTimeInterval(3600 * 24 * 2 + 3600 * 9))
+            if showLimitDate {
+                Text("입금 기한: \(limitDate) 까지")
+                    .foregroundColor(Color("main-highlight-color"))
+                    .padding(.vertical)
+                    .onAppear() {
+                        if let date = goodsViewModel.orderCompleteGoods?.createdAt {
+                            let formatter = DateFormatter()
+                            formatter.dateFormat = "yyyy.MM.dd HH시 mm분"
+                            limitDate = formatter.string(from: date.addingTimeInterval(3600 * 24 * 2 + 3600 * 9))
+                        }
                     }
-                }
+                    .transition(.opacity)
+            }
         }
     }
     
@@ -172,10 +107,6 @@ struct OrderCompleteView: View {
     @ViewBuilder
     func orderCompleteGoods(goods: OrderItem) -> some View {
         VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
-            
             subOrderGoods(goods: goods)
             
             if let seller = goods.seller {
@@ -221,25 +152,27 @@ struct OrderCompleteView: View {
                                 .foregroundColor(Color("main-text-color"))
                                 .padding(.trailing)
                             
-                            Group {
-                                if let color = goods.color, let size = goods.size {
-                                    Text("\(color), \(size)")
-                                } else {
-                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
+                            if goods.color != nil || goods.size != nil {
+                                Group {
+                                    if let color = goods.color, let size = goods.size {
+                                        Text("\(color), \(size)")
+                                    } else {
+                                        Text("\(goods.color ?? "")\(goods.size ?? "")")
+                                    }
                                 }
-                            }
-                            .font(.caption.bold())
-                            .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
+                                .font(.caption.bold())
+                                .foregroundColor(Color("main-text-color"))
+                                .padding(.leading)
+                                .background(alignment: .leading) {
+                                    Rectangle()
+                                        .fill(Color("main-text-color"))
+                                        .frame(width: 1)
+                                }
                             }
                             
                             Spacer()
                         }
-                        .padding(.bottom, 10)
+                        .padding(.bottom, 5)
                         
                         HStack {
                             Text(info.seller.name)
@@ -249,8 +182,17 @@ struct OrderCompleteView: View {
                             
                             Spacer()
                         }
+                        .padding(.bottom, 5)
                         
-                        Spacer()
+                        HStack {
+                            Text("수량 \(goods.quantity)개")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("secondary-text-color"))
+                            
+                            Spacer()
+                        }
+                        .padding(.bottom, 5)
                         
                         HStack {
                             Text("\(goods.price)원")
@@ -259,10 +201,6 @@ struct OrderCompleteView: View {
                                 .foregroundColor(Color("main-text-color"))
                             
                             Spacer()
-                            
-                            Text("수량 \(goods.quantity)개")
-                                .font(.caption.bold())
-                                .foregroundColor(Color("main-text-color"))
                         }
                     }
                     .padding(10)
@@ -357,8 +295,20 @@ struct OrderCompleteView: View {
     
     @ViewBuilder
     func orderHistoryButton() -> some View {
-        Button {
-            showOrderHistory = true
+        NavigationLink {
+            OrderHistoryView()
+                .navigationTitle("주문 내역")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
+                .onAppear() {
+                    withAnimation(.easeInOut) {
+                        goodsViewModel.isOrderGoodsListLoading = true
+                    }
+                    
+                    goodsViewModel.orderGoodsInfoList.removeAll()
+                    
+                    goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
+                }
         } label: {
             HStack {
                 Spacer()
@@ -383,9 +333,7 @@ struct OrderCompleteView: View {
 
 struct OrderCompleteView_Previews: PreviewProvider {
     static var previews: some View {
-        OrderCompleteView() {
-            
-        }
+        OrderCompleteView()
         .environmentObject(GoodsViewModel())
         .environmentObject(LoginViewModel())
     }

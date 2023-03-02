@@ -14,9 +14,6 @@ struct UserInformationView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
-    @State private var pickUpOrderCount: Int = 0
-    @State private var deliveryOrderCount: Int = 0
-    
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
@@ -82,6 +79,16 @@ struct UserInformationView: View {
                     appViewModel.showMessageBox = true
                     
                 }
+            } else {
+                withAnimation(.easeInOut) {
+                    goodsViewModel.isScrapListLoading = true
+                }
+                
+                goodsViewModel.fetchScrapList(token: loginViewModel.returnToken())
+                
+                goodsViewModel.orderGoodsInfoList.removeAll()
+
+                goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
             }
         }
     }
@@ -90,7 +97,7 @@ struct UserInformationView: View {
     func wishList() -> some View {
         VStack {
             NavigationLink {
-                WishListView()
+                ScrapListView()
                     .navigationTitle("찜한 상품")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
@@ -110,14 +117,22 @@ struct UserInformationView: View {
             .foregroundColor(Color("main-text-color"))
             .padding()
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 0) {
-                    ForEach(goodsViewModel.goodsList) { goods in
-                        subWishGoods(goods: goods)
-                            .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
+            if goodsViewModel.scrapGoodsList.isEmpty {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .padding()
+                    .tint(Color("main-highlight-color"))
+                    .unredacted()
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 0) {
+                        ForEach(goodsViewModel.scrapGoodsList) { goods in
+                            subWishGoods(goods: goods)
+                                .redacted(reason: goodsViewModel.isScrapListLoading ? .placeholder : [])
+                        }
                     }
+                    .padding(.trailing)
                 }
-                .padding(.trailing)
             }
             
             Spacer()
@@ -130,31 +145,24 @@ struct UserInformationView: View {
     }
     
     @ViewBuilder
-    func subWishGoods(goods: Goods) -> some View {
+    func subWishGoods(goods: ScrapGoods) -> some View {
         VStack {
-            if let image = goods.representativeImage() {
-                AsyncImage(url: URL(string: image.oriImgName)) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                } placeholder: {
-                    ZStack {
-                        Color("main-shape-bkg-color")
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                        
-                        ProgressView()
-                            .tint(Color("main-highlight-color"))
-                    }
-                }
-                .frame(width: 100, height: 100)
-                .shadow(radius: 1)
-            } else {
-                Color("main-shape-bkg-color")
-                    .frame(width: 100, height: 100)
+            AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
+                image
+                    .resizable()
+                    .scaledToFit()
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .shadow(radius: 1)
+            } placeholder: {
+                ZStack {
+                    Color("main-shape-bkg-color")
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    
+                    ProgressView()
+                        .tint(Color("main-highlight-color"))
+                }
             }
+            .frame(width: 100, height: 100)
+            .shadow(radius: 1)
             
             Text(goods.title)
                 .font(.footnote)
@@ -180,9 +188,9 @@ struct UserInformationView: View {
                         withAnimation(.easeInOut) {
                             goodsViewModel.isOrderGoodsListLoading = true
                         }
-                        
+
                         goodsViewModel.orderGoodsInfoList.removeAll()
-                        
+
                         goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
                     }
             } label: {
@@ -213,7 +221,7 @@ struct UserInformationView: View {
                     Text("현장 수령")
                         .foregroundColor(Color("secondary-text-color").opacity(0.7))
                     
-                    Text("\(0)")
+                    Text("\(goodsViewModel.pickUpOrderCount)")
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(Color("main-highlight-color"))
@@ -232,7 +240,7 @@ struct UserInformationView: View {
                     Text("택배 수령")
                         .foregroundColor(Color("secondary-text-color").opacity(0.7))
                     
-                    Text("\(0)")
+                    Text("\(goodsViewModel.deliveryOrderCount)")
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(Color("main-highlight-color"))
