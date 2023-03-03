@@ -13,6 +13,13 @@ struct GoodsDetailView: View {
         case sellerInformation
     }
     
+    enum DeviceType {
+        case noneNotchiPhone
+        case noneNotchiPhonePlus
+        case notchiPhoneMini
+        case notchiPhone
+    }
+    
     @Environment(\.dismiss) var dismiss
     
     @Namespace var heroEffect
@@ -30,6 +37,7 @@ struct GoodsDetailView: View {
     @State private var vibrateOffset: CGFloat = 0
     @State private var scrollOffset: CGFloat = .zero
     @State private var showScrapMessage: Bool = false
+    @State private var deviceType: DeviceType = .notchiPhone
     
     var body: some View {
         GeometryReader { reader in
@@ -83,17 +91,8 @@ struct GoodsDetailView: View {
             .overlay(alignment: .bottom) {
                 ZStack(alignment: .bottom) {
                     if showOptionSheet {
-                        let isSmallDisplayDevice = UIDevice.current.name == "iPhone 6s" ||
-                        UIDevice.current.name == "iPhone 7" ||
-                        UIDevice.current.name == "iPhone 8" ||
-                        UIDevice.current.name == "iPhone SE" ||
-                        UIDevice.current.name == "iPhone SE (2nd generation)" ||
-                        UIDevice.current.name == "iPhone SE (3nd generation)"
-                        
-                        let isMediumDisplayDevice = UIDevice.current.name == "iPhone 6s Plus" || UIDevice.current.name == "iPhone 7 Plus" || UIDevice.current.name == "iPhone 8 Plus"
-                        
                         OptionSheetView(isOptionSelected: $isOptionSelected, vibrateOffset: $vibrateOffset)
-                            .frame(height: reader.size.height - (isSmallDisplayDevice ? 220 : (isMediumDisplayDevice ? 300 : reader.size.width)) + 5)
+                            .frame(height: reader.size.height - (deviceType == .noneNotchiPhone ? 270 : (deviceType == .noneNotchiPhonePlus ? 350 : (deviceType == .notchiPhoneMini ? reader.size.width - 15 : reader.size.width))) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
                             .gesture(
@@ -184,6 +183,27 @@ struct GoodsDetailView: View {
                     }
                 }
             }
+            .onAppear() {
+                let width = reader.size.width
+                let height = reader.size.height
+                print(width)
+                print(height)
+                switch width {
+                    case 375 where height == 667:
+                        deviceType = .noneNotchiPhone
+                        break
+                    case 414 where height == 736:
+                        deviceType = .noneNotchiPhonePlus
+                        break
+                    case 375 where height == 812:
+                        deviceType = .notchiPhoneMini
+                    default:
+                        deviceType = .notchiPhone
+                        break
+                }
+                
+                print(deviceType)
+            }
             .onDisappear() {
                 goodsViewModel.seletedGoods.color = nil
                 goodsViewModel.seletedGoods.size = nil
@@ -244,7 +264,7 @@ struct GoodsDetailView: View {
                 Button {
                     showHelpAlert = false
                 } label: {
-                   Text("확인")
+                    Text("확인")
                 }
                 .foregroundColor(Color("main-highlight-color"))
             } message: {
@@ -365,7 +385,6 @@ struct GoodsDetailView: View {
             } header: {
                 goodsInformationView()
             }
-            
         }
     }
     
@@ -408,156 +427,97 @@ struct GoodsDetailView: View {
                     
                     Button {
                         if !loginViewModel.isAuthenticate {
-                            appViewModel.messageBoxTitle = "로그인이 필요한 서비스 입니다"
-                            appViewModel.messageBoxSecondaryTitle = "로그인 하시겠습니까?"
-                            appViewModel.messageBoxMainButtonTitle = "로그인 하러 가기"
-                            appViewModel.messageBoxSecondaryButtonTitle = "계속 둘러보기"
-                            appViewModel.messageBoxMainButtonAction = {
+                            appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
                                 withAnimation(.spring()) {
                                     appViewModel.showMessageBoxBackground = false
                                     appViewModel.showMessageBox = false
                                 }
                                 
                                 loginViewModel.showLoginView = true
-                            }
-                            appViewModel.messageBoxSecondaryButtonAction = {
+                            } secondaryButtonAction: {
                                 withAnimation(.spring()) {
                                     appViewModel.showMessageBoxBackground = false
                                     appViewModel.showMessageBox = false
                                 }
+                            } closeButtonAction: {
+                                appViewModel.deleteMessageBox()
                             }
-                            appViewModel.messageBoxCloseButtonAction = {
-                                appViewModel.messageBoxTitle = ""
-                                appViewModel.messageBoxSecondaryTitle = ""
-                                appViewModel.messageBoxMainButtonTitle = ""
-                                appViewModel.messageBoxSecondaryButtonTitle = ""
-                                appViewModel.messageBoxMainButtonAction = {}
-                                appViewModel.messageBoxSecondaryButtonAction = {}
-                                appViewModel.messageBoxCloseButtonAction = {}
-                                
-                                withAnimation(.spring()) {
-                                    appViewModel.showMessageBoxBackground = false
-                                    appViewModel.showMessageBox = false
-                                }
-                            }
-                            
                             
                             withAnimation(.spring()) {
                                 appViewModel.showMessageBoxBackground = true
                                 appViewModel.showMessageBox = true
                                 
                             }
-                        } else {
-                            if goodsViewModel.isSendGoodsPossible {
-                                if goodsViewModel.goodsDetail.seller.method == .both {
-                                    appViewModel.messageBoxTitle = "담을 방법을 선택해 주세요"
-                                    appViewModel.messageBoxSecondaryTitle = "현장 수령 선택시 현장에서만 수령 가능하고\n배송 수령 선택시 배송비가 별도로 부과됩니다."
-                                    appViewModel.messageBoxMainButtonTitle = "현장 수령하기"
-                                    appViewModel.messageBoxSecondaryButtonTitle = "택배 수령하기"
-                                    appViewModel.messageBoxMainButtonAction = {
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
-                                        
-                                        withAnimation {
-                                            goodsViewModel.seletedGoods.cartMethod = .pickUpOrder
-                                            goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
-                                            goodsViewModel.seletedGoods.quantity = 0
-                                            goodsViewModel.seletedGoods.color = nil
-                                            goodsViewModel.seletedGoods.size = nil
-                                        }
-                                    }
-                                    appViewModel.messageBoxSecondaryButtonAction = {
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
-                                        
-                                        withAnimation {
-                                            goodsViewModel.seletedGoods.cartMethod = .deliveryOrder
-                                            goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
-                                            goodsViewModel.seletedGoods.quantity = 0
-                                            goodsViewModel.seletedGoods.color = nil
-                                            goodsViewModel.seletedGoods.size = nil
-                                        }
-                                    }
-                                    appViewModel.messageBoxCloseButtonAction = {
-                                        appViewModel.messageBoxTitle = ""
-                                        appViewModel.messageBoxSecondaryTitle = ""
-                                        appViewModel.messageBoxMainButtonTitle = ""
-                                        appViewModel.messageBoxSecondaryButtonTitle = ""
-                                        appViewModel.messageBoxMainButtonAction = {}
-                                        appViewModel.messageBoxSecondaryButtonAction = {}
-                                        appViewModel.messageBoxCloseButtonAction = {}
-                                        
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
+                        } else if goodsViewModel.isSendGoodsPossible {
+                            if goodsViewModel.goodsDetail.seller.method == .both {
+                                appViewModel.createMessageBox(title: "담을 방법을 선택해 주세요", secondaryTitle: "주문 후 24시간 이내에 입금하지 않을시 주문이 취소될 수 있습니다.", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
                                     }
                                     
-                                    withAnimation(.spring()) {
-                                        appViewModel.showMessageBoxBackground = true
-                                        appViewModel.showMessageBox = true
-                                    }
-                                } else {
-                                    appViewModel.messageBoxTitle = goodsViewModel.goodsDetail.seller.method == .pickUp ? "본 상품은 현장 수령만 가능합니다." : "본 상품은 택배 수령만 가능합니다."
-                                    appViewModel.messageBoxSecondaryTitle = goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장 수령만 가능하니 잘 생각하고 담아주세요" : "택배 수령만 가능하니 잘 생각하고 담아주세요."
-                                    appViewModel.messageBoxMainButtonTitle = goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장 수령하기" : "택배 수령하기"
-                                    appViewModel.messageBoxSecondaryButtonTitle = "둘러보기"
-                                    appViewModel.messageBoxMainButtonAction = {
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
-                                        
-                                        withAnimation {
-                                            goodsViewModel.seletedGoods.cartMethod = goodsViewModel.goodsDetail.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
-                                            goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
-                                            goodsViewModel.seletedGoods.quantity = 0
-                                            goodsViewModel.seletedGoods.color = nil
-                                            goodsViewModel.seletedGoods.size = nil
-                                        }
-                                    }
-                                    appViewModel.messageBoxSecondaryButtonAction = {
-                                        appViewModel.messageBoxTitle = ""
-                                        appViewModel.messageBoxSecondaryTitle = ""
-                                        appViewModel.messageBoxMainButtonTitle = ""
-                                        appViewModel.messageBoxSecondaryButtonTitle = ""
-                                        appViewModel.messageBoxMainButtonAction = {}
-                                        appViewModel.messageBoxSecondaryButtonAction = {}
-                                        appViewModel.messageBoxCloseButtonAction = {}
-                                        
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
-                                    }
-                                    appViewModel.messageBoxCloseButtonAction = {
-                                        appViewModel.messageBoxTitle = ""
-                                        appViewModel.messageBoxSecondaryTitle = ""
-                                        appViewModel.messageBoxMainButtonTitle = ""
-                                        appViewModel.messageBoxSecondaryButtonTitle = ""
-                                        appViewModel.messageBoxMainButtonAction = {}
-                                        appViewModel.messageBoxSecondaryButtonAction = {}
-                                        appViewModel.messageBoxCloseButtonAction = {}
-                                        
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
+                                    withAnimation(.easeInOut) {
+                                        goodsViewModel.seletedGoods.cartMethod = .pickUpOrder
+                                        goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                                        goodsViewModel.seletedGoods.quantity = 0
+                                        goodsViewModel.seletedGoods.color = nil
+                                        goodsViewModel.seletedGoods.size = nil
                                     }
                                     
+                                    appViewModel.deleteMessageBox()
+                                } secondaryButtonAction: {
                                     withAnimation(.spring()) {
-                                        appViewModel.showMessageBoxBackground = true
-                                        appViewModel.showMessageBox = true
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
                                     }
+                                    
+                                    withAnimation(.easeInOut) {
+                                        goodsViewModel.seletedGoods.cartMethod = .deliveryOrder
+                                        goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                                        goodsViewModel.seletedGoods.quantity = 0
+                                        goodsViewModel.seletedGoods.color = nil
+                                        goodsViewModel.seletedGoods.size = nil
+                                    }
+                                    
+                                    appViewModel.deleteMessageBox()
+                                } closeButtonAction: {
+                                    appViewModel.deleteMessageBox()
+                                }
+                                
+                                withAnimation(.spring()) {
+                                    appViewModel.showMessageBoxBackground = true
+                                    appViewModel.showMessageBox = true
                                 }
                             } else {
-                                withAnimation(.spring()) {
-                                    vibrateOffset += 1
+                                appViewModel.createMessageBox(title: "본 상품은 \(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령만 가능합니다.", secondaryTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배")만 가능하니 다시 한번 확인하고 주문해주세요.", mainButtonTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령하기", secondaryButtonTitle: "둘러보기") {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
+                                    }
+                                    
+                                    withAnimation(.easeInOut) {
+                                        goodsViewModel.seletedGoods.cartMethod = goodsViewModel.goodsDetail.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
+                                        goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
+                                        goodsViewModel.seletedGoods.quantity = 0
+                                        goodsViewModel.seletedGoods.color = nil
+                                        goodsViewModel.seletedGoods.size = nil
+                                    }
+                                    
+                                    appViewModel.deleteMessageBox()
+                                } secondaryButtonAction: {
+                                    appViewModel.deleteMessageBox()
+                                } closeButtonAction: {
+                                    appViewModel.deleteMessageBox()
                                 }
+                                
+                                withAnimation(.spring()) {
+                                    appViewModel.showMessageBoxBackground = true
+                                    appViewModel.showMessageBox = true
+                                }
+                            }
+                        } else {
+                            withAnimation(.spring()) {
+                                vibrateOffset += 1
                             }
                         }
                     } label: {
@@ -584,37 +544,20 @@ struct GoodsDetailView: View {
                 if showOptionSheet {
                     Button {
                         if !loginViewModel.isAuthenticate {
-                            appViewModel.messageBoxTitle = "로그인이 필요한 서비스 입니다"
-                            appViewModel.messageBoxSecondaryTitle = "로그인 하시겠습니까?"
-                            appViewModel.messageBoxMainButtonTitle = "로그인 하러 가기"
-                            appViewModel.messageBoxSecondaryButtonTitle = "계속 둘러보기"
-                            appViewModel.messageBoxMainButtonAction = {
+                            appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
                                 withAnimation(.spring()) {
                                     appViewModel.showMessageBoxBackground = false
                                     appViewModel.showMessageBox = false
                                 }
                                 
                                 loginViewModel.showLoginView = true
-                            }
-                            appViewModel.messageBoxSecondaryButtonAction = {
+                            } secondaryButtonAction: {
                                 withAnimation(.spring()) {
                                     appViewModel.showMessageBoxBackground = false
                                     appViewModel.showMessageBox = false
                                 }
-                            }
-                            appViewModel.messageBoxCloseButtonAction = {
-                                appViewModel.messageBoxTitle = ""
-                                appViewModel.messageBoxSecondaryTitle = ""
-                                appViewModel.messageBoxMainButtonTitle = ""
-                                appViewModel.messageBoxSecondaryButtonTitle = ""
-                                appViewModel.messageBoxMainButtonAction = {}
-                                appViewModel.messageBoxSecondaryButtonAction = {}
-                                appViewModel.messageBoxCloseButtonAction = {}
-                                
-                                withAnimation(.spring()) {
-                                    appViewModel.showMessageBoxBackground = false
-                                    appViewModel.showMessageBox = false
-                                }
+                            } closeButtonAction: {
+                                appViewModel.deleteMessageBox()
                             }
                             
                             withAnimation(.spring()) {
@@ -622,102 +565,51 @@ struct GoodsDetailView: View {
                                 appViewModel.showMessageBox = true
                                 
                             }
-                        } else {
-                            if goodsViewModel.isSendGoodsPossible {
-                                if goodsViewModel.goodsDetail.seller.method == .both {
-                                    appViewModel.messageBoxTitle = "주문 방법을 선택해 주세요"
-                                    appViewModel.messageBoxSecondaryTitle = "현장 수령 선택시 현장에서만 수령 가능하고\n배송 수령 선택시 배송비가 별도로 부과됩니다."
-                                    appViewModel.messageBoxMainButtonTitle = "현장 수령하기"
-                                    appViewModel.messageBoxSecondaryButtonTitle = "택배 수령하기"
-                                    appViewModel.messageBoxMainButtonAction = {
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                            
-                                            goodsViewModel.orderType = .pickUpOrder
-                                            goodsViewModel.showOrderView = true
-                                        }
-                                    }
-                                    appViewModel.messageBoxSecondaryButtonAction = {
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
+                        } else if goodsViewModel.isSendGoodsPossible {
+                            if goodsViewModel.goodsDetail.seller.method == .both {
+                                appViewModel.createMessageBox(title: "주문 방법을 선택해 주세요", secondaryTitle: "주문 후 24시간 이내에 입금하지 않을시 주문이 취소될 수 있습니다. ", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
                                         
-                                        goodsViewModel.orderType = .deliveryOrder
+                                        goodsViewModel.orderType = .pickUpOrder
                                         goodsViewModel.showOrderView = true
                                     }
-                                    appViewModel.messageBoxCloseButtonAction = {
-                                        appViewModel.messageBoxTitle = ""
-                                        appViewModel.messageBoxSecondaryTitle = ""
-                                        appViewModel.messageBoxMainButtonTitle = ""
-                                        appViewModel.messageBoxSecondaryButtonTitle = ""
-                                        appViewModel.messageBoxMainButtonAction = {}
-                                        appViewModel.messageBoxSecondaryButtonAction = {}
-                                        appViewModel.messageBoxCloseButtonAction = {}
-                                        
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
+                                } secondaryButtonAction: {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
                                     }
                                     
-                                    withAnimation(.spring()) {
-                                        appViewModel.showMessageBoxBackground = true
-                                        appViewModel.showMessageBox = true
-                                    }
-                                } else {
-                                    appViewModel.messageBoxTitle = goodsViewModel.goodsDetail.seller.method == .pickUp ? "본 상품은 현장 수령만 가능합니다." : "본 상품은 택배 수령만 가능합니다."
-                                    appViewModel.messageBoxSecondaryTitle = goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장 수령만 가능하니 잘 생각하고 주문해주세요." : "택배 수령만 가능하니 잘 생각하고 주문해주세요."
-                                    appViewModel.messageBoxMainButtonTitle = goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장 수령하기" : "택배 수령하기"
-                                    appViewModel.messageBoxSecondaryButtonTitle = "둘러보기"
-                                    appViewModel.messageBoxMainButtonAction = {
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                            
-                                            goodsViewModel.orderType = goodsViewModel.goodsDetail.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
-                                            goodsViewModel.showOrderView = true
-                                        }
-                                    }
-                                    appViewModel.messageBoxSecondaryButtonAction = {
-                                        appViewModel.messageBoxTitle = ""
-                                        appViewModel.messageBoxSecondaryTitle = ""
-                                        appViewModel.messageBoxMainButtonTitle = ""
-                                        appViewModel.messageBoxSecondaryButtonTitle = ""
-                                        appViewModel.messageBoxMainButtonAction = {}
-                                        appViewModel.messageBoxSecondaryButtonAction = {}
-                                        appViewModel.messageBoxCloseButtonAction = {}
-                                        
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
-                                    }
-                                    appViewModel.messageBoxCloseButtonAction = {
-                                        appViewModel.messageBoxTitle = ""
-                                        appViewModel.messageBoxSecondaryTitle = ""
-                                        appViewModel.messageBoxMainButtonTitle = ""
-                                        appViewModel.messageBoxSecondaryButtonTitle = ""
-                                        appViewModel.messageBoxMainButtonAction = {}
-                                        appViewModel.messageBoxSecondaryButtonAction = {}
-                                        appViewModel.messageBoxCloseButtonAction = {}
-                                        
-                                        withAnimation(.spring()) {
-                                            appViewModel.showMessageBoxBackground = false
-                                            appViewModel.showMessageBox = false
-                                        }
-                                    }
-                                    
-                                    withAnimation(.spring()) {
-                                        appViewModel.showMessageBoxBackground = true
-                                        appViewModel.showMessageBox = true
-                                    }
+                                    goodsViewModel.orderType = .deliveryOrder
+                                    goodsViewModel.showOrderView = true
+                                } closeButtonAction: {
+                                    appViewModel.deleteMessageBox()
                                 }
                             } else {
-                                withAnimation(.spring()) {
-                                    vibrateOffset += 1
+                                appViewModel.createMessageBox(title: "본 상품은 \(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령만 가능합니다.", secondaryTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배")만 가능하니 다시 한번 확인하고 주문해주세요.", mainButtonTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령하기", secondaryButtonTitle: "둘러보기") {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
+                                        
+                                        goodsViewModel.orderType = goodsViewModel.goodsDetail.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
+                                        goodsViewModel.showOrderView = true
+                                    }
+                                } secondaryButtonAction: {
+                                    appViewModel.deleteMessageBox()
+                                } closeButtonAction: {
+                                    appViewModel.deleteMessageBox()
                                 }
+                                
+                            }
+                            
+                            withAnimation(.spring()) {
+                                appViewModel.showMessageBoxBackground = true
+                                appViewModel.showMessageBox = true
+                            }
+                        } else {
+                            withAnimation(.spring()) {
+                                vibrateOffset += 1
                             }
                         }
                     } label: {
@@ -763,10 +655,10 @@ struct GoodsDetailView: View {
                     .matchedGeometryEffect(id: "구매하기", in: heroEffect)
                 }
             }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 25)
-                .frame(height: 70)
-                .background(.white)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 25)
+            .frame(height: 70)
+            .background(.white)
         }
         .background(.clear)
     }

@@ -257,13 +257,11 @@ struct FindEmailPasswordView: View {
         
         Button {
             withAnimation(.easeInOut) {
-                withAnimation {
-                    page = .passwordPage
-                    email = ""
-                    loginViewModel.findEmailRequest.userName = ""
-                    findViewTitle = "비밀번호 찾기"
-                    loginViewModel.findComplete = false
-                }
+                page = .passwordPage
+                email = ""
+                loginViewModel.findEmailRequest.userName = ""
+                findViewTitle = "비밀번호 찾기"
+                loginViewModel.findComplete = false
             }
         } label: {
             HStack {

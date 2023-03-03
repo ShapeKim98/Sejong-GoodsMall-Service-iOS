@@ -41,9 +41,6 @@ struct OptionSheetView: View {
             
             optionsAndSelection()
         }
-        .onAppear() {
-            print(UIDevice.current.name)
-        }
     }
     
     @ViewBuilder
@@ -97,7 +94,7 @@ struct OptionSheetView: View {
                             alertMessageView(message: "장바구니에 보관되었습니다.")
                                 .onAppear() {
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                        withAnimation {
+                                        withAnimation(.easeInOut) {
                                             goodsViewModel.completeSendCartGoods = false
                                         }
                                     }
@@ -307,7 +304,7 @@ struct OptionSheetView: View {
                 Spacer()
                 
                 Button {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.seletedGoods.quantity -= 1
                     }
                 } label: {
@@ -324,7 +321,7 @@ struct OptionSheetView: View {
                     .fontWeight(.light)
                 
                 Button {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.seletedGoods.quantity += 1
                     }
                 } label: {

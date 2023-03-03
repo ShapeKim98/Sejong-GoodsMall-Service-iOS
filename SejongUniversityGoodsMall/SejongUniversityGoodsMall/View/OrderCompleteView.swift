@@ -99,6 +99,12 @@ struct OrderCompleteView: View {
             if let orderCompletGoods = goodsViewModel.orderCompleteGoods?.orderItems {
                 ForEach(orderCompletGoods, id: \.hashValue) { goods in
                     orderCompleteGoods(goods: goods)
+                    
+//                    orderCompleteInfo(title: "예금주", content: seller.accountHolder)
+//                    
+//                    orderCompleteInfo(title: "입금은행", content: seller.bank)
+//                    
+//                    orderCompleteInfo(title: "계좌번호", content: seller.account)
                 }
             }
         }

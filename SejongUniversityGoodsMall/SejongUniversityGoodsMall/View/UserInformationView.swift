@@ -36,11 +36,7 @@ struct UserInformationView: View {
         .background(.white)
         .onAppear() {
             if !loginViewModel.isAuthenticate {
-                appViewModel.messageBoxTitle = "로그인이 필요한 서비스 입니다"
-                appViewModel.messageBoxSecondaryTitle = "로그인 하시겠습니까?"
-                appViewModel.messageBoxMainButtonTitle = "로그인 하러 가기"
-                appViewModel.messageBoxSecondaryButtonTitle = "계속 둘러보기"
-                appViewModel.messageBoxMainButtonAction = {
+                appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
                     withAnimation(.spring()) {
                         appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
@@ -49,27 +45,15 @@ struct UserInformationView: View {
                     loginViewModel.showLoginView = true
                     
                     dismiss()
-                }
-                appViewModel.messageBoxSecondaryButtonAction = {
+                } secondaryButtonAction: {
                     withAnimation(.spring()) {
                         appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
-                    dismiss()
-                }
-                appViewModel.messageBoxCloseButtonAction = {
-                    appViewModel.messageBoxTitle = ""
-                    appViewModel.messageBoxSecondaryTitle = ""
-                    appViewModel.messageBoxMainButtonTitle = ""
-                    appViewModel.messageBoxSecondaryButtonTitle = ""
-                    appViewModel.messageBoxMainButtonAction = {}
-                    appViewModel.messageBoxSecondaryButtonAction = {}
-                    appViewModel.messageBoxCloseButtonAction = {}
                     
-                    withAnimation(.spring()) {
-                        appViewModel.showMessageBoxBackground = false
-                        appViewModel.showMessageBox = false
-                    }
+                    dismiss()
+                } closeButtonAction: {
+                    appViewModel.deleteMessageBox()
                     
                     dismiss()
                 }
@@ -77,7 +61,6 @@ struct UserInformationView: View {
                 withAnimation(.spring()) {
                     appViewModel.showMessageBoxBackground = true
                     appViewModel.showMessageBox = true
-                    
                 }
             } else {
                 withAnimation(.easeInOut) {

@@ -102,6 +102,7 @@ enum APIURL {
 enum APIError: Error {
     case alreadyEmail
     case authenticationFailure
+    case isNoneEmail
     case alreadyCartGoods
     case invalidResponse(statusCode: Int)
     case cannotNetworkConnect
@@ -124,8 +125,7 @@ enum APIError: Error {
             default:
                 return .unknown(error)
         }
-    }
-}
+    }}
 
 enum ApiService {
     static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, APIError> {
@@ -203,7 +203,7 @@ enum ApiService {
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw APIError.authenticationFailure
+                    throw APIError.isNoneEmail
                 } else {
                     throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }

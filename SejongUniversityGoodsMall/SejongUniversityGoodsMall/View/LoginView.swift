@@ -43,33 +43,7 @@ struct LoginView: View {
                 }
                 .tint(Color("main-text-color"))
                 .overlay(alignment: .bottom) {
-                    ZStack(alignment: .bottom) {
-                        if appViewModel.showMessageBoxBackground {
-                            Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        showDatePickerFromSignUpView = false
-                                        showDatePickerFromFindEmailView = false
-                                    }
-                                    
-                                    withAnimation(.easeOut) {
-                                        appViewModel.showMessageBoxBackground = false
-                                    }
-                                }
-                        }
-                        
-                        if showDatePickerFromSignUpView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.userRequest.birth, showDatePicker: $showDatePickerFromSignUpView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                        if showDatePickerFromFindEmailView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.findEmailRequest.birth, showDatePicker: $showDatePickerFromFindEmailView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                    }
-                    .ignoresSafeArea()
+                    datePicker()
                 }
             } else {
                 NavigationView {
@@ -84,33 +58,7 @@ struct LoginView: View {
                     .navigationBarHidden(true)
                 }
                 .overlay(alignment: .bottom) {
-                    ZStack(alignment: .bottom) {
-                        if appViewModel.showMessageBoxBackground {
-                            Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        showDatePickerFromSignUpView = false
-                                        showDatePickerFromFindEmailView = false
-                                    }
-                                    
-                                    withAnimation(.easeOut) {
-                                        appViewModel.showMessageBoxBackground = false
-                                    }
-                                }
-                        }
-                        
-                        if showDatePickerFromSignUpView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.userRequest.birth, showDatePicker: $showDatePickerFromSignUpView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                        if showDatePickerFromFindEmailView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.findEmailRequest.birth, showDatePicker: $showDatePickerFromFindEmailView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                    }
-                    .ignoresSafeArea()
+                    datePicker()
                 }
             }
         }
@@ -193,6 +141,37 @@ struct LoginView: View {
         }
         .padding()
         .padding(.bottom, 20)
+    }
+    
+    @ViewBuilder
+    func datePicker() -> some View {
+        ZStack(alignment: .bottom) {
+            if appViewModel.showMessageBoxBackground {
+                Color(.black).opacity(0.4)
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            showDatePickerFromSignUpView = false
+                            showDatePickerFromFindEmailView = false
+                        }
+                        
+                        withAnimation(.easeOut) {
+                            appViewModel.showMessageBoxBackground = false
+                        }
+                    }
+            }
+            
+            if showDatePickerFromSignUpView {
+                DatePickerSheetView(userBirthdayString: $loginViewModel.userRequest.birth, showDatePicker: $showDatePickerFromSignUpView)
+                    .transition(.move(edge: .bottom))
+            }
+            
+            if showDatePickerFromFindEmailView {
+                DatePickerSheetView(userBirthdayString: $loginViewModel.findEmailRequest.birth, showDatePicker: $showDatePickerFromFindEmailView)
+                    .transition(.move(edge: .bottom))
+            }
+            
+        }
+        .ignoresSafeArea()
     }
 }
 

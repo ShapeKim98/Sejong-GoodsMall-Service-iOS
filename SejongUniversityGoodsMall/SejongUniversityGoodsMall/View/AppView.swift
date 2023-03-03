@@ -15,19 +15,19 @@ struct AppView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var networkManager: NetworkManager
     
-    @State var showMessage: Bool = false
-    @State var message: String = ""
+    @State private var showMessage: Bool = false
+    @State private var message: String = ""
     @State private var currentCategory: Category = Category(id: 0, name: "ALLPRODUCT")
     
     var body: some View {
         HomeView(currentCategory: $currentCategory)
             .onAppear() {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     goodsViewModel.isGoodsListLoading = true
                 }
                 goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
                 
-                withAnimation {
+                withAnimation(.easeInOut) {
                     goodsViewModel.isCategoryLoading = true
                 }
                 goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
@@ -66,7 +66,7 @@ struct AppView: View {
                         }
                     }
                     .onDisappear() {
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             loginViewModel.isSignInFail = false
                             goodsViewModel.isGoodsListLoading = true
                         }

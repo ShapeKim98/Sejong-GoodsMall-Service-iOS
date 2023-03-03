@@ -46,7 +46,7 @@ struct SignUpView: View {
     func termsPage() -> some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     if !fullAgreement {
                         agreeTermsOfUse = true
                         agreePersonalInfo = true
@@ -80,7 +80,7 @@ struct SignUpView: View {
                     
                 }
             } action: {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     agreeTermsOfUse.toggle()
                     if !agreeTermsOfUse {
                         fullAgreement = false
@@ -98,7 +98,7 @@ struct SignUpView: View {
                     
                 }
             } action: {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     agreePersonalInfo.toggle()
                     if !agreePersonalInfo {
                         fullAgreement = false
@@ -116,7 +116,7 @@ struct SignUpView: View {
                     
                 }
             } action: {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     agreeMarketingInfo.toggle()
                     if !agreeMarketingInfo {
                         fullAgreement = false

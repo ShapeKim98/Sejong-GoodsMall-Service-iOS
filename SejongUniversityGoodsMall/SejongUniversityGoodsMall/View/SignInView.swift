@@ -79,7 +79,7 @@ struct SignInView: View {
             
             Button {
                 loginViewModel.isLoading = true
-                withAnimation {
+                withAnimation(.easeInOut) {
                     loginViewModel.isSignInFail = false
                 }
                 loginViewModel.signIn(email: email, password: password)

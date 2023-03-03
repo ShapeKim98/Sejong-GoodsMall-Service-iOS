@@ -67,13 +67,14 @@ struct OrderHistoryView: View {
                     Section {
                         ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in
                             subOrderGoods(orderCompleteGoods: orderCompleteGoods, goods: goods)
+                            
+                            orderCompleteInfo(title: <#T##String#>, content: <#T##String#>)
                         }
                     } header: {
                         orderDateHeader(date: orderCompleteGoods.createdAt)
                     }
                 }
             }
-
         }
     }
     
@@ -230,6 +231,27 @@ struct OrderHistoryView: View {
                 .frame(height: 1)
         }
         .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    func orderCompleteInfo(title: String, content: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(Color("secondary-text-color-strong"))
+                .frame(minWidth: 100)
+            
+            Text(content)
+                .foregroundColor(Color("main-text-color"))
+                .textSelection(.enabled)
+            
+            Spacer()
+        }
+        .padding(.vertical)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
+        }
     }
 }
 

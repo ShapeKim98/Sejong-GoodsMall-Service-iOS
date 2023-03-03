@@ -25,6 +25,7 @@ struct OrderView: View {
     @State private var detailAddress: String = ""
     @State private var deliveryRequirements: String = ""
     @State private var showFindAddressView: Bool = false
+    @State private var showDeliveryInfo: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -49,6 +50,8 @@ struct OrderView: View {
                     
                     orderGoodsList()
                     
+                    deliveryInfoAlert()
+                    
                     orderButton()
                         .padding(.top, 30)
                         .onAppear() {
@@ -70,9 +73,6 @@ struct OrderView: View {
         .navigationBarTitleDisplayMode(.inline)
         .modifier(NavigationColorModifier())
         .background(.white)
-        .onDisappear() {
-            
-        }
     }
     
     @ViewBuilder
@@ -89,7 +89,7 @@ struct OrderView: View {
             TextField("수령인", text: $buyerName, prompt: Text("수령인"))
                 .modifier(TextFieldModifier(text: $buyerName, isValidInput: $isValidBuyerName, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .name, focusedTextField: .nameField, submitLabel: .next))
                 .onChange(of: buyerName) { newValue in
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         isValidBuyerName = newValue != "" ? true : false
                     }
                 }
@@ -117,11 +117,11 @@ struct OrderView: View {
                 .modifier(TextFieldModifier(text: $phoneNumber, isValidInput: $isValidPhoneNumber, currentField: _currentField, font: .subheadline.bold(), keyboardType: .numbersAndPunctuation, contentType: .telephoneNumber, focusedTextField: .phoneNumberField, submitLabel: .done))
                 .onChange(of: phoneNumber) { newValue in
                     if(newValue.range(of:"^01([0|1|6|7|8|9]?)-([0-9]{3,4})-([0-9]{4})$", options: .regularExpression) != nil) {
-                        withAnimation {
+                        withAnimation(.easeInOut){
                             isValidPhoneNumber = true
                         }
                     } else {
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             isValidPhoneNumber = false
                         }
                     }
@@ -164,7 +164,7 @@ struct OrderView: View {
                 TextField("수령인", text: $buyerName, prompt: Text("수령인"))
                     .modifier(TextFieldModifier(text: $buyerName, isValidInput: $isValidBuyerName, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .name, focusedTextField: .nameField, submitLabel: .next))
                     .onChange(of: buyerName) { newValue in
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             isValidBuyerName = newValue != "" ? true : false
                         }
                     }
@@ -194,11 +194,11 @@ struct OrderView: View {
                     .modifier(TextFieldModifier(text: $phoneNumber, isValidInput: $isValidPhoneNumber, currentField: _currentField, font: .subheadline.bold(), keyboardType: .numbersAndPunctuation, contentType: .telephoneNumber, focusedTextField: .phoneNumberField, submitLabel: .done))
                     .onChange(of: phoneNumber) { newValue in
                         if(newValue.range(of:"^01([0|1|6|7|8|9]?)-([0-9]{3,4})-([0-9]{4})$", options: .regularExpression) != nil) {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 isValidPhoneNumber = true
                             }
                         } else {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 isValidPhoneNumber = false
                             }
                         }
@@ -229,11 +229,11 @@ struct OrderView: View {
                     .modifier(TextFieldModifier(text: $postalNumber, isValidInput: $isValidPostalNumber, currentField: _currentField, font: .subheadline.bold(), keyboardType: .numberPad, contentType: .postalCode, focusedTextField: .postalNumberField, submitLabel: .next))
                     .onChange(of: postalNumber) { newValue in
                         if newValue.count == 5 {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 isValidPostalNumber = true
                             }
                         } else {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 isValidPostalNumber = false
                             }
                         }
@@ -294,11 +294,11 @@ struct OrderView: View {
                     .modifier(TextFieldModifier(text: $mainAddress, isValidInput: $isValidMainAddress, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .streetAddressLine1, focusedTextField: .address1, submitLabel: .next))
                     .onChange(of: mainAddress) { newValue in
                         if newValue != "" {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 isValidMainAddress = true
                             }
                         } else {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 isValidMainAddress = false
                             }
                         }
@@ -662,6 +662,40 @@ struct OrderView: View {
             .padding([.horizontal, .bottom])
             .padding(.bottom, 20)
         }
+    }
+    
+    @ViewBuilder
+    func deliveryInfoAlert() -> some View {
+        HStack {
+            Text("• 기본 배송료는 3,000원 입니다.\n• 40,000원 이상 구매시 무료배송입니다.")
+                .font(.caption)
+                .foregroundColor(Color("secondary-text-color"))
+            
+            Spacer()
+            
+            Button {
+                showDeliveryInfo = true
+            } label: {
+                Label("도움말", systemImage: "info.circle")
+                    .font(.title3)
+                    .labelStyle(.iconOnly)
+                    .foregroundColor(Color("point-color"))
+            }
+            .alert("지역별 추가 배송비 안내", isPresented: $showDeliveryInfo) {
+                Button {
+                    showDeliveryInfo = false
+                } label: {
+                    Text("확인")
+                }
+                .foregroundColor(Color("main-highlight-color"))
+            } message: {
+                VStack {
+                    Text("제주도 3,000원 추가\n제주도 외 도서산간 5,000원 추가").font(.caption)
+                        .fontWeight(.semibold)
+                }
+            }
+        }
+        .padding()
     }
 }
 

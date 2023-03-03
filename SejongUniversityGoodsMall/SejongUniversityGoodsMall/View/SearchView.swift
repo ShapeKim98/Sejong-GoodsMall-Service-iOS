@@ -49,7 +49,7 @@ struct SearchView: View {
                         
                         if searchText != "" {
                             Button {
-                                withAnimation {
+                                withAnimation(.easeInOut) {
                                     searchText = ""
                                 }
                             } label: {
