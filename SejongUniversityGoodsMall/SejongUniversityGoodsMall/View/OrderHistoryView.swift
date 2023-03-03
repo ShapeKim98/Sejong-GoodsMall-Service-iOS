@@ -68,7 +68,7 @@ struct OrderHistoryView: View {
                         ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in
                             subOrderGoods(orderCompleteGoods: orderCompleteGoods, goods: goods)
                             
-                            orderCompleteInfo(title: <#T##String#>, content: <#T##String#>)
+//                            orderCompleteInfo(title: <#T##String#>, content: <#T##String#>)
                         }
                     } header: {
                         orderDateHeader(date: orderCompleteGoods.createdAt)
