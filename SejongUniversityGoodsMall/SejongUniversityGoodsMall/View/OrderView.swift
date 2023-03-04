@@ -631,9 +631,9 @@ struct OrderView: View {
                 goodsViewModel.isSendOrderGoodsLoading = true
                 
                 if goodsViewModel.cartIDList.isEmpty {
-                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
+                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, zipcode: postalNumber, detailAddress: detailAddress), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
                 } else {
-                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, detailAddress: detailAddress, zipcode: postalNumber), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
+                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, zipcode: postalNumber, detailAddress: detailAddress), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
                 }
             } label: {
                 HStack {

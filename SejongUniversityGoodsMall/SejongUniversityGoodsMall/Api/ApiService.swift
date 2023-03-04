@@ -559,7 +559,7 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func sendIsScrap(id: Int, token: String) -> AnyPublisher<Data, APIError> {
+    static func sendIsScrap(id: Int, token: String) -> AnyPublisher<Scrap, APIError> {
         var request = URLRequest(url: APIURL.sendIsScrap.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
@@ -579,13 +579,14 @@ enum ApiService {
             
             return data
         }
+        .decode(type: Scrap.self, decoder: JSONDecoder())
         .mapError { error in
             APIError.convert(error: error)
         }
         .eraseToAnyPublisher()
     }
     
-    static func deleteIsScrap(id: Int, token: String) -> AnyPublisher<Data, APIError> {
+    static func deleteIsScrap(id: Int, token: String) -> AnyPublisher<Scrap, APIError> {
         var request = URLRequest(url: APIURL.deleteIsScrap.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
@@ -605,6 +606,7 @@ enum ApiService {
             
             return data
         }
+        .decode(type: Scrap.self, decoder: JSONDecoder())
         .mapError { error in
             APIError.convert(error: error)
         }

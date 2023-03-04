@@ -11,6 +11,8 @@
 		C50FD0F829A4C36C0001DAB9 /* ShowOrderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F729A4C36C0001DAB9 /* ShowOrderViewModifier.swift */; };
 		C50FD0FA29A601250001DAB9 /* GoodsListRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F929A601250001DAB9 /* GoodsListRequest.swift */; };
 		C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5167BB5299E7324006C5B23 /* AppViewModel.swift */; };
+		C51F1AC029B2F68100E00421 /* Scrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1ABF29B2F68100E00421 /* Scrap.swift */; };
+		C51F1AC229B2FFA800E00421 /* FindPasswordRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */; };
 		C5231D2029A2135600A720DC /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D1F29A2135600A720DC /* OrderView.swift */; };
 		C5231D2229A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */; };
 		C5231D2429A2281100A720DC /* OrderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2329A2281100A720DC /* OrderType.swift */; };
@@ -72,6 +74,8 @@
 		C50FD0F729A4C36C0001DAB9 /* ShowOrderViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowOrderViewModifier.swift; sourceTree = "<group>"; };
 		C50FD0F929A601250001DAB9 /* GoodsListRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodsListRequest.swift; sourceTree = "<group>"; };
 		C5167BB5299E7324006C5B23 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		C51F1ABF29B2F68100E00421 /* Scrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scrap.swift; sourceTree = "<group>"; };
+		C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindPasswordRequest.swift; sourceTree = "<group>"; };
 		C5231D1F29A2135600A720DC /* OrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
 		C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderGoodsRequestFromDetailGoods.swift; sourceTree = "<group>"; };
 		C5231D2329A2281100A720DC /* OrderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderType.swift; sourceTree = "<group>"; };
@@ -249,6 +253,7 @@
 			children = (
 				C5C73AED2986542B00D42719 /* Goods.swift */,
 				C5FE202A29B0C96600E42FF3 /* ScrapGoods.swift */,
+				C51F1ABF29B2F68100E00421 /* Scrap.swift */,
 				C5C576F429AE10B30040627D /* Seller.swift */,
 				C5C73AEF29865E4100D42719 /* UserRequest.swift */,
 				C5C73AFF2986B91600D42719 /* UserResponse.swift */,
@@ -267,6 +272,7 @@
 				C50FD0F929A601250001DAB9 /* GoodsListRequest.swift */,
 				C54F326029ACCE2300B2253E /* OrderItem.swift */,
 				C5FE202C29B0C9E600E42FF3 /* GoodsImage.swift */,
+				C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -384,6 +390,7 @@
 				C52CB0EE29A0DFED0020C7BE /* SearchView.swift in Sources */,
 				C50FD0F829A4C36C0001DAB9 /* ShowOrderViewModifier.swift in Sources */,
 				C529B441298C140700958B7D /* FindEmailCompleteSheetModifier.swift in Sources */,
+				C51F1AC229B2FFA800E00421 /* FindPasswordRequest.swift in Sources */,
 				C54F326129ACCE2300B2253E /* OrderItem.swift in Sources */,
 				C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */,
 				C5C73AF029865E4100D42719 /* UserRequest.swift in Sources */,
@@ -399,6 +406,7 @@
 				C54F325729AB989200B2253E /* VibrateAnimation.swift in Sources */,
 				C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */,
 				C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */,
+				C51F1AC029B2F68100E00421 /* Scrap.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
 				C5FE202B29B0C96600E42FF3 /* ScrapGoods.swift in Sources */,
 				C5231D2429A2281100A720DC /* OrderType.swift in Sources */,

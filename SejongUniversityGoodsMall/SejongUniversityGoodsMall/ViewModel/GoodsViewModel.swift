@@ -119,6 +119,12 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchOrderGoodsInfo(id: Int) {
+        guard !self.orderGoodsInfoList.contains(where: { key, value in
+            return key == id
+        }) else {
+            return
+        }
+        
         ApiService.fetchGoodsDetail(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchGoodsDetail(id: id)
@@ -127,6 +133,7 @@ class GoodsViewModel: ObservableObject {
             withAnimation(.easeInOut) {
                 DispatchQueue.main.async {
                     self.orderGoodsInfoList.updateValue(goodsInfo, forKey: id)
+                    print("정보 로딩")
                 }
             }
         }
@@ -301,11 +308,13 @@ class GoodsViewModel: ObservableObject {
     func fetchOrderGoodsList(token: String) {
         ApiService.fetchOrderGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchCartGoods(token: token)
+                self.fetchOrderGoodsList(token: token)
             }
         } receiveValue: { orderGoodsList in
             DispatchQueue.main.async {
-                self.orderCompleteGoodsList = orderGoodsList
+                self.orderCompleteGoodsList = orderGoodsList.sorted(by: { lhs, rhs in
+                    return lhs.createdAt > rhs.createdAt
+                })
                 
                 self.pickUpOrderCount = 0
                 self.deliveryOrderCount = 0
@@ -335,11 +344,14 @@ class GoodsViewModel: ObservableObject {
     func sendIsScrap(id: Int, token: String) {
         ApiService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchGoodsList(id: id)
+                self.sendIsScrap(id: id, token: token)
             }
-        } receiveValue: { message in
+        } receiveValue: { scrap in
             DispatchQueue.main.async {
-                self.fetchGoodsDetail(id: id, token: token)
+                withAnimation(.easeInOut) {
+                    self.goodsDetail.scraped = true
+                    self.goodsDetail.scrapCount = scrap.scrapCount
+                }
             }
         }
         .store(in: &subscriptions)
@@ -348,9 +360,9 @@ class GoodsViewModel: ObservableObject {
     func sendIsScrapFromCart(id: Int, token: String) {
         ApiService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchGoodsList(id: id)
+                self.sendIsScrapFromCart(id: id, token: token)
             }
-        } receiveValue: { message in
+        } receiveValue: { message        in
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
                     self.completeSendCartGoods = true
@@ -365,9 +377,12 @@ class GoodsViewModel: ObservableObject {
             self.completionHandler(completion: completion) {
                 self.fetchGoodsList(id: id)
             }
-        } receiveValue: { message in
+        } receiveValue: { scrap in
             DispatchQueue.main.async {
-                self.fetchGoodsDetail(id: id, token: token)
+                withAnimation(.easeInOut) {
+                    self.goodsDetail.scraped = false
+                    self.goodsDetail.scrapCount = scrap.scrapCount
+                }
             }
         }
         .store(in: &subscriptions)

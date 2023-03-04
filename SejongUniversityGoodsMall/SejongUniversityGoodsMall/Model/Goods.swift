@@ -19,8 +19,8 @@ struct Goods: Codable, Identifiable {
     let goodsInfos: [GoodsInfo]
     let description: String?
     let cartItemCount: Int
-    let scrapCount: Int
-    let scraped: Bool
+    var scrapCount: Int
+    var scraped: Bool
 
     enum CodingKeys: String, CodingKey {
         case id
