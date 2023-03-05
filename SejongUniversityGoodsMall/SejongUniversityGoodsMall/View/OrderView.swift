@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct OrderView: View {
+    @StateObject var kakaoPostCodeViewModel: KakaoPostCodeViewModel = KakaoPostCodeViewModel()
+    
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
@@ -73,6 +75,60 @@ struct OrderView: View {
         .navigationBarTitleDisplayMode(.inline)
         .modifier(NavigationColorModifier())
         .background(.white)
+        .onChange(of: kakaoPostCodeViewModel.address) { newValue in
+            if let address = newValue, let zipcode = kakaoPostCodeViewModel.zipcode {
+                mainAddress = address
+                postalNumber = zipcode
+                
+                showFindAddressView = false
+            }
+        }
+        .onTapGesture {
+            currentField = nil
+        }
+        .fullScreenCover(isPresented: $showFindAddressView) {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
+                        .environmentObject(kakaoPostCodeViewModel)
+                        .navigationTitle("우편번호 찾기")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .modifier(NavigationColorModifier())
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button {
+                                    showFindAddressView = false
+                                } label: {
+                                    Label("닫기", systemImage: "xmark")
+                                        .labelStyle(.iconOnly)
+                                        .font(.footnote)
+                                        .foregroundColor(Color("main-text-color"))
+                                }
+                            }
+                        }
+                }
+            } else {
+                NavigationView {
+                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
+                        .environmentObject(kakaoPostCodeViewModel)
+                        .navigationTitle("우편번호 찾기")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .modifier(NavigationColorModifier())
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button {
+                                    showFindAddressView = false
+                                } label: {
+                                    Label("닫기", systemImage: "xmark")
+                                        .labelStyle(.iconOnly)
+                                        .font(.footnote)
+                                        .foregroundColor(Color("main-text-color"))
+                                }
+                            }
+                        }
+                }
+            }
+        }
     }
     
     @ViewBuilder
@@ -260,23 +316,6 @@ struct OrderView: View {
                             }
                         }
                         .padding()
-                        .fullScreenCover(isPresented: $showFindAddressView) {
-                            if #available(iOS 16.0, *) {
-                                NavigationStack {
-                                    findAddressView()
-                                        .navigationTitle("우편번호 찾기")
-                                        .navigationBarTitleDisplayMode(.inline)
-                                        .modifier(NavigationColorModifier())
-                                }
-                            } else {
-                                NavigationView {
-                                    findAddressView()
-                                        .navigationTitle("우편번호 찾기")
-                                        .navigationBarTitleDisplayMode(.inline)
-                                        .modifier(NavigationColorModifier())
-                                }
-                            }
-                        }
                     }
                 
                 HStack {

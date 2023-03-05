@@ -14,6 +14,8 @@
 		C51F1AC229B2FFA800E00421 /* FindPasswordRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */; };
 		C51F1AC429B48FFB00E00421 /* AuthNumberRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC329B48FFB00E00421 /* AuthNumberRequest.swift */; };
 		C51F1AC629B4965E00E00421 /* UpdatePaswordRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC529B4965E00E00421 /* UpdatePaswordRequest.swift */; };
+		C51F1AC829B4C83D00E00421 /* FindAdressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC729B4C83D00E00421 /* FindAdressView.swift */; };
+		C51F1ACA29B4F5E300E00421 /* KaKaoPostCodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC929B4F5E300E00421 /* KaKaoPostCodeViewModel.swift */; };
 		C5231D2029A2135600A720DC /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D1F29A2135600A720DC /* OrderView.swift */; };
 		C5231D2229A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */; };
 		C5231D2429A2281100A720DC /* OrderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2329A2281100A720DC /* OrderType.swift */; };
@@ -77,6 +79,8 @@
 		C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindPasswordRequest.swift; sourceTree = "<group>"; };
 		C51F1AC329B48FFB00E00421 /* AuthNumberRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthNumberRequest.swift; sourceTree = "<group>"; };
 		C51F1AC529B4965E00E00421 /* UpdatePaswordRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatePaswordRequest.swift; sourceTree = "<group>"; };
+		C51F1AC729B4C83D00E00421 /* FindAdressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindAdressView.swift; sourceTree = "<group>"; };
+		C51F1AC929B4F5E300E00421 /* KaKaoPostCodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KaKaoPostCodeViewModel.swift; sourceTree = "<group>"; };
 		C5231D1F29A2135600A720DC /* OrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
 		C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderGoodsRequestFromDetailGoods.swift; sourceTree = "<group>"; };
 		C5231D2329A2281100A720DC /* OrderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderType.swift; sourceTree = "<group>"; };
@@ -164,6 +168,7 @@
 				C592F317299A2857003CF15E /* CartView.swift */,
 				C592F31B299B4D17003CF15E /* UserInformationView.swift */,
 				C5231D1F29A2135600A720DC /* OrderView.swift */,
+				C51F1AC729B4C83D00E00421 /* FindAdressView.swift */,
 				C5C576F629AF279F0040627D /* OrderCompleteView.swift */,
 				C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */,
 				C592F31D299B51E2003CF15E /* ScrapListView.swift */,
@@ -283,6 +288,7 @@
 				C5167BB5299E7324006C5B23 /* AppViewModel.swift */,
 				C5C73AFB298676C600D42719 /* LoginViewModel.swift */,
 				C5C73AFD2986B07000D42719 /* GoodsViewModel.swift */,
+				C51F1AC929B4F5E300E00421 /* KaKaoPostCodeViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -393,6 +399,7 @@
 				C51F1AC629B4965E00E00421 /* UpdatePaswordRequest.swift in Sources */,
 				C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */,
 				C5C73AF029865E4100D42719 /* UserRequest.swift in Sources */,
+				C51F1AC829B4C83D00E00421 /* FindAdressView.swift in Sources */,
 				C5C73AFE2986B07000D42719 /* GoodsViewModel.swift in Sources */,
 				C54F325D29ACADA900B2253E /* OrderGoodsRequestFromCart.swift in Sources */,
 				C592F318299A2857003CF15E /* CartView.swift in Sources */,
@@ -408,6 +415,7 @@
 				C51F1AC029B2F68100E00421 /* Scrap.swift in Sources */,
 				C595C74D298113F100AF6E86 /* OptionSheetView.swift in Sources */,
 				C5FE202B29B0C96600E42FF3 /* ScrapGoods.swift in Sources */,
+				C51F1ACA29B4F5E300E00421 /* KaKaoPostCodeViewModel.swift in Sources */,
 				C5231D2429A2281100A720DC /* OrderType.swift in Sources */,
 				C5C576F729AF279F0040627D /* OrderCompleteView.swift in Sources */,
 				C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */,
