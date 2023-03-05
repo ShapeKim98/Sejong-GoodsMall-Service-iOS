@@ -12,7 +12,8 @@ struct SignInView: View {
     
     @FocusState private var currentField: FocusedTextField?
     
-    @Binding var showDatePickerFromFindEmailView: Bool
+    @Binding var showDatePicker: Bool
+    @Binding var userBirth: String
     
     @State private var email: String = ""
     @State private var password: String = ""
@@ -66,7 +67,7 @@ struct SignInView: View {
             .modifier(VibrateAnimation(animatableData: vibrateOffset))
             
             NavigationLink(isActive: $isFindView) {
-                FindEmailPasswordView(showDatePickerFromFindEmailView: $showDatePickerFromFindEmailView)
+                FindEmailPasswordView(showDatePicker: $showDatePicker, userBirth: $userBirth)
             } label: {
                 Text("이메일/비밀번호 찾기")
                     .font(.footnote)
@@ -115,7 +116,6 @@ struct SignInView: View {
         .onTapGesture {
             currentField = nil
         }
-        .modifier(FindEmailCompleteSheetModifer(isFindView: $isFindView))
         .onChange(of: loginViewModel.isSignInFail) { newValue in
             withAnimation(.spring()) {
                 vibrateOffset += newValue ? 1 : 0
@@ -128,7 +128,7 @@ struct SignInView: View {
 
 struct SignInView_Previews: PreviewProvider {
     static var previews: some View {
-        SignInView(showDatePickerFromFindEmailView: .constant(false))
+        SignInView(showDatePicker: .constant(false), userBirth: .constant(""))
             .environmentObject(LoginViewModel())
     }
 }

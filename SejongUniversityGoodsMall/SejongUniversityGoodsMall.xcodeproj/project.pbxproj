@@ -8,18 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		C50FD0F629A3B2170001DAB9 /* NoticeAndFAQView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */; };
-		C50FD0F829A4C36C0001DAB9 /* ShowOrderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F729A4C36C0001DAB9 /* ShowOrderViewModifier.swift */; };
 		C50FD0FA29A601250001DAB9 /* GoodsListRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F929A601250001DAB9 /* GoodsListRequest.swift */; };
 		C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5167BB5299E7324006C5B23 /* AppViewModel.swift */; };
 		C51F1AC029B2F68100E00421 /* Scrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1ABF29B2F68100E00421 /* Scrap.swift */; };
 		C51F1AC229B2FFA800E00421 /* FindPasswordRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */; };
+		C51F1AC429B48FFB00E00421 /* AuthNumberRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC329B48FFB00E00421 /* AuthNumberRequest.swift */; };
+		C51F1AC629B4965E00E00421 /* UpdatePaswordRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C51F1AC529B4965E00E00421 /* UpdatePaswordRequest.swift */; };
 		C5231D2029A2135600A720DC /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D1F29A2135600A720DC /* OrderView.swift */; };
 		C5231D2229A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */; };
 		C5231D2429A2281100A720DC /* OrderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2329A2281100A720DC /* OrderType.swift */; };
 		C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */; };
 		C529B43D298BBC3700958B7D /* FocusedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43C298BBC3700958B7D /* FocusedTextField.swift */; };
 		C529B43F298BC48000958B7D /* TextFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43E298BC48000958B7D /* TextFieldModifier.swift */; };
-		C529B441298C140700958B7D /* FindEmailCompleteSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */; };
 		C52CB0EC29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52CB0EB29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift */; };
 		C52CB0EE29A0DFED0020C7BE /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52CB0ED29A0DFED0020C7BE /* SearchView.swift */; };
 		C5324CA029794AD20034C710 /* SejongUniversityGoodsMallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5324C9F29794AD20034C710 /* SejongUniversityGoodsMallApp.swift */; };
@@ -71,18 +71,18 @@
 
 /* Begin PBXFileReference section */
 		C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoticeAndFAQView.swift; sourceTree = "<group>"; };
-		C50FD0F729A4C36C0001DAB9 /* ShowOrderViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowOrderViewModifier.swift; sourceTree = "<group>"; };
 		C50FD0F929A601250001DAB9 /* GoodsListRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodsListRequest.swift; sourceTree = "<group>"; };
 		C5167BB5299E7324006C5B23 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		C51F1ABF29B2F68100E00421 /* Scrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scrap.swift; sourceTree = "<group>"; };
 		C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindPasswordRequest.swift; sourceTree = "<group>"; };
+		C51F1AC329B48FFB00E00421 /* AuthNumberRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthNumberRequest.swift; sourceTree = "<group>"; };
+		C51F1AC529B4965E00E00421 /* UpdatePaswordRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatePaswordRequest.swift; sourceTree = "<group>"; };
 		C5231D1F29A2135600A720DC /* OrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
 		C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderGoodsRequestFromDetailGoods.swift; sourceTree = "<group>"; };
 		C5231D2329A2281100A720DC /* OrderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderType.swift; sourceTree = "<group>"; };
 		C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationColorModifier.swift; sourceTree = "<group>"; };
 		C529B43C298BBC3700958B7D /* FocusedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextField.swift; sourceTree = "<group>"; };
 		C529B43E298BC48000958B7D /* TextFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldModifier.swift; sourceTree = "<group>"; };
-		C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindEmailCompleteSheetModifier.swift; sourceTree = "<group>"; };
 		C52CB0EA29A0C9FF0020C7BE /* SejongUniversityGoodsMall.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SejongUniversityGoodsMall.entitlements; sourceTree = "<group>"; };
 		C52CB0EB29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCartGoodsRequest.swift; sourceTree = "<group>"; };
 		C52CB0ED29A0DFED0020C7BE /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
@@ -177,8 +177,6 @@
 			children = (
 				C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */,
 				C529B43E298BC48000958B7D /* TextFieldModifier.swift */,
-				C529B440298C140700958B7D /* FindEmailCompleteSheetModifier.swift */,
-				C50FD0F729A4C36C0001DAB9 /* ShowOrderViewModifier.swift */,
 				C54F325629AB989200B2253E /* VibrateAnimation.swift */,
 			);
 			path = Modifier;
@@ -273,6 +271,8 @@
 				C54F326029ACCE2300B2253E /* OrderItem.swift */,
 				C5FE202C29B0C9E600E42FF3 /* GoodsImage.swift */,
 				C51F1AC129B2FFA800E00421 /* FindPasswordRequest.swift */,
+				C51F1AC329B48FFB00E00421 /* AuthNumberRequest.swift */,
+				C51F1AC529B4965E00E00421 /* UpdatePaswordRequest.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -388,10 +388,9 @@
 				C5C73AD22983CE5100D42719 /* SignUpView.swift in Sources */,
 				C592F31E299B51E2003CF15E /* ScrapListView.swift in Sources */,
 				C52CB0EE29A0DFED0020C7BE /* SearchView.swift in Sources */,
-				C50FD0F829A4C36C0001DAB9 /* ShowOrderViewModifier.swift in Sources */,
-				C529B441298C140700958B7D /* FindEmailCompleteSheetModifier.swift in Sources */,
 				C51F1AC229B2FFA800E00421 /* FindPasswordRequest.swift in Sources */,
 				C54F326129ACCE2300B2253E /* OrderItem.swift in Sources */,
+				C51F1AC629B4965E00E00421 /* UpdatePaswordRequest.swift in Sources */,
 				C5D32C7B29794C8600644BFD /* HomeView.swift in Sources */,
 				C5C73AF029865E4100D42719 /* UserRequest.swift in Sources */,
 				C5C73AFE2986B07000D42719 /* GoodsViewModel.swift in Sources */,
@@ -418,6 +417,7 @@
 				C5C73AF22986603700D42719 /* LoginRequest.swift in Sources */,
 				C5FE202D29B0C9E600E42FF3 /* GoodsImage.swift in Sources */,
 				C57973AE29A36EF7007243A3 /* OrderHistoryView.swift in Sources */,
+				C51F1AC429B48FFB00E00421 /* AuthNumberRequest.swift in Sources */,
 				C52CB0EC29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift in Sources */,
 				C5C73AF82986611600D42719 /* FindEmailResponse.swift in Sources */,
 				C5C73B062987C12C00D42719 /* DrawingCheckmark.swift in Sources */,

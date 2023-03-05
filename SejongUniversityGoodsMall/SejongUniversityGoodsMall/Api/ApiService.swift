@@ -13,6 +13,9 @@ enum APIURL {
     case fetchSignUp
     case fetchSignIn
     case fetchFindEmail
+    case fetchFindPassword
+    case chechAuthNumber
+    case updatePassword
     case fetchGoodsList
     case fetchGoodsDetail
     case fetchCategory
@@ -38,6 +41,12 @@ enum APIURL {
                 return URL(string: "auth/signin", relativeTo: APIURL.server.url())
             case .fetchFindEmail:
                 return URL(string: "auth/find/email", relativeTo: APIURL.server.url())
+            case .fetchFindPassword:
+                return URL(string: "auth/find/password", relativeTo: APIURL.server.url())
+            case .chechAuthNumber:
+                return URL(string: "auth/check/authNumber", relativeTo: APIURL.server.url())
+            case .updatePassword:
+                return URL(string: "auth/update/password", relativeTo: APIURL.server.url())
             case .fetchGoodsList:
                 return URL(string: "items/all", relativeTo: APIURL.server.url())
             case .fetchGoodsDetail:
@@ -103,6 +112,7 @@ enum APIError: Error {
     case alreadyEmail
     case authenticationFailure
     case isNoneEmail
+    case isInvalidAuthNumber
     case alreadyCartGoods
     case invalidResponse(statusCode: Int)
     case cannotNetworkConnect
@@ -634,6 +644,93 @@ enum ApiService {
             return data
         }
         .decode(type: ScrapGoodsList.self, decoder: JSONDecoder())
+        .mapError { error in
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func fetchFindPassword(userName: String, email: String) -> AnyPublisher<Data, APIError> {
+        let body = FindPasswordRequest(name: userName, email: email)
+        
+        var request = URLRequest(url: APIURL.fetchFindPassword.url()!)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.isNoneEmail
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .mapError { error in
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func checkAuthNumber(inputNum: Int) -> AnyPublisher<Data, APIError> {
+        let body = AuthNumberRequest(inputNum: inputNum)
+        
+        var request = URLRequest(url: APIURL.chechAuthNumber.url()!)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.isInvalidAuthNumber
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .mapError { error in
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    static func updatePassword(email: String, password: String) -> AnyPublisher<Data, APIError> {
+        let body = UpdatePasswordRequest(email: email, password: password)
+        
+        var request = URLRequest(url: APIURL.updatePassword.url()!)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(body)
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.isNoneEmail
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
         .mapError { error in
             APIError.convert(error: error)
         }

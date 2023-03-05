@@ -20,17 +20,19 @@ class LoginViewModel: ObservableObject {
     @Published var isAuthenticate: Bool = false
     @Published var isSignInFail: Bool = false
     @Published var findComplete: Bool = false
+    @Published var findPasswordComplete: Bool = false
+    @Published var checkAuthNumberComplete: Bool = false
+    @Published var updatePasswordComplete: Bool = false
+    @Published var isInvalidAuthNumber: Bool = false
     @Published var isLoading: Bool = false
     @Published var message: String?
     @Published var findEmail: String = ""
-    @Published var userRequest: UserRequest = UserRequest(email: "", password: "", userName: "", birth: "")
-    @Published var findEmailRequest: FindEmailRequest = FindEmailRequest(userName: "", birth: "")
     @Published var memberID: Int?
     
-    func signUp() {
-        ApiService.fetchSignUp(email: userRequest.email, password: userRequest.password, userName: userRequest.userName, birth: userRequest.birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+    func signUp(email: String, password: String, userName: String, birth: String) {
+        ApiService.fetchSignUp(email: email, password: password, userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.signUp()
+                self.signUp(email: email, password: password, userName: userName, birth: birth)
             }
         } receiveValue: { user in
             DispatchQueue.main.async {
@@ -65,10 +67,10 @@ class LoginViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func fetchFindEmail() {
-        ApiService.fetchFindEmail(userName: findEmailRequest.userName, birth: findEmailRequest.birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+    func fetchFindEmail(userName: String, birth: String) {
+        ApiService.fetchFindEmail(userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchFindEmail()
+                self.fetchFindEmail(userName: userName, birth: birth)
             }
         } receiveValue: { findEmailResponse in
             DispatchQueue.main.async {
@@ -79,6 +81,54 @@ class LoginViewModel: ObservableObject {
                 }
             }
             print(findEmailResponse)
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func fetchFindPassword(userName: String, email: String) {
+        ApiService.fetchFindPassword(userName: userName, email: email).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            self.completionHandler(completion: completion) {
+                self.fetchFindPassword(userName: userName, email: email)
+            }
+        } receiveValue: { data in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                withAnimation(.spring()) {
+                    self.findComplete = true
+                }
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func checkAuthNumber(inputNum: Int) {
+        ApiService.checkAuthNumber(inputNum: inputNum).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            self.completionHandler(completion: completion) {
+                self.checkAuthNumber(inputNum: inputNum)
+            }
+        } receiveValue: { data in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                withAnimation(.spring()) {
+                    self.checkAuthNumberComplete = true
+                }
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func updatePassword(email: String, password: String) {
+        ApiService.updatePassword(email: email, password: password).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            self.completionHandler(completion: completion) {
+                self.updatePassword(email: email, password: password)
+            }
+        } receiveValue: { data in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                withAnimation(.spring()) {
+                    self.updatePasswordComplete = true
+                }
+            }
         }
         .store(in: &subscriptions)
     }
@@ -96,6 +146,13 @@ class LoginViewModel: ObservableObject {
                         }
                         print("로그인 실패")
                         break
+                    case .isInvalidAuthNumber:
+                        DispatchQueue.main.async {
+                            withAnimation(.easeInOut) {
+                                self.isInvalidAuthNumber = true
+                                self.isLoading = false
+                            }
+                        }
                     case .isNoneEmail:
                         DispatchQueue.main.async {
                             self.message = "존재하지 않는 이메일"
