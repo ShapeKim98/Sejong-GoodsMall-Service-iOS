@@ -404,8 +404,31 @@ struct GoodsDetailView: View {
                 ZStack {
                     if !showOptionSheet {
                         Button {
-                            withAnimation(.easeInOut) {
-                                goodsViewModel.goodsDetail.scraped ? goodsViewModel.deleteIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken()) : goodsViewModel.sendIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken())
+                            if loginViewModel.isAuthenticate {
+                                withAnimation(.easeInOut) {
+                                    goodsViewModel.goodsDetail.scraped ? goodsViewModel.deleteIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken()) : goodsViewModel.sendIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken())
+                                }
+                            } else {
+                                appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
+                                    }
+                                    
+                                    loginViewModel.showLoginView = true
+                                } secondaryButtonAction: {
+                                    withAnimation(.spring()) {
+                                        appViewModel.showMessageBoxBackground = false
+                                        appViewModel.showMessageBox = false
+                                    }
+                                } closeButtonAction: {
+                                    appViewModel.deleteMessageBox()
+                                }
+                                
+                                withAnimation(.spring()) {
+                                    appViewModel.showMessageBoxBackground = true
+                                    appViewModel.showMessageBox = true
+                                }
                             }
                         } label: {
                             VStack(spacing: 0) {
