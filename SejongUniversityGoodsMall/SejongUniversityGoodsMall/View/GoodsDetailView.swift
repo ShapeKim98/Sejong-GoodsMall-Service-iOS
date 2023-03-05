@@ -569,14 +569,16 @@ struct GoodsDetailView: View {
                             if goodsViewModel.goodsDetail.seller.method == .both {
                                 appViewModel.createMessageBox(title: "주문 방법을 선택해 주세요", secondaryTitle: "주문 후 24시간 이내에 입금하지 않을시 주문이 취소될 수 있습니다. ", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
                                     withAnimation(.spring()) {
+                                        showOptionSheet = false
                                         appViewModel.showMessageBoxBackground = false
                                         appViewModel.showMessageBox = false
-                                        
-                                        goodsViewModel.orderType = .pickUpOrder
-                                        goodsViewModel.showOrderView = true
                                     }
+                                    
+                                    goodsViewModel.orderType = .pickUpOrder
+                                    goodsViewModel.showOrderView = true
                                 } secondaryButtonAction: {
                                     withAnimation(.spring()) {
+                                        showOptionSheet = false
                                         appViewModel.showMessageBoxBackground = false
                                         appViewModel.showMessageBox = false
                                     }
@@ -589,6 +591,7 @@ struct GoodsDetailView: View {
                             } else {
                                 appViewModel.createMessageBox(title: "본 상품은 \(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령만 가능합니다.", secondaryTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배")만 가능하니 다시 한번 확인하고 주문해주세요.", mainButtonTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령하기", secondaryButtonTitle: "둘러보기") {
                                     withAnimation(.spring()) {
+                                        showOptionSheet = false
                                         appViewModel.showMessageBoxBackground = false
                                         appViewModel.showMessageBox = false
                                         
@@ -600,7 +603,6 @@ struct GoodsDetailView: View {
                                 } closeButtonAction: {
                                     appViewModel.deleteMessageBox()
                                 }
-                                
                             }
                             
                             withAnimation(.spring()) {
