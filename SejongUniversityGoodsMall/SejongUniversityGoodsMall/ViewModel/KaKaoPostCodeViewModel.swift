@@ -16,13 +16,12 @@ class KakaoPostCodeViewModel: NSObject, ObservableObject, WKScriptMessageHandler
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if let data = message.body as? [String: String] {
             DispatchQueue.main.async {
-                self.address = data["roadAddress"] ?? ""
+                self.address = data["address"] ?? ""
                 self.zipcode = data["zonecode"] ?? ""
                 
                 print(self.address)
                 print(self.zipcode)
             }
-            
         }
     }
 }

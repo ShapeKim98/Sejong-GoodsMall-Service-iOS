@@ -89,23 +89,25 @@ struct OrderView: View {
         .fullScreenCover(isPresented: $showFindAddressView) {
             if #available(iOS 16.0, *) {
                 NavigationStack {
-                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
-                        .environmentObject(kakaoPostCodeViewModel)
-                        .navigationTitle("우편번호 찾기")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .modifier(NavigationColorModifier())
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button {
-                                    showFindAddressView = false
-                                } label: {
-                                    Label("닫기", systemImage: "xmark")
-                                        .labelStyle(.iconOnly)
-                                        .font(.footnote)
-                                        .foregroundColor(Color("main-text-color"))
-                                }
+                    VStack {
+                        FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
+                    }
+                    .environmentObject(kakaoPostCodeViewModel)
+                    .navigationTitle("우편번호 찾기")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .modifier(NavigationColorModifier())
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                showFindAddressView = false
+                            } label: {
+                                Label("닫기", systemImage: "xmark")
+                                    .labelStyle(.iconOnly)
+                                    .font(.footnote)
+                                    .foregroundColor(Color("main-text-color"))
                             }
                         }
+                    }
                 }
             } else {
                 NavigationView {

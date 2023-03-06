@@ -66,7 +66,13 @@ struct LoginView: View {
     
     @ViewBuilder
     func title() -> some View {
-        HStack {
+        VStack {
+            Spacer()
+            
+            Image("icon")
+                .resizable()
+                .frame(width: 100, height: 100)
+            
             Text("세종이의 집")
                 .font(.title)
                 .fontWeight(.semibold)
