@@ -819,10 +819,10 @@ struct FindEmailPasswordView: View {
     }
 }
 
-//struct FindEmailPasswordView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        FindEmailPasswordView(showDatePicker: .constant(false), userBirth: .constant(""))
-//            .environmentObject(AppViewModel())
-//            .environmentObject(LoginViewModel())
-//    }
-//}
+struct FindEmailPasswordView_Previews: PreviewProvider {
+    static var previews: some View {
+        FindEmailPasswordView(showDatePicker: .constant(false), userBirth: .constant(""))
+            .environmentObject(AppViewModel())
+            .environmentObject(LoginViewModel())
+    }
+}
