@@ -32,6 +32,7 @@ struct FindEmailPasswordView: View {
     @State private var showMessage: Bool = false
     @State private var message: String = ""
     @State private var showFindComplete: Bool = false
+    @State private var vibrateOffset: CGFloat = 0
     
     init(showDatePicker: Binding<Bool>, userBirth: Binding<String>) {
         self._showDatePicker = showDatePicker
@@ -42,28 +43,13 @@ struct FindEmailPasswordView: View {
     
     var body: some View {
         VStack {
-            if #available(iOS 16.0, *) {
-                if !loginViewModel.findComplete {
-                    pageSelection()
-                    
-                    switch page {
-                        case .emailPage:
-                            findEmailView()
-                        case .passwordPage:
-                            findPasswordView()
-                    }
-                } else {
-                    findEmailCompleteView()
-                }
-            } else {
-                pageSelection()
-
-                switch page {
-                    case .emailPage:
-                        findEmailView()
-                    case .passwordPage:
-                        findPasswordView()
-                }
+            pageSelection()
+            
+            switch page {
+                case .emailPage:
+                    findEmailView()
+                case .passwordPage:
+                    findPasswordView()
             }
         }
         .background(.white)
@@ -213,31 +199,19 @@ struct FindEmailPasswordView: View {
         .padding(.top, 25)
     }
     
-    enum FindPasswordTextField {
-        case inputField
-        case verifyCodeField
-        case changePasswordField
-        case delay
-    }
-    
-    enum FindPasswordButton {
-        case inputButton
-        case verifyCodeButton
-        case changePasswordButton
-    }
-    
     @State private var email: String = ""
-    @State private var findPasswordTextField: FindPasswordTextField = .inputField
-    @State private var findPasswordButton: FindPasswordButton = .inputButton
+    
     
     @ViewBuilder
     func findPasswordView() -> some View {
-        VStack(spacing: findPasswordTextField == .changePasswordField ? nil : 20) {
-            switch findPasswordTextField {
+        VStack(spacing: loginViewModel.findPasswordTextField == .changePasswordField ? nil : 20) {
+            switch loginViewModel.findPasswordTextField {
                 case .inputField:
                     findPasswordInput()
                 case .verifyCodeField:
                     verifyCodePage()
+                case .sendVerifyCode:
+                    sendVerifyCodeComplete()
                 case .changePasswordField:
                     changePasswordPage()
                 case .delay:
@@ -246,17 +220,50 @@ struct FindEmailPasswordView: View {
             
             Spacer()
             
-            switch findPasswordButton {
+            switch loginViewModel.findPasswordButton {
                 case .inputButton:
                     findPasswordInputButton()
                 case .verifyCodeButton:
                     verifyCodeButton()
                 case .changePasswordButton:
                     changePasswordButton()
+                case .sendVerifyCodeButton:
+                    VStack {
+                        Spacer()
+                        
+                        Button {
+                            withAnimation(.spring()) {
+                                loginViewModel.findPasswordTextField = .delay
+                                loginViewModel.findPasswordButton = .verifyCodeButton
+                            }
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                withAnimation(.spring()) {
+                                    loginViewModel.findPasswordTextField = .verifyCodeField
+                                }
+                            }
+                        } label: {
+                            HStack {
+                                Spacer()
+                                
+                                Text("인증코드 입력하기")
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                
+                                Spacer()
+                            }
+                        }
+                        .background {
+                            RoundedRectangle(cornerRadius: 10)
+                                .foregroundColor(Color("main-highlight-color"))
+                        }
+                        .padding(.bottom, 20)
+                    }
+                    .padding(.horizontal)
             }
         }
         .padding(.top, 25)
-        
     }
     
     @State private var userName = ""
@@ -284,14 +291,7 @@ struct FindEmailPasswordView: View {
             .onSubmit {
                 if userName != "" && email != "" {
                     withAnimation(.spring()) {
-                        findPasswordButton = .verifyCodeButton
-                        findPasswordTextField = .delay
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            withAnimation(.spring()) {
-                                findPasswordTextField = .verifyCodeField
-                                currentField = .verifyCodeField
-                            }
-                        }
+                        loginViewModel.findPasswordTextField = .delay
                     }
                 }
             }
@@ -305,6 +305,8 @@ struct FindEmailPasswordView: View {
             Spacer()
             
             Button {
+                currentField = nil
+                
                 loginViewModel.isLoading = true
                 
                 loginViewModel.fetchFindPassword(userName: userName, email: email)
@@ -317,7 +319,7 @@ struct FindEmailPasswordView: View {
                             .padding()
                             .tint(Color("main-highlight-color"))
                     } else {
-                        Text("이메일 발송")
+                        Text("인증코드 발송")
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding()
@@ -332,50 +334,140 @@ struct FindEmailPasswordView: View {
                     .foregroundColor((userName != "" && email != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
-            .onChange(of: loginViewModel.findPasswordComplete) { newValue in
-                if newValue {
-                    withAnimation(.spring()) {
-                        findPasswordButton = .verifyCodeButton
-                        findPasswordTextField = .delay
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            withAnimation(.spring()) {
-                                findPasswordTextField = .verifyCodeField
-                                currentField = .verifyCodeField
-                            }
-                        }
-                    }
-                }
-            }
         }
         .padding(.horizontal)
     }
     
     @State private var verifyCode: String = ""
-    @State private var isValidVerifyCode: Bool = false
+    
+    @State private var showSendCompleteTitle: Bool = false
+    @State private var showSendCompleteContent: Bool = false
+    
+    @ViewBuilder
+    func sendVerifyCodeComplete() -> some View {
+        VStack {
+            if !showSendCompleteContent {
+                Spacer()
+            }
+            
+            if showSendCompleteTitle {
+                Text("인증코드 전송 완료")
+                    .font(.largeTitle)
+                    .foregroundColor(Color("main-text-color"))
+                    .padding()
+            }
+            
+            if showSendCompleteContent {
+                Text("입력하신 이메일에 인증코드가 발송되었어요.")
+                    .foregroundColor(Color("main-text-color"))
+                    .padding()
+                
+                Text("아래 버튼을 눌려 입력창에 인증코드를 입력해주세요.")
+                    .foregroundColor(Color("main-text-color"))
+                    .padding()
+                
+                Spacer()
+            }
+        }
+        .onAppear() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(.spring()) {
+                    showSendCompleteTitle = true
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation(.spring()) {
+                    showSendCompleteContent = true
+                }
+            }
+        }
+        .padding(.horizontal)
+        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+    }
     
     @ViewBuilder
     func verifyCodePage() -> some View {
-        TextField("인증코드(6자리)", text: $verifyCode, prompt: Text("인증코드(6자리)"))
-            .modifier(TextFieldModifier(text: $verifyCode, isValidInput: $isValidVerifyCode, currentField: _currentField, font: .subheadline.bold(), keyboardType: .numberPad, contentType: .oneTimeCode, focusedTextField: .verifyCodeField, submitLabel: .continue))
-            .onTapGesture {
-                currentField = .verifyCodeField
-            }
-            .onSubmit {
-                if verifyCode != "" {
-                    withAnimation(.spring()) {
-                        findPasswordButton = .verifyCodeButton
-                        findPasswordTextField = .delay
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            withAnimation(.spring()) {
-                                findPasswordTextField = .verifyCodeField
-                                currentField = .passwordField
+        VStack {
+            TextField("인증코드(6자리)", text: $verifyCode, prompt: Text("인증코드(6자리)"))
+                .modifier(TextFieldModifier(text: $verifyCode, isValidInput: .constant(loginViewModel.isInvalidAuthNumber ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .numberPad, contentType: .oneTimeCode, focusedTextField: .verifyCodeField, submitLabel: .continue))
+                .onTapGesture {
+                    currentField = .verifyCodeField
+                }
+                .padding(.horizontal)
+                .overlay {
+                    HStack {
+                        Spacer()
+                        
+                        Button {
+                            loginViewModel.isLoading = true
+                            loginViewModel.retrySendVerifyCodeStart = true
+                            loginViewModel.fetchFindPassword(userName: userName, email: email)
+                        } label: {
+                            if loginViewModel.isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                    .padding()
+                                    .tint(Color("main-highlight-color"))
+                            } else {
+                                Text("재전송")
+                                    .font(.caption2)
+                                    .foregroundColor(Color("main-text-color"))
+                                    .background(alignment: .bottom) {
+                                        Rectangle()
+                                            .fill(Color("main-text-color"))
+                                            .frame(height: 0.5)
+                                    }
+                                    .padding()
                             }
+                        }
+                    }
+                    .padding()
+                }
+            
+            HStack {
+                Text(loginViewModel.isInvalidAuthNumber ? "인증번호가 틀렸습니다!" : " ")
+                    .font(.caption2)
+                    .foregroundColor(Color("main-highlight-color"))
+                
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            if loginViewModel.retrySendVerifyCodeStart && loginViewModel.retrySendVerifyCodeEnd {
+                HStack {
+                    Spacer()
+                    
+                    Text("인증번호 재전송 완료")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(2)
+                        .background {
+                            Rectangle()
+                                .foregroundColor(Color("main-text-color"))
+                        }
+                    
+                    Spacer()
+                }
+                .frame(height: 70)
+                .onAppear() {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        withAnimation(.easeInOut) {
+                            loginViewModel.retrySendVerifyCodeStart = false
+                            loginViewModel.retrySendVerifyCodeEnd = false
                         }
                     }
                 }
             }
-            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            .padding(.horizontal)
+        }
+        .modifier(VibrateAnimation(animatableData: vibrateOffset))
+        .onChange(of: loginViewModel.isInvalidAuthNumber) { newValue in
+            withAnimation(.spring()) {
+                vibrateOffset += newValue ? 1 : 0
+            }
+        }
+        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
     }
     
     @ViewBuilder
@@ -413,22 +505,9 @@ struct FindEmailPasswordView: View {
                     .foregroundColor(verifyCode != "" && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
             }
             .padding(.bottom, 20)
+            
         }
         .padding(.horizontal)
-        .onChange(of: loginViewModel.checkAuthNumberComplete) { newValue in
-            if newValue {
-                withAnimation(.spring()) {
-                    findPasswordButton = .changePasswordButton
-                    findPasswordTextField = .delay
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation(.spring()) {
-                            findPasswordTextField = .changePasswordField
-                            currentField = .passwordField
-                        }
-                    }
-                }
-            }
-        }
     }
     
     @State private var password: String = ""
@@ -483,9 +562,6 @@ struct FindEmailPasswordView: View {
                 .onTapGesture {
                     currentField = .verifyPasswordField
                     showDatePicker = false
-                }
-                .onSubmit {
-                    
                 }
                 .onChange(of: verifyPassword) { newValue in
                     isSamePassword = newValue == password ? true : false
@@ -743,10 +819,10 @@ struct FindEmailPasswordView: View {
     }
 }
 
-struct FindEmailPasswordView_Previews: PreviewProvider {
-    static var previews: some View {
-        FindEmailPasswordView(showDatePicker: .constant(false), userBirth: .constant("")).updatePasswordComplete()
-            .environmentObject(AppViewModel())
-            .environmentObject(LoginViewModel())
-    }
-}
+//struct FindEmailPasswordView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        FindEmailPasswordView(showDatePicker: .constant(false), userBirth: .constant(""))
+//            .environmentObject(AppViewModel())
+//            .environmentObject(LoginViewModel())
+//    }
+//}

@@ -47,13 +47,13 @@ struct OrderCompleteView: View {
                 }
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 withAnimation(.spring()) {
                     showLimitDate = true
                 }
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
                 withAnimation(.easeInOut(duration: 0.5)) {
                     showOrderCompleteList = true
                 }
@@ -72,13 +72,14 @@ struct OrderCompleteView: View {
             
             if showOrderCompleteText {
                 Text("상품 주문이 완료되었습니다.")
-                    .font(.title3)
+                    .font(showLimitDate ? .title3 : .title)
                     .padding(.top)
                     .transition(.opacity)
             }
             
             if showLimitDate {
                 Text("입금 기한: \(limitDate) 까지")
+                    .font(showOrderCompleteList ? nil : .title2)
                     .foregroundColor(Color("main-highlight-color"))
                     .padding(.vertical)
                     .onAppear() {

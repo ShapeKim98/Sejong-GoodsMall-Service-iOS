@@ -10,6 +10,21 @@ import SwiftUI
 import Combine
 
 class LoginViewModel: ObservableObject {
+    enum FindPasswordTextField {
+        case inputField
+        case verifyCodeField
+        case sendVerifyCode
+        case changePasswordField
+        case delay
+    }
+    
+    enum FindPasswordButton {
+        case inputButton
+        case verifyCodeButton
+        case sendVerifyCodeButton
+        case changePasswordButton
+    }
+    
     private var subscriptions = Set<AnyCancellable>()
     private var token: String = ""
     
@@ -20,14 +35,16 @@ class LoginViewModel: ObservableObject {
     @Published var isAuthenticate: Bool = false
     @Published var isSignInFail: Bool = false
     @Published var findComplete: Bool = false
-    @Published var findPasswordComplete: Bool = false
-    @Published var checkAuthNumberComplete: Bool = false
     @Published var updatePasswordComplete: Bool = false
     @Published var isInvalidAuthNumber: Bool = false
     @Published var isLoading: Bool = false
     @Published var message: String?
     @Published var findEmail: String = ""
     @Published var memberID: Int?
+    @Published var findPasswordTextField: FindPasswordTextField = .inputField
+    @Published var findPasswordButton: FindPasswordButton = .inputButton
+    @Published var retrySendVerifyCodeStart: Bool = false
+    @Published var retrySendVerifyCodeEnd: Bool = false
     
     func signUp(email: String, password: String, userName: String, birth: String) {
         ApiService.fetchSignUp(email: email, password: password, userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
@@ -91,10 +108,26 @@ class LoginViewModel: ObservableObject {
                 self.fetchFindPassword(userName: userName, email: email)
             }
         } receiveValue: { data in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                withAnimation(.spring()) {
-                    self.findComplete = true
+            if self.retrySendVerifyCodeStart {
+                DispatchQueue.main.async {
+                    withAnimation(.easeInOut) {
+                        self.retrySendVerifyCodeEnd = true
+                        self.isLoading = false
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    withAnimation(.spring()) {
+                        self.findPasswordTextField = .delay
+                        self.findPasswordButton = .sendVerifyCodeButton
+                        self.isLoading = false
+                    }
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation(.spring()) {
+                        self.findPasswordTextField = .sendVerifyCode
+                    }
                 }
             }
         }
@@ -108,9 +141,16 @@ class LoginViewModel: ObservableObject {
             }
         } receiveValue: { data in
             DispatchQueue.main.async {
-                self.isLoading = false
                 withAnimation(.spring()) {
-                    self.checkAuthNumberComplete = true
+                    self.findPasswordTextField = .delay
+                    self.findPasswordButton = .changePasswordButton
+                    self.isLoading = false
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.spring()) {
+                    self.findPasswordTextField = .changePasswordField
                 }
             }
         }
@@ -125,9 +165,9 @@ class LoginViewModel: ObservableObject {
         } receiveValue: { data in
             DispatchQueue.main.async {
                 self.isLoading = false
-                withAnimation(.spring()) {
-                    self.updatePasswordComplete = true
-                }
+                self.updatePasswordComplete = true
+                self.findPasswordTextField = .inputField
+                self.findPasswordButton = .inputButton
             }
         }
         .store(in: &subscriptions)

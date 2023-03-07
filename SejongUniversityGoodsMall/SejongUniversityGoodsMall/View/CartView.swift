@@ -17,7 +17,6 @@ struct CartView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var isAllSelected: Bool = false
-    @State private var scrollOffset: CGFloat = .zero
     @State private var message: String = ""
     
     private let columns = [
@@ -25,70 +24,76 @@ struct CartView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            orderTypeSelection()
-                .unredacted()
-            
-            allSeletionAndDeleteSeleted()
-            
-            if (goodsViewModel.pickUpCart.isEmpty && goodsViewModel.isCartGoodsListLoading) || (goodsViewModel.deliveryCart.isEmpty && goodsViewModel.isCartGoodsListLoading) {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-                    .padding()
-                    .tint(Color("main-highlight-color"))
+        ZStack {
+            VStack(spacing: 0) {
+                orderTypeSelection()
                     .unredacted()
-            } else {
-                Group {
-                    switch goodsViewModel.orderType {
-                        case .pickUpOrder where goodsViewModel.pickUpCart.isEmpty:
-                            emptyCart()
-                        case .deliveryOrder where goodsViewModel.deliveryCart.isEmpty:
-                            emptyCart()
-                        default:
-                            cartGoodsList()
+                
+                allSeletionAndDeleteSeleted()
+                
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+                
+                if (goodsViewModel.pickUpCart.isEmpty && goodsViewModel.isCartGoodsListLoading) || (goodsViewModel.deliveryCart.isEmpty && goodsViewModel.isCartGoodsListLoading) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .padding()
+                        .tint(Color("main-highlight-color"))
+                        .unredacted()
+                } else {
+                    Group {
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder where goodsViewModel.pickUpCart.isEmpty:
+                                emptyCart()
+                            case .deliveryOrder where goodsViewModel.deliveryCart.isEmpty:
+                                emptyCart()
+                            default:
+                                cartGoodsList()
+                        }
                     }
-                }
-                .overlay(alignment: .bottom) {
-                    if goodsViewModel.completeSendCartGoods {
-                        alertMessageView(message: message)
-                            .padding()
-                            .onAppear() {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                    withAnimation(.easeInOut) {
-                                        goodsViewModel.completeSendCartGoods = false
+                    .overlay(alignment: .bottom) {
+                        if goodsViewModel.completeSendCartGoods {
+                            alertMessageView(message: message)
+                                .padding()
+                                .onAppear() {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                        withAnimation(.easeInOut) {
+                                            goodsViewModel.completeSendCartGoods = false
+                                        }
                                     }
                                 }
-                            }
+                        }
                     }
                 }
-            }
-            
-            Spacer()
-            
-            Button {
-                goodsViewModel.showOrderView = true
-            } label: {
-                HStack {
-                    Spacer()
-                    
-                    Text("\(goodsViewModel.selectedCartGoodsPrice)원 주문하기")
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                    Spacer()
+                
+                Spacer()
+                
+                Button {
+                    goodsViewModel.showOrderView = true
+                } label: {
+                    HStack {
+                        Spacer()
+                        
+                        Text("\(goodsViewModel.selectedCartGoodsPrice)원 주문하기")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                        
+                        Spacer()
+                    }
+                    .background {
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundColor(goodsViewModel.selectedCartGoodsPrice != 0 && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                    }
                 }
-                .background {
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(goodsViewModel.selectedCartGoodsPrice != 0 && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
-                }
+                .disabled(goodsViewModel.selectedCartGoodsPrice == 0 || loginViewModel.isLoading)
+                .padding([.horizontal, .bottom])
+                .padding(.bottom, 20)
             }
-            .disabled(goodsViewModel.selectedCartGoodsPrice == 0 || loginViewModel.isLoading)
-            .padding([.horizontal, .bottom])
-            .padding(.bottom, 20)
         }
         .background(.white)
-        .onAppear(){
+        .onAppear() {
             withAnimation(.easeInOut) {
                 goodsViewModel.isCartGoodsListLoading = true
             }
@@ -523,10 +528,7 @@ struct CartView: View {
     func cartGoodsList() -> some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                Rectangle()
-                    .fill(Color("shape-bkg-color"))
-                    .offset(y: scrollOffset < 0 ? scrollOffset : 0)
-                    .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
+                
                 
                 switch goodsViewModel.orderType {
                     case .pickUpOrder:
@@ -549,16 +551,6 @@ struct CartView: View {
                         }
                 }
             }
-            .background {
-                GeometryReader { reader in
-                    let offset = -reader.frame(in: .named("SCROLL")).minY
-                    Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
-                }
-            }
-        }
-        .coordinateSpace(name: "SCROLL")
-        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-            scrollOffset = value
         }
     }
     

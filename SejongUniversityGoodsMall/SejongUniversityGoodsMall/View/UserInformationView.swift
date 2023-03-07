@@ -79,28 +79,18 @@ struct UserInformationView: View {
     @ViewBuilder
     func wishList() -> some View {
         VStack {
-            NavigationLink {
-                ScrapListView()
-                    .navigationTitle("찜한 상품")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .modifier(NavigationColorModifier())
-            } label: {
-                HStack {
-                    Text("찜한 상품")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                    
-                    Spacer()
-                    
-                    Label("다음", systemImage: "chevron.forward")
-                        .labelStyle(.iconOnly)
-                }
-                .padding(.horizontal)
+            HStack {
+                Text("찜한 상품")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                
+                Spacer()
             }
-            .foregroundColor(Color("main-text-color"))
+            .padding(.horizontal)
             .padding()
             
-            if goodsViewModel.scrapGoodsList.isEmpty {
+            
+            if goodsViewModel.scrapGoodsList.isEmpty && goodsViewModel.isScrapListLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
                     .padding()
@@ -149,12 +139,12 @@ struct UserInformationView: View {
             
             Text(goods.title)
                 .font(.footnote)
-                .foregroundColor(Color("secondary-text-color"))
+                .foregroundColor(Color("main-text-color"))
             
             Text("\(goods.price)원")
                 .font(.footnote)
                 .fontWeight(.semibold)
-                .foregroundColor(Color("secondary-text-color"))
+                .foregroundColor(Color("main-text-color"))
         }
         .padding([.bottom, .leading])
     }
@@ -202,7 +192,7 @@ struct UserInformationView: View {
                 
                 VStack {
                     Text("현장 수령")
-                        .foregroundColor(Color("secondary-text-color").opacity(0.7))
+                        .foregroundColor(Color("main-text-color"))
                     
                     Text("\(goodsViewModel.pickUpOrderCount)")
                         .font(.title3)
@@ -221,7 +211,7 @@ struct UserInformationView: View {
                 
                 VStack {
                     Text("택배 수령")
-                        .foregroundColor(Color("secondary-text-color").opacity(0.7))
+                        .foregroundColor(Color("main-text-color"))
                     
                     Text("\(goodsViewModel.deliveryOrderCount)")
                         .font(.title3)

@@ -41,49 +41,62 @@ struct GoodsDetailView: View {
     
     var body: some View {
         GeometryReader { reader in
-            ScrollView {
-                VStack {
-                    VStack(spacing: 10) {
-                        if goodsViewModel.isGoodsDetailLoading {
-                            Color("main-shape-bkg-color")
-                                .frame(width: reader.size.width, height: reader.size.width - (scrollOffset < 0 ? scrollOffset : 0))
-                                .offset(y: scrollOffset < 0 ? scrollOffset : 0)
-                                .shadow(radius: 1)
-                        } else {
-                            imageView(height: reader.size.width)
-                                .unredacted()
-                        }
-                        
-                        HStack(spacing: 0) {
-                            Text("\(imagePage) ")
-                                .foregroundColor(Color("main-text-color"))
-                            Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
-                                .foregroundColor(Color("secondary-text-color"))
-                            
-                            Spacer()
-                        }
-                        .font(.footnote)
-                        .padding(.horizontal)
-                        
-                        nameAndPriceView()
-                    }
-                    .padding(.bottom)
-                    
-                    Rectangle()
-                        .foregroundColor(Color("shape-bkg-color"))
-                        .frame(height: 10)
-                    
-                    switch service {
-                        case .goodsInformation:
-                            goodsInformationPage()
-                        case .sellerInformation:
-                            sellerInformationPage()
+            ZStack(alignment: .top) {
+                Group {
+                    if goodsViewModel.isGoodsDetailLoading {
+                        Color("main-shape-bkg-color")
+                            .frame(width: reader.size.width, height: reader.size.width - (scrollOffset < 0 ? scrollOffset : 0))
+                            .shadow(radius: 1)
+                    } else {
+                        imageView(height: reader.size.width)
+                            .unredacted()
                     }
                 }
-                .background {
-                    GeometryReader { reader in
-                        let offset = -reader.frame(in: .named("SCROLL")).minY
-                        Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                .zIndex(scrollOffset <= 0 ? 2 : 0)
+                
+                ScrollView {
+                    VStack {
+                        Spacer()
+                            .frame(height: reader.size.width)
+                        
+                        VStack {
+                            VStack(spacing: 10) {
+                                HStack(spacing: 0) {
+                                    Text("\(imagePage) ")
+                                        .foregroundColor(Color("main-text-color"))
+                                    Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
+                                        .foregroundColor(Color("secondary-text-color"))
+                                    
+                                    Spacer()
+                                }
+                                .font(.footnote)
+                                .padding(.horizontal)
+                                
+                                nameAndPriceView()
+                            }
+                            .padding(.vertical)
+                            
+                            Rectangle()
+                                .foregroundColor(Color("shape-bkg-color"))
+                                .frame(height: 10)
+                            
+                                switch service {
+                                    case .goodsInformation:
+                                        goodsInformationPage()
+                                    case .sellerInformation:
+                                        sellerInformationPage()
+                                }
+     
+                            Spacer()
+                                .frame(height: 80)
+                        }
+                        .background(.white)
+                    }
+                    .background {
+                        GeometryReader { reader in
+                            let offset = -reader.frame(in: .named("SCROLL")).minY
+                            Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                        }
                     }
                 }
             }
@@ -235,10 +248,13 @@ struct GoodsDetailView: View {
                 }
                 .frame(width: height, height: height - (scrollOffset < 0 ? scrollOffset : 0))
                 .tag(image.id - goodsViewModel.goodsDetail.id)
+                .overlay {
+                    Color(.black)
+                        .opacity(scrollOffset / (height * 3))
+                }
             }
         }
         .frame(height: height - (scrollOffset < 0 ? scrollOffset : 0))
-        .offset(y: scrollOffset < 0 ? scrollOffset : 0)
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
@@ -252,38 +268,19 @@ struct GoodsDetailView: View {
             
             Spacer()
             
-            Button {
-                showHelpAlert = true
-            } label: {
-                Label("도움말", systemImage: "info.circle")
-                    .font(.title3)
-                    .labelStyle(.iconOnly)
-                    .foregroundColor(Color("point-color"))
-            }
-            .alert("도움말", isPresented: $showHelpAlert) {
-                Button {
-                    showHelpAlert = false
-                } label: {
-                    Text("확인")
-                }
-                .foregroundColor(Color("main-highlight-color"))
-            } message: {
-                Group {
-                    switch goodsViewModel.goodsDetail.seller.method {
-                        case .both:
-                            Text("현장 수령 선택시 현장에서만 수령 가능하고\n배송 수령 선택시 배송비가 별도로 부과됩니다.")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                        case .pickUp:
-                            Text("본 상품은 현장 수령만 가능합니다.\n현장 수령만 가능하니 잘 생각하고 주문해주세요.")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                        case .delivery:
-                            Text("본 상품은 택배 수령만 가능합니다.\n택배 수령만 가능하니 잘 생각하고 주문해주세요.")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                    }
-                }
+            switch goodsViewModel.goodsDetail.seller.method {
+                case .both:
+                    Text("현장수령, 택배수령")
+                        .font(.caption)
+                        .foregroundColor(Color("point-color"))
+                case .pickUp:
+                    Text("현장수령")
+                        .font(.caption)
+                        .foregroundColor(Color("point-color"))
+                case .delivery:
+                    Text("택배수령")
+                        .font(.caption)
+                        .foregroundColor(Color("point-color"))
             }
         }
         .padding(.horizontal)
@@ -296,7 +293,6 @@ struct GoodsDetailView: View {
             Spacer()
         }
         .padding(.horizontal)
-        
     }
     
     @ViewBuilder
@@ -310,7 +306,7 @@ struct GoodsDetailView: View {
                 }
             }
             
-            Spacer(minLength: 120)
+            Spacer(minLength: 150)
             
             serviceButton("판매자 정보", .sellerInformation) {
                 withAnimation(.spring()) {
@@ -361,7 +357,6 @@ struct GoodsDetailView: View {
                         image
                             .resizable()
                             .scaledToFit()
-                        
                     } placeholder: {
                         ZStack {
                             Color("main-shape-bkg-color")
@@ -375,16 +370,47 @@ struct GoodsDetailView: View {
                 goodsInformationView()
             }
         }
+        .background(.white)
     }
     
     @ViewBuilder
     func sellerInformationPage() -> some View {
         LazyVStack(pinnedViews: [.sectionHeaders]) {
             Section {
+                orderCompleteInfo(title: "업체명", content: goodsViewModel.goodsDetail.seller.name)
                 
+                orderCompleteInfo(title: "전화번호", content: goodsViewModel.goodsDetail.seller.phoneNumber)
+                
+                orderCompleteInfo(title: "예금주", content: goodsViewModel.goodsDetail.seller.accountHolder)
+                
+                orderCompleteInfo(title: "입금은행", content: goodsViewModel.goodsDetail.seller.bank)
+                
+                orderCompleteInfo(title: "계좌번호", content: goodsViewModel.goodsDetail.seller.account)
             } header: {
                 goodsInformationView()
             }
+        }
+        .background(.white)
+    }
+    
+    @ViewBuilder
+    func orderCompleteInfo(title: String, content: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(Color("secondary-text-color-strong"))
+                .frame(minWidth: 100)
+            
+            Text(content)
+                .foregroundColor(Color("main-text-color"))
+                .textSelection(.enabled)
+            
+            Spacer()
+        }
+        .padding(.vertical)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
         }
     }
     
