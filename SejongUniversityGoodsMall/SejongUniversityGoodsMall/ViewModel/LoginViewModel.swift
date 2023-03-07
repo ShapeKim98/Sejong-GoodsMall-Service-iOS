@@ -134,10 +134,10 @@ class LoginViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func checkAuthNumber(inputNum: Int) {
-        ApiService.checkAuthNumber(inputNum: inputNum).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+    func checkAuthNumber(email: String, inputNum: Int) {
+        ApiService.checkAuthNumber(email: email, inputNum: inputNum).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.checkAuthNumber(inputNum: inputNum)
+                self.checkAuthNumber(email: email, inputNum: inputNum)
             }
         } receiveValue: { data in
             DispatchQueue.main.async {

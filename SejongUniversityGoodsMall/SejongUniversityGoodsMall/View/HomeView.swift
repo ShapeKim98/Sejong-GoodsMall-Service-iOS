@@ -146,7 +146,7 @@ struct HomeView: View {
                         }
                         
                         if currentCategory.id == 0 {
-                            goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                            goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                         } else {
                             goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                         }
@@ -193,7 +193,7 @@ struct HomeView: View {
                     ForEach(goodsViewModel.categoryList) { category in
                         categotyButton(category.categoryName, category: category) {
                             if category.id == 0 {
-                                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                                goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                             } else {
                                 goodsViewModel.fetchGoodsListFromCatefory(id: category.id)
                             }
@@ -259,7 +259,7 @@ struct HomeView: View {
                     withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
                     }
-                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                    goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                 } else {
                     withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
@@ -270,7 +270,7 @@ struct HomeView: View {
                 withAnimation(.easeInOut) {
                     goodsViewModel.isCategoryLoading = true
                 }
-                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+                goodsViewModel.fetchCategory()
             }
         } else {
             List(goodsViewModel.goodsList) { item in
@@ -288,7 +288,7 @@ struct HomeView: View {
                     withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
                     }
-                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                    goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                 } else {
                     withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
@@ -299,7 +299,7 @@ struct HomeView: View {
                 withAnimation(.easeInOut) {
                     goodsViewModel.isCategoryLoading = true
                 }
-                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+                goodsViewModel.fetchCategory()
             }
         }
     }
@@ -324,7 +324,7 @@ struct HomeView: View {
                     }
                     
                     if currentCategory.id == 0 {
-                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                        goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                     } else {
                         goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                     }

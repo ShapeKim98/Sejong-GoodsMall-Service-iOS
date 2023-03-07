@@ -51,10 +51,10 @@ class GoodsViewModel: ObservableObject {
     @Published var scrapGoodsList: ScrapGoodsList = ScrapGoodsList()
     @Published var isScrapListLoading: Bool = true
     
-    func fetchGoodsList(id: Int? = nil) {
-        ApiService.fetchGoodsList(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+    func fetchGoodsList(token: String? = nil) {
+        ApiService.fetchGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchGoodsList(id: id)
+                self.fetchGoodsList(token: token)
             }
         } receiveValue: { goodsList in
             DispatchQueue.main.async {
@@ -68,10 +68,10 @@ class GoodsViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func fetchCategory(token: String) {
-        ApiService.fetchCategory(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+    func fetchCategory() {
+        ApiService.fetchCategory().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchCategory(token: token)
+                self.fetchCategory()
             }
         } receiveValue: { categoryList in
             DispatchQueue.main.async {
@@ -375,7 +375,7 @@ class GoodsViewModel: ObservableObject {
     func deleteIsScrap(id: Int, token: String) {
         ApiService.deleteIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchGoodsList(id: id)
+                self.deleteIsScrap(id: id, token: token)
             }
         } receiveValue: { scrap in
             DispatchQueue.main.async {

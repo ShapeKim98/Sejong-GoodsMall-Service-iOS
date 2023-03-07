@@ -479,7 +479,7 @@ struct FindEmailPasswordView: View {
                 if let inputNum = Int(verifyCode) {
                     loginViewModel.isLoading = true
                     
-                    loginViewModel.checkAuthNumber(inputNum: inputNum)
+                    loginViewModel.checkAuthNumber(email: email, inputNum: inputNum)
                 }
             } label: {
                 HStack {

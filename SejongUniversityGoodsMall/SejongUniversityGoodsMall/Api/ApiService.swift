@@ -228,13 +228,12 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func fetchGoodsList(id: Int?) -> AnyPublisher<GoodsList, APIError> {
-        let body = GoodsListRequest(memberID: id)
-        
+    static func fetchGoodsList(token: String? = nil) -> AnyPublisher<GoodsList, APIError> {
         var request = URLRequest(url: APIURL.fetchGoodsList.url()!)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONEncoder().encode(body)
+        
+        if let bearerToken = token {
+            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        }
         
         let decoder = JSONDecoder()
         let formatter = DateFormatter()
@@ -297,7 +296,7 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func fetchCategory(token: String) -> AnyPublisher<CategoryList, APIError> {
+    static func fetchCategory() -> AnyPublisher<CategoryList, APIError> {
         let request = URLRequest(url: APIURL.fetchCategory.url()!)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
@@ -679,8 +678,8 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func checkAuthNumber(inputNum: Int) -> AnyPublisher<Data, APIError> {
-        let body = AuthNumberRequest(inputNum: inputNum)
+    static func checkAuthNumber(email: String, inputNum: Int) -> AnyPublisher<Data, APIError> {
+        let body = AuthNumberRequest(email: email, inputNum: inputNum)
         
         var request = URLRequest(url: APIURL.chechAuthNumber.url()!)
         request.httpMethod = "POST"

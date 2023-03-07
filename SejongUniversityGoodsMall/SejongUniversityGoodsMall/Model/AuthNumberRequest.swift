@@ -8,5 +8,6 @@
 import Foundation
 
 struct AuthNumberRequest: Codable {
+    let email: String
     let inputNum: Int
 }
