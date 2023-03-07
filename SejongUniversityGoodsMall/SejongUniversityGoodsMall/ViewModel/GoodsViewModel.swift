@@ -50,6 +50,8 @@ class GoodsViewModel: ObservableObject {
     @Published var orderGoodsInfoList: [Int: Goods] = [Int: Goods]()
     @Published var scrapGoodsList: ScrapGoodsList = ScrapGoodsList()
     @Published var isScrapListLoading: Bool = true
+    @Published var searchList: GoodsList = GoodsList()
+    @Published var isSearchLoading: Bool = false
     
     func fetchGoodsList(token: String? = nil) {
         ApiService.fetchGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
@@ -507,5 +509,25 @@ class GoodsViewModel: ObservableObject {
                 }
                 break
         }
+    }
+    
+    func searchGoods(searchText: String) {
+        ApiService.fetchGoodsList().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            self.completionHandler(completion: completion) {
+                self.fetchGoodsList()
+            }
+        } receiveValue: { goodsList in
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut) {
+                    self.searchList = goodsList.filter({ goods in
+                        let isDiscription = goods.description?.contains(searchText) ?? false
+                        return goods.title.contains(searchText) || goods.seller.name.contains(searchText) || goods.seller.method.rawValue.contains(searchText) || isDiscription
+                    })
+                    
+                    self.isSearchLoading = false
+                }
+            }
+        }
+        .store(in: &subscriptions)
     }
 }

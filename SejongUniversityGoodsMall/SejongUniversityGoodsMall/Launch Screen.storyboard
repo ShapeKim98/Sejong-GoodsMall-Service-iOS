@@ -24,20 +24,20 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="icon" translatesAutoresizingMaskIntoConstraints="NO" id="LhM-Je-aWH">
-                                <rect key="frame" x="96" y="326" width="200" height="200"/>
+                                <rect key="frame" x="146" y="376" width="100" height="100"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="200" id="OBv-We-Oyv"/>
-                                    <constraint firstAttribute="width" constant="200" id="t7S-5G-Ubo"/>
+                                    <constraint firstAttribute="height" constant="100" id="XLb-Vp-Mgg"/>
+                                    <constraint firstAttribute="width" constant="100" id="dvK-H5-bjM"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="LhM-Je-aWH" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" constant="267" id="2rD-Yx-AMv"/>
-                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="trailing" secondItem="LhM-Je-aWH" secondAttribute="trailing" constant="97" id="C3E-PL-C0m"/>
-                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="LhM-Je-aWH" secondAttribute="bottom" constant="292" id="E7S-yU-88N"/>
-                            <constraint firstItem="LhM-Je-aWH" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" constant="96" id="KTb-xB-wef"/>
+                            <constraint firstItem="LhM-Je-aWH" firstAttribute="leading" secondItem="Bcu-3y-fUS" secondAttribute="leading" constant="146" id="U0B-5H-dDl"/>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="LhM-Je-aWH" secondAttribute="bottom" constant="342" id="Zmg-GU-Hvs"/>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="trailing" secondItem="LhM-Je-aWH" secondAttribute="trailing" constant="147" id="dt5-dl-RkV"/>
+                            <constraint firstItem="LhM-Je-aWH" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" constant="317" id="oLs-T8-G7X"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -47,6 +47,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="icon" width="400" height="400"/>
+        <image name="icon" width="518" height="512"/>
     </resources>
 </document>
