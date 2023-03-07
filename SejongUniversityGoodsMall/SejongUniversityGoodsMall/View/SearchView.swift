@@ -98,6 +98,9 @@ struct SearchView: View {
                     .foregroundColor(Color("secondary-text-color"))
                 }
             }
+            .onDisappear() {
+                goodsViewModel.searchList.removeAll()
+            }
         }
     }
     
