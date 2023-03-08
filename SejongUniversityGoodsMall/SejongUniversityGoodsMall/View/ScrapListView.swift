@@ -51,7 +51,7 @@ struct ScrapListView: View {
         NavigationLink {
             GoodsDetailView()
                 .onAppear(){
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsDetailLoading = true
                     }
                     goodsViewModel.fetchGoodsDetail(id: goods.id, token: loginViewModel.returnToken())

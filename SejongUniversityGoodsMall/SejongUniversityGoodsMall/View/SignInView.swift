@@ -12,7 +12,8 @@ struct SignInView: View {
     
     @FocusState private var currentField: FocusedTextField?
     
-    @Binding var showDatePickerFromFindEmailView: Bool
+    @Binding var showDatePicker: Bool
+    @Binding var userBirth: String
     
     @State private var email: String = ""
     @State private var password: String = ""
@@ -21,52 +22,40 @@ struct SignInView: View {
     
     var body: some View {
         VStack {
-            VStack {
-                TextField("이메일", text: $email, prompt: Text("이메일"))
-                    .modifier(TextFieldModifier(text: $email, isValidInput: .constant(loginViewModel.isSignInFail ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
-                    .onTapGesture {
-                        currentField = .emailField
-                    }
-                    .onSubmit {
-                        currentField = .passwordField
-                    }
-                
-                HStack {
-                    Text(loginViewModel.isSignInFail ? "이메일 또는 비밀번호가 일치하지 않습니다." : " ")
-                        .font(.caption2)
-                        .foregroundColor(Color("main-highlight-color"))
-                    
-                    Spacer()
+            TextField("이메일", text: $email, prompt: Text("이메일"))
+                .modifier(TextFieldModifier(text: $email, isValidInput: .constant(loginViewModel.isSignInFail ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
+                .onTapGesture {
+                    currentField = .emailField
                 }
-                .padding(.horizontal)
-            }
-            .modifier(VibrateAnimation(animatableData: vibrateOffset))
+                .onSubmit {
+                    currentField = .passwordField
+                }
+                .modifier(VibrateAnimation(animatableData: vibrateOffset))
             
-            VStack {
-                SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
-                    .modifier(TextFieldModifier(text: $password, isValidInput: .constant(loginViewModel.isSignInFail ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .password, focusedTextField: .passwordField, submitLabel: .done))
-                    .onTapGesture {
-                        currentField = .passwordField
-                    }
-                    .onSubmit {
-                        if email != "" && password != "" {
-                            loginViewModel.signIn(email: email, password: password)
-                        }
-                    }
-                
-                HStack {
-                    Text(loginViewModel.isSignInFail ? "이메일 또는 비밀번호가 일치하지 않습니다." : " ")
-                        .font(.caption2)
-                        .foregroundColor(Color("main-highlight-color"))
-                    
-                    Spacer()
+            
+            SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
+                .modifier(TextFieldModifier(text: $password, isValidInput: .constant(loginViewModel.isSignInFail ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .password, focusedTextField: .passwordField, submitLabel: .done))
+                .onTapGesture {
+                    currentField = .passwordField
                 }
-                .padding(.horizontal)
+                .onSubmit {
+                    if email != "" && password != "" {
+                        loginViewModel.signIn(email: email, password: password)
+                    }
+                }
+                .modifier(VibrateAnimation(animatableData: vibrateOffset))
+            
+            HStack {
+                Text(loginViewModel.isSignInFail ? "이메일 또는 비밀번호가 일치하지 않습니다." : " ")
+                    .font(.caption2)
+                    .foregroundColor(Color("main-highlight-color"))
+                
+                Spacer()
             }
-            .modifier(VibrateAnimation(animatableData: vibrateOffset))
+            .padding(.horizontal)
             
             NavigationLink(isActive: $isFindView) {
-                FindEmailPasswordView(showDatePickerFromFindEmailView: $showDatePickerFromFindEmailView)
+                FindEmailPasswordView(showDatePicker: $showDatePicker, userBirth: $userBirth)
             } label: {
                 Text("이메일/비밀번호 찾기")
                     .font(.footnote)
@@ -79,7 +68,7 @@ struct SignInView: View {
             
             Button {
                 loginViewModel.isLoading = true
-                withAnimation {
+                withAnimation(.easeInOut) {
                     loginViewModel.isSignInFail = false
                 }
                 loginViewModel.signIn(email: email, password: password)
@@ -115,20 +104,17 @@ struct SignInView: View {
         .onTapGesture {
             currentField = nil
         }
-        .modifier(FindEmailCompleteSheetModifer(isFindView: $isFindView))
         .onChange(of: loginViewModel.isSignInFail) { newValue in
             withAnimation(.spring()) {
                 vibrateOffset += newValue ? 1 : 0
             }
         }
     }
-    
-    
 }
 
 struct SignInView_Previews: PreviewProvider {
     static var previews: some View {
-        SignInView(showDatePickerFromFindEmailView: .constant(false))
+        SignInView(showDatePicker: .constant(false), userBirth: .constant(""))
             .environmentObject(LoginViewModel())
     }
 }

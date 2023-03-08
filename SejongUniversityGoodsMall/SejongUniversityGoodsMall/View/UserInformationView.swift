@@ -36,11 +36,7 @@ struct UserInformationView: View {
         .background(.white)
         .onAppear() {
             if !loginViewModel.isAuthenticate {
-                appViewModel.messageBoxTitle = "로그인이 필요한 서비스 입니다"
-                appViewModel.messageBoxSecondaryTitle = "로그인 하시겠습니까?"
-                appViewModel.messageBoxMainButtonTitle = "로그인 하러 가기"
-                appViewModel.messageBoxSecondaryButtonTitle = "계속 둘러보기"
-                appViewModel.messageBoxMainButtonAction = {
+                appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
                     withAnimation(.spring()) {
                         appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
@@ -49,27 +45,15 @@ struct UserInformationView: View {
                     loginViewModel.showLoginView = true
                     
                     dismiss()
-                }
-                appViewModel.messageBoxSecondaryButtonAction = {
+                } secondaryButtonAction: {
                     withAnimation(.spring()) {
                         appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
-                    dismiss()
-                }
-                appViewModel.messageBoxCloseButtonAction = {
-                    appViewModel.messageBoxTitle = ""
-                    appViewModel.messageBoxSecondaryTitle = ""
-                    appViewModel.messageBoxMainButtonTitle = ""
-                    appViewModel.messageBoxSecondaryButtonTitle = ""
-                    appViewModel.messageBoxMainButtonAction = {}
-                    appViewModel.messageBoxSecondaryButtonAction = {}
-                    appViewModel.messageBoxCloseButtonAction = {}
                     
-                    withAnimation(.spring()) {
-                        appViewModel.showMessageBoxBackground = false
-                        appViewModel.showMessageBox = false
-                    }
+                    dismiss()
+                } closeButtonAction: {
+                    appViewModel.deleteMessageBox()
                     
                     dismiss()
                 }
@@ -77,7 +61,6 @@ struct UserInformationView: View {
                 withAnimation(.spring()) {
                     appViewModel.showMessageBoxBackground = true
                     appViewModel.showMessageBox = true
-                    
                 }
             } else {
                 withAnimation(.easeInOut) {
@@ -96,28 +79,18 @@ struct UserInformationView: View {
     @ViewBuilder
     func wishList() -> some View {
         VStack {
-            NavigationLink {
-                ScrapListView()
-                    .navigationTitle("찜한 상품")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .modifier(NavigationColorModifier())
-            } label: {
-                HStack {
-                    Text("찜한 상품")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                    
-                    Spacer()
-                    
-                    Label("다음", systemImage: "chevron.forward")
-                        .labelStyle(.iconOnly)
-                }
-                .padding(.horizontal)
+            HStack {
+                Text("찜한 상품")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                
+                Spacer()
             }
-            .foregroundColor(Color("main-text-color"))
+            .padding(.horizontal)
             .padding()
             
-            if goodsViewModel.scrapGoodsList.isEmpty {
+            
+            if goodsViewModel.scrapGoodsList.isEmpty && goodsViewModel.isScrapListLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
                     .padding()
@@ -166,12 +139,12 @@ struct UserInformationView: View {
             
             Text(goods.title)
                 .font(.footnote)
-                .foregroundColor(Color("secondary-text-color"))
+                .foregroundColor(Color("main-text-color"))
             
             Text("\(goods.price)원")
                 .font(.footnote)
                 .fontWeight(.semibold)
-                .foregroundColor(Color("secondary-text-color"))
+                .foregroundColor(Color("main-text-color"))
         }
         .padding([.bottom, .leading])
     }
@@ -219,7 +192,7 @@ struct UserInformationView: View {
                 
                 VStack {
                     Text("현장 수령")
-                        .foregroundColor(Color("secondary-text-color").opacity(0.7))
+                        .foregroundColor(Color("main-text-color"))
                     
                     Text("\(goodsViewModel.pickUpOrderCount)")
                         .font(.title3)
@@ -238,7 +211,7 @@ struct UserInformationView: View {
                 
                 VStack {
                     Text("택배 수령")
-                        .foregroundColor(Color("secondary-text-color").opacity(0.7))
+                        .foregroundColor(Color("main-text-color"))
                     
                     Text("\(goodsViewModel.deliveryOrderCount)")
                         .font(.title3)

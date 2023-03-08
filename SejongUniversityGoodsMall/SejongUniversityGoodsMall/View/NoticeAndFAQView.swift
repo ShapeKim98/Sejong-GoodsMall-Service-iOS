@@ -151,8 +151,7 @@ struct NoticeAndFAQView: View {
                 HStack {
                     Text(content)
                         .font(.caption)
-                    .foregroundColor(Color("main-text-color"))
-//                    .multilineTextAlignment(.leading)
+                        .foregroundColor(Color("main-text-color"))
                     
                     Spacer()
                 }

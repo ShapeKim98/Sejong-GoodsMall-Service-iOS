@@ -8,5 +8,6 @@
 import Foundation
 
 struct Address: Codable {
-    let mainAddress, detailAddress, zipcode: String?
+    let mainAddress, zipcode: String
+    let detailAddress: String?
 }

@@ -47,13 +47,13 @@ struct OrderCompleteView: View {
                 }
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 withAnimation(.spring()) {
                     showLimitDate = true
                 }
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
                 withAnimation(.easeInOut(duration: 0.5)) {
                     showOrderCompleteList = true
                 }
@@ -72,13 +72,14 @@ struct OrderCompleteView: View {
             
             if showOrderCompleteText {
                 Text("상품 주문이 완료되었습니다.")
-                    .font(.title3)
+                    .font(showLimitDate ? .title3 : .title)
                     .padding(.top)
                     .transition(.opacity)
             }
             
             if showLimitDate {
                 Text("입금 기한: \(limitDate) 까지")
+                    .font(showOrderCompleteList ? nil : .title2)
                     .foregroundColor(Color("main-highlight-color"))
                     .padding(.vertical)
                     .onAppear() {
@@ -96,28 +97,43 @@ struct OrderCompleteView: View {
     @ViewBuilder
     func orderCompleteGoodsList() -> some View {
         LazyVGrid(columns: columns) {
-            if let orderCompletGoods = goodsViewModel.orderCompleteGoods?.orderItems {
-                ForEach(orderCompletGoods, id: \.hashValue) { goods in
-                    orderCompleteGoods(goods: goods)
+            if let orderCompleteGoods = goodsViewModel.orderCompleteGoods {
+                ForEach(orderCompleteGoods.orderItems, id: \.hashValue) { goods in
+                    VStack(spacing: 0) {
+                        subOrderGoods(goods: goods)
+                        
+                        Group {
+                            if let seller = goods.seller {
+                                Group {
+                                    orderCompleteInfo(title: "예금주", content: seller.accountHolder)
+                                    
+                                    orderCompleteInfo(title: "입금은행", content: seller.bank)
+                                    
+                                    orderCompleteInfo(title: "계좌번호", content: seller.account)
+                                }
+                            }
+                            
+                            Group {
+                                orderCompleteInfo(title: "수령인", content: orderCompleteGoods.buyerName)
+                                
+                                orderCompleteInfo(title: "휴대전화", content: orderCompleteGoods.phoneNumber)
+                            }
+                            
+                            if let address = orderCompleteGoods.address {
+                                Group {
+                                    orderCompleteInfo(title: "우편번호", content: address.zipcode)
+                                    
+                                    orderCompleteInfo(title: "주소", content: address.mainAddress)
+                                    
+                                    orderCompleteInfo(title: "상세주소", content: address.detailAddress ?? "없습니다.")
+                                    
+                                    orderCompleteInfo(title: "요청사항", content: orderCompleteGoods.deliveryRequest ?? "없습니다.")
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
                 }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func orderCompleteGoods(goods: OrderItem) -> some View {
-        VStack(spacing: 0) {
-            subOrderGoods(goods: goods)
-            
-            if let seller = goods.seller {
-                Group {
-                    orderCompleteInfo(title: "예금주", content: seller.accountHolder)
-                    
-                    orderCompleteInfo(title: "입금은행", content: seller.bank)
-                    
-                    orderCompleteInfo(title: "계좌번호", content: seller.account)
-                }
-                .padding(.horizontal)
             }
         }
     }
@@ -304,8 +320,6 @@ struct OrderCompleteView: View {
                     withAnimation(.easeInOut) {
                         goodsViewModel.isOrderGoodsListLoading = true
                     }
-                    
-                    goodsViewModel.orderGoodsInfoList.removeAll()
                     
                     goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
                 }

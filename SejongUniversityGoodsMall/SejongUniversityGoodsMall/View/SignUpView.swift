@@ -14,8 +14,12 @@ struct SignUpView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     
     @Binding var showDatePicker: Bool
+    @Binding var userBirth: String
     
-    @State var userBirthday: Date = .now
+    init(showDatePicker: Binding<Bool>, userBirth: Binding<String>) {
+        self._showDatePicker = showDatePicker
+        self._userBirth = userBirth
+    }
     
     var body: some View {
         ScrollView {
@@ -46,7 +50,7 @@ struct SignUpView: View {
     func termsPage() -> some View {
         VStack(spacing: 0) {
             Button {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     if !fullAgreement {
                         agreeTermsOfUse = true
                         agreePersonalInfo = true
@@ -80,7 +84,7 @@ struct SignUpView: View {
                     
                 }
             } action: {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     agreeTermsOfUse.toggle()
                     if !agreeTermsOfUse {
                         fullAgreement = false
@@ -98,7 +102,7 @@ struct SignUpView: View {
                     
                 }
             } action: {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     agreePersonalInfo.toggle()
                     if !agreePersonalInfo {
                         fullAgreement = false
@@ -116,7 +120,7 @@ struct SignUpView: View {
                     
                 }
             } action: {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     agreeMarketingInfo.toggle()
                     if !agreeMarketingInfo {
                         fullAgreement = false
@@ -164,6 +168,9 @@ struct SignUpView: View {
         .padding([.horizontal, .top])
     }
     
+    @State private var email: String = ""
+    @State private var password: String = ""
+    @State private var userName: String = ""
     @State private var isValidEmail: Bool = false
     @State private var isValidPassword: Bool = false
     @State private var verifyPassword: String = ""
@@ -184,8 +191,8 @@ struct SignUpView: View {
             }
             
             VStack {
-                TextField("사용하실 이메일을 입력해주세요.", text: $loginViewModel.userRequest.email, prompt: Text("사용하실 이메일을 입력해주세요."))
-                    .modifier(TextFieldModifier(text: $loginViewModel.userRequest.email, isValidInput: $isValidEmail, currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
+                TextField("사용하실 이메일을 입력해주세요.", text: $email, prompt: Text("사용하실 이메일을 입력해주세요."))
+                    .modifier(TextFieldModifier(text: $email, isValidInput: $isValidEmail, currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
                     .onTapGesture {
                         currentField = .emailField
                         showDatePicker = false
@@ -193,7 +200,7 @@ struct SignUpView: View {
                     .onSubmit {
                         currentField = .passwordField
                     }
-                    .onChange(of: loginViewModel.userRequest.email) { newValue in
+                    .onChange(of: email) { newValue in
                         if(newValue.range(of:"^\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$", options: .regularExpression) != nil) {
                             isValidEmail = true
                         } else {
@@ -201,7 +208,7 @@ struct SignUpView: View {
                         }
                     }
                     .overlay {
-                        if isValidEmail && loginViewModel.userRequest.email != "" {
+                        if isValidEmail && email != "" {
                             HStack {
                                 Spacer()
                                 
@@ -212,7 +219,7 @@ struct SignUpView: View {
                     }
                 
                 HStack {
-                    Text(!isValidEmail && loginViewModel.userRequest.email != "" ? "올바르지 않는 이메일 주소입니다." : " ")
+                    Text(!isValidEmail && email != "" ? "올바르지 않는 이메일 주소입니다." : " ")
                         .font(.caption2)
                         .foregroundColor(Color("main-highlight-color"))
                     
@@ -222,8 +229,8 @@ struct SignUpView: View {
             }
             
             VStack {
-                SecureField("비밀번호(8자리 이상)", text: $loginViewModel.userRequest.password, prompt: Text("비밀번호(8자리 이상)"))
-                    .modifier(TextFieldModifier(text: $loginViewModel.userRequest.password, isValidInput: $isValidPassword, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .newPassword, focusedTextField: .passwordField, submitLabel: .next))
+                SecureField("비밀번호(8자리 이상)", text: $password, prompt: Text("비밀번호(8자리 이상)"))
+                    .modifier(TextFieldModifier(text: $password, isValidInput: $isValidPassword, currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .newPassword, focusedTextField: .passwordField, submitLabel: .next))
                     .onTapGesture {
                         currentField = .passwordField
                         showDatePicker = false
@@ -231,14 +238,14 @@ struct SignUpView: View {
                     .onSubmit {
                         currentField = .verifyPasswordField
                     }
-                    .onChange(of: loginViewModel.userRequest.password) { newValue in
+                    .onChange(of: password) { newValue in
                         isValidPassword = newValue.count >= 8 ? true : false
                         if newValue == "" {
                             verifyPassword = ""
                         }
                     }
                     .overlay {
-                        if isValidPassword && loginViewModel.userRequest.password != "" && isSamePassword {
+                        if isValidPassword && password != "" && isSamePassword {
                             HStack {
                                 Spacer()
                                 
@@ -249,7 +256,7 @@ struct SignUpView: View {
                     }
                 
                 HStack {
-                    Text(!isValidPassword && loginViewModel.userRequest.password != "" ? "비밀번호는 8자리 이상으로 설정할 수 있습니다." : " ")
+                    Text(!isValidPassword && password != "" ? "비밀번호는 8자리 이상으로 설정할 수 있습니다." : " ")
                         .font(.caption)
                         .foregroundColor(Color("main-highlight-color"))
                     
@@ -269,7 +276,7 @@ struct SignUpView: View {
                         currentField = .nameField
                     }
                     .onChange(of: verifyPassword) { newValue in
-                        isSamePassword = newValue == loginViewModel.userRequest.password ? true : false
+                        isSamePassword = newValue == password ? true : false
                     }
                     .overlay {
                         if isValidEmail && verifyPassword != "" && isSamePassword {
@@ -303,8 +310,8 @@ struct SignUpView: View {
             .padding(.top)
             
             VStack {
-                TextField("이름", text: $loginViewModel.userRequest.userName, prompt: Text("이름"))
-                    .modifier(TextFieldModifier(text: $loginViewModel.userRequest.userName, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
+                TextField("이름", text: $userName, prompt: Text("이름"))
+                    .modifier(TextFieldModifier(text: $userName, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
                     .onTapGesture {
                         currentField = .nameField
                         showDatePicker = false
@@ -333,7 +340,7 @@ struct SignUpView: View {
                 }
             } label: {
                 HStack {
-                    TextField("생년월일", text: $loginViewModel.userRequest.birth, prompt: Text("생년월일"))
+                    TextField("생년월일", text: $userBirth, prompt: Text("생년월일"))
                         .font(.subheadline.bold())
                     
                     Spacer()
@@ -354,7 +361,7 @@ struct SignUpView: View {
     func signUpButton() -> some View {
         Button {
             loginViewModel.isLoading = true
-            loginViewModel.signUp()
+            loginViewModel.signUp(email: email, password: password, userName: userName, birth: userBirth)
         } label: {
             HStack {
                 Spacer()
@@ -376,9 +383,9 @@ struct SignUpView: View {
         }
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .foregroundColor((agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && loginViewModel.userRequest.email != "" && loginViewModel.userRequest.password != "" && verifyPassword != "" && loginViewModel.userRequest.userName != "" && loginViewModel.userRequest.birth != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                .foregroundColor((agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirth != "") && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
         }
-        .disabled((!(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && loginViewModel.userRequest.email != "" && loginViewModel.userRequest.password != "" && verifyPassword != "" && loginViewModel.userRequest.userName != "" && loginViewModel.userRequest.birth != "")) || loginViewModel.isLoading)
+        .disabled((!(agreeTermsOfUse && agreePersonalInfo && isValidEmail && isSamePassword && email != "" && password != "" && verifyPassword != "" && userName != "" && userBirth != "")) || loginViewModel.isLoading)
         .padding()
         .padding(.bottom, 20)
     }
@@ -453,7 +460,7 @@ struct SignUpView: View {
                 }
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 withAnimation(.spring()) {
                     showCompleteContents = true
                 }
@@ -466,13 +473,13 @@ struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
         if #available(iOS 16.0, *) {
             NavigationStack {
-                SignUpView(showDatePicker: .constant(false))
+                SignUpView(showDatePicker: .constant(false), userBirth: .constant(""))
                     .environmentObject(LoginViewModel())
                     .environmentObject(AppViewModel())
             }
         } else {
             NavigationView {
-                SignUpView(showDatePicker: .constant(false))
+                SignUpView(showDatePicker: .constant(false), userBirth: .constant(""))
                     .environmentObject(AppViewModel())
                     .environmentObject(LoginViewModel())
             }

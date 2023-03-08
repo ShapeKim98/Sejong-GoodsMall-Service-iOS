@@ -11,8 +11,8 @@ struct LoginView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
-    @State var showDatePickerFromSignUpView: Bool = false
-    @State var showDatePickerFromFindEmailView: Bool = false
+    @State var userBirth: String = ""
+    @State var showDatePicker: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -43,33 +43,7 @@ struct LoginView: View {
                 }
                 .tint(Color("main-text-color"))
                 .overlay(alignment: .bottom) {
-                    ZStack(alignment: .bottom) {
-                        if appViewModel.showMessageBoxBackground {
-                            Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        showDatePickerFromSignUpView = false
-                                        showDatePickerFromFindEmailView = false
-                                    }
-                                    
-                                    withAnimation(.easeOut) {
-                                        appViewModel.showMessageBoxBackground = false
-                                    }
-                                }
-                        }
-                        
-                        if showDatePickerFromSignUpView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.userRequest.birth, showDatePicker: $showDatePickerFromSignUpView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                        if showDatePickerFromFindEmailView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.findEmailRequest.birth, showDatePicker: $showDatePickerFromFindEmailView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                    }
-                    .ignoresSafeArea()
+                    datePicker()
                 }
             } else {
                 NavigationView {
@@ -84,33 +58,7 @@ struct LoginView: View {
                     .navigationBarHidden(true)
                 }
                 .overlay(alignment: .bottom) {
-                    ZStack(alignment: .bottom) {
-                        if appViewModel.showMessageBoxBackground {
-                            Color(.black).opacity(0.4)
-                                .onTapGesture {
-                                    withAnimation(.spring()) {
-                                        showDatePickerFromSignUpView = false
-                                        showDatePickerFromFindEmailView = false
-                                    }
-                                    
-                                    withAnimation(.easeOut) {
-                                        appViewModel.showMessageBoxBackground = false
-                                    }
-                                }
-                        }
-                        
-                        if showDatePickerFromSignUpView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.userRequest.birth, showDatePicker: $showDatePickerFromSignUpView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                        if showDatePickerFromFindEmailView {
-                            DatePickerSheetView(userBirthdayString: $loginViewModel.findEmailRequest.birth, showDatePicker: $showDatePickerFromFindEmailView)
-                                .transition(.move(edge: .bottom))
-                        }
-                        
-                    }
-                    .ignoresSafeArea()
+                    datePicker()
                 }
             }
         }
@@ -118,7 +66,13 @@ struct LoginView: View {
     
     @ViewBuilder
     func title() -> some View {
-        HStack {
+        VStack {
+            Spacer()
+            
+            Image("icon")
+                .resizable()
+                .frame(width: 100, height: 100)
+            
             Text("세종이의 집")
                 .font(.title)
                 .fontWeight(.semibold)
@@ -134,7 +88,7 @@ struct LoginView: View {
     func buttons() -> some View {
         VStack {
             NavigationLink {
-                SignUpView(showDatePicker: $showDatePickerFromSignUpView)
+                SignUpView(showDatePicker: $showDatePicker, userBirth: $userBirth)
                     .navigationTitle("이메일로 가입하기")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
@@ -157,7 +111,7 @@ struct LoginView: View {
             .padding(.bottom)
             
             NavigationLink {
-                SignInView(showDatePickerFromFindEmailView: $showDatePickerFromFindEmailView)
+                SignInView(showDatePicker: $showDatePicker, userBirth: $userBirth)
                     .navigationTitle("기존 계정으로 로그인")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
@@ -193,6 +147,30 @@ struct LoginView: View {
         }
         .padding()
         .padding(.bottom, 20)
+    }
+    
+    @ViewBuilder
+    func datePicker() -> some View {
+        ZStack(alignment: .bottom) {
+            if appViewModel.showMessageBoxBackground {
+                Color(.black).opacity(0.4)
+                    .onTapGesture {
+                        withAnimation(.spring()) {
+                            showDatePicker = false
+                        }
+                        
+                        withAnimation(.easeOut) {
+                            appViewModel.showMessageBoxBackground = false
+                        }
+                    }
+            }
+            
+            if showDatePicker {
+                DatePickerSheetView(userBirthdayString: $userBirth, showDatePicker: $showDatePicker)
+                    .transition(.move(edge: .bottom))
+            }
+        }
+        .ignoresSafeArea()
     }
 }
 

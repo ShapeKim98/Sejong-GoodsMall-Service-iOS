@@ -17,7 +17,6 @@ struct CartView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
     @State private var isAllSelected: Bool = false
-    @State private var scrollOffset: CGFloat = .zero
     @State private var message: String = ""
     
     private let columns = [
@@ -25,82 +24,84 @@ struct CartView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            orderTypeSelection()
-                .unredacted()
-            
-            allSeletionAndDeleteSeleted()
-            
-            if (goodsViewModel.pickUpCart.isEmpty && goodsViewModel.isCartGoodsListLoading) || (goodsViewModel.deliveryCart.isEmpty && goodsViewModel.isCartGoodsListLoading) {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-                    .padding()
-                    .tint(Color("main-highlight-color"))
+        ZStack {
+            VStack(spacing: 0) {
+                orderTypeSelection()
                     .unredacted()
-            } else {
-                Group {
-                    switch goodsViewModel.orderType {
-                        case .pickUpOrder where goodsViewModel.pickUpCart.isEmpty:
-                            emptyCart()
-                        case .deliveryOrder where goodsViewModel.deliveryCart.isEmpty:
-                            emptyCart()
-                        default:
-                            cartGoodsList()
+                
+                allSeletionAndDeleteSeleted()
+                
+                Rectangle()
+                    .fill(Color("shape-bkg-color"))
+                    .frame(height: 10)
+                
+                if (goodsViewModel.pickUpCart.isEmpty && goodsViewModel.isCartGoodsListLoading) || (goodsViewModel.deliveryCart.isEmpty && goodsViewModel.isCartGoodsListLoading) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .padding()
+                        .tint(Color("main-highlight-color"))
+                        .unredacted()
+                } else {
+                    Group {
+                        switch goodsViewModel.orderType {
+                            case .pickUpOrder where goodsViewModel.pickUpCart.isEmpty:
+                                emptyCart()
+                            case .deliveryOrder where goodsViewModel.deliveryCart.isEmpty:
+                                emptyCart()
+                            default:
+                                cartGoodsList()
+                        }
                     }
-                }
-                .overlay(alignment: .bottom) {
-                    if goodsViewModel.completeSendCartGoods {
-                        alertMessageView(message: message)
-                            .padding()
-                            .onAppear() {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                    withAnimation(.easeInOut) {
-                                        goodsViewModel.completeSendCartGoods = false
+                    .overlay(alignment: .bottom) {
+                        if goodsViewModel.completeSendCartGoods {
+                            alertMessageView(message: message)
+                                .padding()
+                                .onAppear() {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                        withAnimation(.easeInOut) {
+                                            goodsViewModel.completeSendCartGoods = false
+                                        }
                                     }
                                 }
-                            }
+                        }
                     }
                 }
-            }
-            
-            Spacer()
-            
-            Button {
-                goodsViewModel.showOrderView = true
-            } label: {
-                HStack {
-                    Spacer()
-                    
-                    Text("\(goodsViewModel.selectedCartGoodsPrice)원 주문하기")
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                    Spacer()
+                
+                Spacer()
+                
+                Button {
+                    goodsViewModel.showOrderView = true
+                } label: {
+                    HStack {
+                        Spacer()
+                        
+                        Text("\(goodsViewModel.selectedCartGoodsPrice)원 주문하기")
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding()
+                        
+                        Spacer()
+                    }
+                    .background {
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundColor(goodsViewModel.selectedCartGoodsPrice != 0 && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                    }
                 }
-                .background {
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(goodsViewModel.selectedCartGoodsPrice != 0 && !loginViewModel.isLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
-                }
+                .disabled(goodsViewModel.selectedCartGoodsPrice == 0 || loginViewModel.isLoading)
+                .padding([.horizontal, .bottom])
+                .padding(.bottom, 20)
             }
-            .disabled(goodsViewModel.selectedCartGoodsPrice == 0 || loginViewModel.isLoading)
-            .padding([.horizontal, .bottom])
-            .padding(.bottom, 20)
         }
         .background(.white)
-        .onAppear(){
-            withAnimation {
+        .onAppear() {
+            withAnimation(.easeInOut) {
                 goodsViewModel.isCartGoodsListLoading = true
             }
             
             goodsViewModel.orderType = .pickUpOrder
             
             if !loginViewModel.isAuthenticate {
-                appViewModel.messageBoxTitle = "로그인이 필요한 서비스 입니다"
-                appViewModel.messageBoxSecondaryTitle = "로그인 하시겠습니까?"
-                appViewModel.messageBoxMainButtonTitle = "로그인 하러 가기"
-                appViewModel.messageBoxSecondaryButtonTitle = "계속 둘러보기"
-                appViewModel.messageBoxMainButtonAction = {
+                appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
                     withAnimation(.spring()) {
                         appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
@@ -109,27 +110,15 @@ struct CartView: View {
                     loginViewModel.showLoginView = true
                     
                     dismiss()
-                }
-                appViewModel.messageBoxSecondaryButtonAction = {
+                } secondaryButtonAction: {
                     withAnimation(.spring()) {
                         appViewModel.showMessageBoxBackground = false
                         appViewModel.showMessageBox = false
                     }
-                    dismiss()
-                }
-                appViewModel.messageBoxCloseButtonAction = {
-                    appViewModel.messageBoxTitle = ""
-                    appViewModel.messageBoxSecondaryTitle = ""
-                    appViewModel.messageBoxMainButtonTitle = ""
-                    appViewModel.messageBoxSecondaryButtonTitle = ""
-                    appViewModel.messageBoxMainButtonAction = {}
-                    appViewModel.messageBoxSecondaryButtonAction = {}
-                    appViewModel.messageBoxCloseButtonAction = {}
                     
-                    withAnimation(.spring()) {
-                        appViewModel.showMessageBoxBackground = false
-                        appViewModel.showMessageBox = false
-                    }
+                    dismiss()
+                } closeButtonAction: {
+                    appViewModel.deleteMessageBox()
                     
                     dismiss()
                 }
@@ -349,7 +338,7 @@ struct CartView: View {
             Button {
                 switch goodsViewModel.orderType {
                     case .pickUpOrder where !goodsViewModel.pickUpCart.isEmpty:
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             isAllSelected.toggle()
                             
                             if isAllSelected {
@@ -384,7 +373,7 @@ struct CartView: View {
                         }
                         break
                     case .deliveryOrder where !goodsViewModel.deliveryCart.isEmpty:
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             isAllSelected.toggle()
                             
                             if isAllSelected {
@@ -450,11 +439,7 @@ struct CartView: View {
                 if goodsViewModel.cartGoodsSelections.contains(where: { key, value in
                     value == true
                 }) {
-                    appViewModel.messageBoxTitle = "선택하신 상품을 삭제하시겠습니까?"
-                    appViewModel.messageBoxSecondaryTitle = "다음에 구매하실 예정이라면 찜하기에 잠시 보관해두세요."
-                    appViewModel.messageBoxMainButtonTitle = "찜하기에 보관하기"
-                    appViewModel.messageBoxSecondaryButtonTitle = "삭제하기"
-                    appViewModel.messageBoxMainButtonAction = {
+                    appViewModel.createMessageBox(title: "선택하신 상품을 삭제하시겠습니까?", secondaryTitle: "다음에 구매하실 예정이라면 찜하기에 잠시 보관해두세요.", mainButtonTitle: "찜하기에 보관하기", secondaryButtonTitle: "삭제하기") {
                         withAnimation(.spring()) {
                             appViewModel.showMessageBoxBackground = false
                             appViewModel.showMessageBox = false
@@ -480,8 +465,7 @@ struct CartView: View {
                             
                             message = "찜하기에 보관되었습니다."
                         }
-                    }
-                    appViewModel.messageBoxSecondaryButtonAction = {
+                    } secondaryButtonAction: {
                         withAnimation(.spring()) {
                             goodsViewModel.deleteCartGoods(token: loginViewModel.returnToken())
                             appViewModel.showMessageBoxBackground = false
@@ -489,26 +473,13 @@ struct CartView: View {
                             
                             message = "선택한 상품을 삭제했습니다."
                         }
-                    }
-                    appViewModel.messageBoxCloseButtonAction = {
-                        appViewModel.messageBoxTitle = ""
-                        appViewModel.messageBoxSecondaryTitle = ""
-                        appViewModel.messageBoxMainButtonTitle = ""
-                        appViewModel.messageBoxSecondaryButtonTitle = ""
-                        appViewModel.messageBoxMainButtonAction = {}
-                        appViewModel.messageBoxSecondaryButtonAction = {}
-                        appViewModel.messageBoxCloseButtonAction = {}
-                        
-                        withAnimation(.spring()) {
-                            appViewModel.showMessageBoxBackground = false
-                            appViewModel.showMessageBox = false
-                        }
+                    } closeButtonAction: {
+                        appViewModel.deleteMessageBox()
                     }
                     
                     withAnimation(.spring()) {
                         appViewModel.showMessageBoxBackground = true
                         appViewModel.showMessageBox = true
-                        
                     }
                 }
             } label: {
@@ -557,10 +528,7 @@ struct CartView: View {
     func cartGoodsList() -> some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                Rectangle()
-                    .fill(Color("shape-bkg-color"))
-                    .offset(y: scrollOffset < 0 ? scrollOffset : 0)
-                    .frame(height: 10 - (scrollOffset < 0 ? scrollOffset : 0))
+                
                 
                 switch goodsViewModel.orderType {
                     case .pickUpOrder:
@@ -583,16 +551,6 @@ struct CartView: View {
                         }
                 }
             }
-            .background {
-                GeometryReader { reader in
-                    let offset = -reader.frame(in: .named("SCROLL")).minY
-                    Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
-                }
-            }
-        }
-        .coordinateSpace(name: "SCROLL")
-        .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
-            scrollOffset = value
         }
     }
     
@@ -601,7 +559,7 @@ struct CartView: View {
         VStack {
             HStack(alignment: .top) {
                 Button {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         let _ = goodsViewModel.cartGoodsSelections.updateValue((goodsViewModel.cartGoodsSelections[goods.id] ?? false) ? false : true, forKey: goods.id)
                         
                         goodsViewModel.updateCartData()
@@ -616,7 +574,7 @@ struct CartView: View {
                 NavigationLink {
                     GoodsDetailView()
                         .onAppear(){
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 goodsViewModel.isGoodsDetailLoading = true
                             }
                             goodsViewModel.fetchGoodsDetail(id: goods.goodsID)
@@ -704,7 +662,7 @@ struct CartView: View {
                     
                     HStack {
                         Button {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 goodsViewModel.updateCartGoods(id: goods.id, quantity: goods.quantity - 1, token: loginViewModel.returnToken())
                             }
                         } label: {
@@ -724,7 +682,7 @@ struct CartView: View {
                             .fontWeight(.light)
                         
                         Button {
-                            withAnimation {
+                            withAnimation(.easeInOut) {
                                 goodsViewModel.updateCartGoods(id: goods.id, quantity: goods.quantity + 1, token: loginViewModel.returnToken())
                             }
                         } label: {

@@ -41,9 +41,6 @@ struct OptionSheetView: View {
             
             optionsAndSelection()
         }
-        .onAppear() {
-            print(UIDevice.current.name)
-        }
     }
     
     @ViewBuilder
@@ -97,7 +94,7 @@ struct OptionSheetView: View {
                             alertMessageView(message: "장바구니에 보관되었습니다.")
                                 .onAppear() {
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                        withAnimation {
+                                        withAnimation(.easeInOut) {
                                             goodsViewModel.completeSendCartGoods = false
                                         }
                                     }
@@ -178,12 +175,24 @@ struct OptionSheetView: View {
     @ViewBuilder
     func optionSelectionList(options: [String], selectedOptions: String?, isExtended: Bool, optionType: OptionType, titleClickAction: @escaping () -> Void) -> some View {
         VStack {
-            if isExtended {
-                Button(action: titleClickAction) {
+            Button(action: titleClickAction) {
+                if let option = selectedOptions {
+                    HStack {
+                        Text(option)
+                            .font(.system(size: 15))
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 15))
+                            .rotationEffect(.degrees(optionChevronDegree))
+                    }
+                    .foregroundColor(Color("main-text-color"))
+                    .padding()
+                } else {
                     HStack {
                         Text("\(optionType.rawValue) 선택하기")
                             .font(.system(size: 15))
-                        
                         Spacer()
                         
                         Image(systemName: "chevron.up")
@@ -193,8 +202,10 @@ struct OptionSheetView: View {
                     .foregroundColor(Color("secondary-text-color"))
                     .padding()
                 }
-                .matchedGeometryEffect(id: "옵션\(optionType.rawValue)텍스트", in: optionTransition)
-                
+            }
+            .matchedGeometryEffect(id: "옵션\(optionType.rawValue)텍스트", in: optionTransition)
+            
+            if isExtended {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(options, id: \.hashValue) { option in
@@ -238,37 +249,6 @@ struct OptionSheetView: View {
                         }
                     }
                 }
-            } else {
-                Button(action: titleClickAction) {
-                    if let option = selectedOptions {
-                        HStack {
-                            Text(option)
-                                .font(.system(size: 15))
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.up")
-                                .font(.system(size: 15))
-                                .rotationEffect(.degrees(optionChevronDegree))
-                        }
-                        .foregroundColor(Color("main-text-color"))
-                        .padding()
-                    } else {
-                        HStack {
-                            Text("\(optionType.rawValue) 선택하기")
-                                .font(.system(size: 15))
-                            Spacer()
-                            
-                            Image(systemName: "chevron.up")
-                                .font(.system(size: 15))
-                                .rotationEffect(.degrees(optionChevronDegree))
-                        }
-                        .foregroundColor(Color("secondary-text-color"))
-                        .padding()
-                    }
-                }
-                .matchedGeometryEffect(id: "옵션\(optionType.rawValue)텍스트", in: optionTransition)
-
             }
         }
         .background {
@@ -286,83 +266,83 @@ struct OptionSheetView: View {
     
     @ViewBuilder
     func selectedGoodsOptions() -> some View {
-            HStack {
-                Group {
-                    if let color = goodsViewModel.seletedGoods.color, let size = goodsViewModel.seletedGoods.size {
-                        Text("\(color), \(size)")
-                            .font(.footnote)
-                            .fontWeight(.light)
-                    } else if goodsViewModel.seletedGoods.color == nil, goodsViewModel.seletedGoods.size == nil {
-                        Text(goodsViewModel.goodsDetail.title)
-                            .font(.footnote)
-                            .fontWeight(.light)
-                    } else {
-                        Text("\(goodsViewModel.seletedGoods.color ?? "")\(goodsViewModel.seletedGoods.size ?? "")")
-                            .font(.footnote)
-                            .fontWeight(.light)
-                    }
+        HStack {
+            Group {
+                if let color = goodsViewModel.seletedGoods.color, let size = goodsViewModel.seletedGoods.size {
+                    Text("\(color), \(size)")
+                        .font(.footnote)
+                        .fontWeight(.light)
+                } else if goodsViewModel.seletedGoods.color == nil, goodsViewModel.seletedGoods.size == nil {
+                    Text(goodsViewModel.goodsDetail.title)
+                        .font(.footnote)
+                        .fontWeight(.light)
+                } else {
+                    Text("\(goodsViewModel.seletedGoods.color ?? "")\(goodsViewModel.seletedGoods.size ?? "")")
+                        .font(.footnote)
+                        .fontWeight(.light)
                 }
-                .padding(.vertical, 10)
-                
-                Spacer()
-                
-                Button {
-                    withAnimation {
-                        goodsViewModel.seletedGoods.quantity -= 1
-                    }
-                } label: {
-                    Label("마이너스", systemImage: "minus")
-                        .labelStyle(.iconOnly)
-                        .font(.caption2)
-                }
-                .disabled(goodsViewModel.seletedGoods.quantity == 1)
-                .frame(minWidth: 21, minHeight: 21)
-                .background(Circle().fill(Color("shape-bkg-color")))
-                
-                Text("\(goodsViewModel.seletedGoods.quantity)")
-                    .font(.footnote)
-                    .fontWeight(.light)
-                
-                Button {
-                    withAnimation {
-                        goodsViewModel.seletedGoods.quantity += 1
-                    }
-                } label: {
-                    Label("플러스", systemImage: "plus")
-                        .labelStyle(.iconOnly)
-                        .font(.caption2)
-                }
-                .frame(minWidth: 21, minHeight: 21)
-                .background(Circle().fill(Color("shape-bkg-color")))
-                
-                Spacer()
-                    .frame(maxWidth: 70)
-                
-                Button {
-                    withAnimation(.spring()) {
-                        goodsViewModel.seletedGoods.color = nil
-                        goodsViewModel.seletedGoods.size = nil
-                        goodsViewModel.seletedGoods.quantity = 0
-                    }
-                } label: {
-                    Label("삭제", systemImage: "xmark")
-                        .labelStyle(.iconOnly)
-                        .frame(minWidth: 21, minHeight: 21)
-                }
-
             }
-            .padding(.horizontal)
-            .background {
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color("main-text-color"))
-                    .background {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(.white)
-                    }
+            .padding(.vertical, 10)
+            
+            Spacer()
+            
+            Button {
+                withAnimation(.easeInOut) {
+                    goodsViewModel.seletedGoods.quantity -= 1
+                }
+            } label: {
+                Label("마이너스", systemImage: "minus")
+                    .labelStyle(.iconOnly)
+                    .font(.caption2)
             }
-            .padding(.horizontal)
-            .frame(height: 70)
+            .disabled(goodsViewModel.seletedGoods.quantity == 1)
+            .frame(minWidth: 21, minHeight: 21)
+            .background(Circle().fill(Color("shape-bkg-color")))
+            
+            Text("\(goodsViewModel.seletedGoods.quantity)")
+                .font(.footnote)
+                .fontWeight(.light)
+            
+            Button {
+                withAnimation(.easeInOut) {
+                    goodsViewModel.seletedGoods.quantity += 1
+                }
+            } label: {
+                Label("플러스", systemImage: "plus")
+                    .labelStyle(.iconOnly)
+                    .font(.caption2)
+            }
+            .frame(minWidth: 21, minHeight: 21)
+            .background(Circle().fill(Color("shape-bkg-color")))
+            
+            Spacer()
+                .frame(maxWidth: 70)
+            
+            Button {
+                withAnimation(.spring()) {
+                    goodsViewModel.seletedGoods.color = nil
+                    goodsViewModel.seletedGoods.size = nil
+                    goodsViewModel.seletedGoods.quantity = 0
+                }
+            } label: {
+                Label("삭제", systemImage: "xmark")
+                    .labelStyle(.iconOnly)
+                    .frame(minWidth: 21, minHeight: 21)
+            }
+            
         }
+        .padding(.horizontal)
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color("main-text-color"))
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(.white)
+                }
+        }
+        .padding(.horizontal)
+        .frame(height: 70)
+    }
     
     @ViewBuilder
     func alertMessageView(message: String) -> some View {

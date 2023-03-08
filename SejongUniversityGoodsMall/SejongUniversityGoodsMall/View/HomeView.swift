@@ -141,12 +141,12 @@ struct HomeView: View {
                     .modifier(NavigationColorModifier())
                     .redacted(reason: goodsViewModel.isCartGoodsListLoading ? .placeholder : [])
                     .onDisappear() {
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             goodsViewModel.isGoodsListLoading = true
                         }
                         
                         if currentCategory.id == 0 {
-                            goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                            goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                         } else {
                             goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                         }
@@ -193,7 +193,7 @@ struct HomeView: View {
                     ForEach(goodsViewModel.categoryList) { category in
                         categotyButton(category.categoryName, category: category) {
                             if category.id == 0 {
-                                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                                goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                             } else {
                                 goodsViewModel.fetchGoodsListFromCatefory(id: category.id)
                             }
@@ -256,50 +256,50 @@ struct HomeView: View {
             }
             .refreshable {
                 if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
                     }
-                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                    goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                 } else {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
                     }
                     goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                 }
                 
-                withAnimation {
+                withAnimation(.easeInOut) {
                     goodsViewModel.isCategoryLoading = true
                 }
-                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+                goodsViewModel.fetchCategory()
             }
         } else {
             List(goodsViewModel.goodsList) { item in
                 subGoodsView(item)
                     .matchedGeometryEffect(id: "\(item.id)", in: heroEffect)
-                .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
-                .listRowSeparatorTint(.clear)
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                .padding(.top)
+                    .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
+                    .listRowSeparatorTint(.clear)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .padding(.top)
             }
             .listStyle(.plain)
             .refreshable {
                 if currentCategory.id == 0, currentCategory.name == "ALLPRODUCT" {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
                     }
-                    goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                    goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                 } else {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
                     }
                     goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                 }
                 
-                withAnimation {
+                withAnimation(.easeInOut) {
                     goodsViewModel.isCategoryLoading = true
                 }
-                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+                goodsViewModel.fetchCategory()
             }
         }
     }
@@ -309,7 +309,7 @@ struct HomeView: View {
         NavigationLink {
             GoodsDetailView()
                 .onAppear(){
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsDetailLoading = true
                     }
                     goodsViewModel.fetchGoodsDetail(id: goods.id, token: loginViewModel.returnToken())
@@ -319,12 +319,12 @@ struct HomeView: View {
                 .modifier(NavigationColorModifier())
                 .redacted(reason: goodsViewModel.isGoodsDetailLoading ? .placeholder : [])
                 .onDisappear() {
-                    withAnimation {
+                    withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true
                     }
                     
                     if currentCategory.id == 0 {
-                        goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                        goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                     } else {
                         goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                     }

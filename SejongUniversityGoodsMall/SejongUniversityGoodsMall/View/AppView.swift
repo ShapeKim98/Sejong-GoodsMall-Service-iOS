@@ -15,22 +15,22 @@ struct AppView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var networkManager: NetworkManager
     
-    @State var showMessage: Bool = false
-    @State var message: String = ""
+    @State private var showMessage: Bool = false
+    @State private var message: String = ""
     @State private var currentCategory: Category = Category(id: 0, name: "ALLPRODUCT")
     
     var body: some View {
         HomeView(currentCategory: $currentCategory)
             .onAppear() {
-                withAnimation {
+                withAnimation(.easeInOut) {
                     goodsViewModel.isGoodsListLoading = true
                 }
-                goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                 
-                withAnimation {
+                withAnimation(.easeInOut) {
                     goodsViewModel.isCategoryLoading = true
                 }
-                goodsViewModel.fetchCategory(token: loginViewModel.returnToken())
+                goodsViewModel.fetchCategory()
             }
             .onChange(of: loginViewModel.message, perform: { newValue in
                 if let msg = newValue {
@@ -66,13 +66,13 @@ struct AppView: View {
                         }
                     }
                     .onDisappear() {
-                        withAnimation {
+                        withAnimation(.easeInOut) {
                             loginViewModel.isSignInFail = false
                             goodsViewModel.isGoodsListLoading = true
                         }
                         
                         if currentCategory.id == 0 {
-                            goodsViewModel.fetchGoodsList(id: loginViewModel.memberID)
+                            goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
                         } else {
                             goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                         }

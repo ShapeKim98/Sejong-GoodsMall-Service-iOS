@@ -42,10 +42,10 @@ struct OrderHistoryView: View {
     
     @ViewBuilder
     func orderDateHeader(date: Date) -> some View {
-        let dateString = formatter.string(from: date)
+        let dateString = formatter.string(from: date.addingTimeInterval(3600 * 9))
         
         HStack {
-            Text(dateString)
+            Text("주문일자 : \(dateString)")
                 .font(.title3)
                 .fontWeight(.semibold)
                 .padding()
@@ -62,18 +62,50 @@ struct OrderHistoryView: View {
                 Rectangle()
                     .fill(Color("shape-bkg-color"))
                     .frame(height: 10)
-
+                
                 LazyVStack(pinnedViews: [.sectionHeaders]) {
                     Section {
                         ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in
                             subOrderGoods(orderCompleteGoods: orderCompleteGoods, goods: goods)
+                            
+                            VStack(spacing: 0) {
+                                Group {
+                                    if let seller = goods.seller {
+                                        Group {
+                                            orderCompleteInfo(title: "예금주", content: seller.accountHolder)
+                                            
+                                            orderCompleteInfo(title: "입금은행", content: seller.bank)
+                                            
+                                            orderCompleteInfo(title: "계좌번호", content: seller.account)
+                                        }
+                                    }
+                                    
+                                    Group {
+                                        orderCompleteInfo(title: "수령인", content: orderCompleteGoods.buyerName)
+                                        
+                                        orderCompleteInfo(title: "휴대전화", content: orderCompleteGoods.phoneNumber)
+                                    }
+                                    
+                                    if let address = orderCompleteGoods.address {
+                                        Group {
+                                            orderCompleteInfo(title: "우편번호", content: address.zipcode)
+                                            
+                                            orderCompleteInfo(title: "주소", content: address.mainAddress)
+                                            
+                                            orderCompleteInfo(title: "상세주소", content: address.detailAddress ?? "없습니다.")
+                                            
+                                            orderCompleteInfo(title: "요청사항", content: orderCompleteGoods.deliveryRequest ?? "없습니다.")
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
                         }
                     } header: {
                         orderDateHeader(date: orderCompleteGoods.createdAt)
                     }
                 }
             }
-
         }
     }
     
@@ -103,7 +135,6 @@ struct OrderHistoryView: View {
                     
                     VStack(spacing: 0) {
                         HStack(spacing: 0) {
-                            
                             Text(info.title)
                                 .foregroundColor(Color("main-text-color"))
                                 .padding(.trailing)
@@ -167,7 +198,7 @@ struct OrderHistoryView: View {
                 }
                 .padding(.vertical)
             } else {
-                HStack() {
+                HStack {
                     Color("main-shape-bkg-color")
                         .frame(width: 100, height: 100)
                         .shadow(radius: 1)
@@ -230,6 +261,27 @@ struct OrderHistoryView: View {
                 .frame(height: 1)
         }
         .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    func orderCompleteInfo(title: String, content: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(Color("secondary-text-color-strong"))
+                .frame(minWidth: 100)
+            
+            Text(content)
+                .foregroundColor(Color("main-text-color"))
+                .textSelection(.enabled)
+            
+            Spacer()
+        }
+        .padding(.vertical)
+        .background(alignment: .bottom) {
+            Rectangle()
+                .foregroundColor(Color("shape-bkg-color"))
+                .frame(height: 1)
+        }
     }
 }
 
