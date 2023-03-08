@@ -39,6 +39,8 @@ struct GoodsDetailView: View {
     @State private var showScrapMessage: Bool = false
     @State private var deviceType: DeviceType = .notchiPhone
     
+    let hapticFeedback = UIImpactFeedbackGenerator(style: .rigid)
+    
     var body: some View {
         GeometryReader { reader in
             ZStack(alignment: .top) {
@@ -565,6 +567,7 @@ struct GoodsDetailView: View {
                                 }
                             }
                         } else {
+                            goodsViewModel.hapticFeedback.notificationOccurred(.error)
                             withAnimation(.spring()) {
                                 vibrateOffset += 1
                             }
@@ -659,6 +662,7 @@ struct GoodsDetailView: View {
                                 appViewModel.showMessageBox = true
                             }
                         } else {
+                            goodsViewModel.hapticFeedback.notificationOccurred(.error)
                             withAnimation(.spring()) {
                                 vibrateOffset += 1
                             }

@@ -131,6 +131,12 @@ struct CartView: View {
                 goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
             }
         }
+        .onDisappear() {
+            goodsViewModel.cartGoodsSelections.removeAll()
+            goodsViewModel.pickUpCart.forEach { goods in
+                goodsViewModel.cartGoodsSelections.updateValue(false, forKey: goods.id)
+            }
+        }
         .fullScreenCover(isPresented: $goodsViewModel.showOrderView) {
             if #available(iOS 16.0, *) {
                 NavigationStack {

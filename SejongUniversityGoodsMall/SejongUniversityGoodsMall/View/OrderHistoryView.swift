@@ -176,22 +176,17 @@ struct OrderHistoryView: View {
                         .padding(.bottom, 5)
                         
                         HStack {
-                            Text("수량 \(goods.quantity)개")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color("secondary-text-color"))
-                            
-                            Spacer()
-                        }
-                        .padding(.bottom, 5)
-                        
-                        HStack {
                             Text("\(goods.price)원")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(Color("main-text-color"))
                             
                             Spacer()
+                            
+                            Text("수량 \(goods.quantity)개")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("secondary-text-color"))
                         }
                     }
                     .padding(10)

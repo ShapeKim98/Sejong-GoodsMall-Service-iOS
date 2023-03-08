@@ -64,6 +64,14 @@ struct FindEmailPasswordView: View {
         }
         .navigationTitle(findViewTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: loginViewModel.isNoneUser) { newValue in
+            withAnimation(.spring()) {
+                vibrateOffset += newValue ? 1 : 0
+            }
+        }
+        .onDisappear() {
+            loginViewModel.isNoneUser = false
+        }
     }
     
     @ViewBuilder
@@ -75,8 +83,11 @@ struct FindEmailPasswordView: View {
                         page = .emailPage
                         email = ""
                         userName = ""
+                        userBirth = ""
                         findViewTitle = "이메일 찾기"
                     }
+                    
+                    loginViewModel.isNoneUser = false
                 }
                 
                 Spacer()
@@ -86,8 +97,11 @@ struct FindEmailPasswordView: View {
                         page = .passwordPage
                         email = ""
                         userName = ""
+                        userBirth = ""
                         findViewTitle = "비밀번호 찾기"
                     }
+                    
+                    loginViewModel.isNoneUser = false
                 }
             }
             .padding(.horizontal, 70)
@@ -126,12 +140,17 @@ struct FindEmailPasswordView: View {
     
     @ViewBuilder
     func findEmailView() -> some View {
-        VStack(spacing: 20) {
+        VStack {
             TextField("이름", text: $userName, prompt: Text("이름"))
-                .modifier(TextFieldModifier(text: $userName, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
+                .modifier(TextFieldModifier(text: $userName, isValidInput: .constant(!loginViewModel.isNoneUser), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
                 .onTapGesture {
                     currentField = .emailField
                     showDatePicker = false
+                }
+                .onChange(of: userName) { newValue in
+                    withAnimation(.easeInOut) {
+                        loginViewModel.isNoneUser = false
+                    }
                 }
                 .onSubmit {
                     withAnimation(.spring()) {
@@ -139,6 +158,8 @@ struct FindEmailPasswordView: View {
                         showDatePicker = true
                     }
                 }
+                .modifier(VibrateAnimation(animatableData: vibrateOffset))
+                .padding(.bottom)
             
             Button {
                 withAnimation(.spring()) {
@@ -157,14 +178,33 @@ struct FindEmailPasswordView: View {
                 .multilineTextAlignment(.leading)
                 .padding(10)
             }
+            .onChange(of: userBirth) { newValue in
+                withAnimation(.easeInOut) {
+                    loginViewModel.isNoneUser = false
+                }
+            }
             .background {
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color("shape-bkg-color"))
+                    .stroke(loginViewModel.isNoneUser ? Color("main-highlight-color") : Color("shape-bkg-color"))
             }
+            .modifier(VibrateAnimation(animatableData: vibrateOffset))
+            
+            HStack {
+                Text(loginViewModel.isNoneUser ? "존재하지 않는 사용자 입니다." : " ")
+                    .font(.caption2)
+                    .foregroundColor(Color("main-highlight-color"))
+                
+                Spacer()
+            }
+            .padding(.horizontal)
             
             Spacer()
             
             Button {
+                withAnimation(.easeInOut) {
+                    loginViewModel.isNoneUser = false
+                }
+                
                 loginViewModel.isLoading = true
                 loginViewModel.fetchFindEmail(userName: userName, birth: userBirth)
             } label: {
@@ -270,33 +310,55 @@ struct FindEmailPasswordView: View {
     
     @ViewBuilder
     func findPasswordInput() -> some View {
-        TextField("이름", text: $userName, prompt: Text("이름"))
-            .modifier(TextFieldModifier(text: $userName, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
-            .onTapGesture {
-                currentField = .nameField
-                showDatePicker = false
-            }
-            .onSubmit {
-                currentField = .emailField
-            }
-            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            .padding(.horizontal)
-        
-        TextField("이메일", text: $email, prompt: Text("이메일"))
-            .modifier(TextFieldModifier(text: $email, isValidInput: .constant(true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .continue))
-            .onTapGesture {
-                currentField = .emailField
-                showDatePicker = false
-            }
-            .onSubmit {
-                if userName != "" && email != "" {
-                    withAnimation(.spring()) {
-                        loginViewModel.findPasswordTextField = .delay
+        VStack {
+            TextField("이름", text: $userName, prompt: Text("이름"))
+                .modifier(TextFieldModifier(text: $userName, isValidInput: .constant(loginViewModel.isNoneUser ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .username, focusedTextField: .nameField, submitLabel: .next))
+                .onTapGesture {
+                    currentField = .nameField
+                    showDatePicker = false
+                }
+                .onSubmit {
+                    currentField = .emailField
+                }
+                .onChange(of: userName) { newValue in
+                    withAnimation(.easeInOut) {
+                        loginViewModel.isNoneUser = false
                     }
                 }
-            }
-            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
-            .padding(.horizontal)
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                .padding(.bottom)
+            
+            TextField("이메일", text: $email, prompt: Text("이메일"))
+                .modifier(TextFieldModifier(text: $email, isValidInput: .constant(loginViewModel.isNoneUser ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .continue))
+                .onTapGesture {
+                    currentField = .emailField
+                    showDatePicker = false
+                }
+                .onSubmit {
+                    if userName != "" && email != "" {
+                        withAnimation(.spring()) {
+                            loginViewModel.findPasswordTextField = .delay
+                        }
+                    }
+                }
+                .onChange(of: email) { newValue in
+                    withAnimation(.easeInOut) {
+                        loginViewModel.isNoneUser = false
+                    }
+                }
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                
+                HStack {
+                    Text(loginViewModel.isNoneUser ? "존재하지 않는 사용자 입니다." : " ")
+                        .font(.caption2)
+                        .foregroundColor(Color("main-highlight-color"))
+                    
+                    Spacer()
+                }
+                .padding(.horizontal)
+        }
+        .padding(.horizontal)
+        .modifier(VibrateAnimation(animatableData: vibrateOffset))
     }
     
     @ViewBuilder
@@ -305,6 +367,10 @@ struct FindEmailPasswordView: View {
             Spacer()
             
             Button {
+                withAnimation(.easeInOut) {
+                    loginViewModel.isNoneUser = false
+                }
+                
                 currentField = nil
                 
                 loginViewModel.isLoading = true
@@ -394,7 +460,11 @@ struct FindEmailPasswordView: View {
                 .onTapGesture {
                     currentField = .verifyCodeField
                 }
-                .padding(.horizontal)
+                .onChange(of: verifyCode) { newValue in
+                    withAnimation(.easeInOut) {
+                        loginViewModel.isInvalidAuthNumber = false
+                    }
+                }
                 .overlay {
                     HStack {
                         Spacer()
@@ -461,6 +531,7 @@ struct FindEmailPasswordView: View {
                 }
             }
         }
+        .padding(.horizontal)
         .modifier(VibrateAnimation(animatableData: vibrateOffset))
         .onChange(of: loginViewModel.isInvalidAuthNumber) { newValue in
             withAnimation(.spring()) {
@@ -476,6 +547,10 @@ struct FindEmailPasswordView: View {
             Spacer()
             
             Button {
+                withAnimation(.easeInOut) {
+                    loginViewModel.isInvalidAuthNumber = false
+                }
+                
                 if let inputNum = Int(verifyCode) {
                     loginViewModel.isLoading = true
                     
@@ -528,9 +603,11 @@ struct FindEmailPasswordView: View {
                     currentField = .verifyPasswordField
                 }
                 .onChange(of: password) { newValue in
-                    isValidPassword = newValue.count >= 8 ? true : false
-                    if newValue == "" {
-                        verifyPassword = ""
+                    withAnimation(.easeInOut) {
+                        isValidPassword = newValue.count >= 8 ? true : false
+                        if newValue == "" {
+                            verifyPassword = ""
+                        }
                     }
                 }
                 .overlay {
@@ -564,7 +641,9 @@ struct FindEmailPasswordView: View {
                     showDatePicker = false
                 }
                 .onChange(of: verifyPassword) { newValue in
-                    isSamePassword = newValue == password ? true : false
+                    withAnimation(.easeInOut) {
+                        isSamePassword = newValue == password ? true : false
+                    }
                 }
                 .overlay {
                     if verifyPassword != "" && isSamePassword {

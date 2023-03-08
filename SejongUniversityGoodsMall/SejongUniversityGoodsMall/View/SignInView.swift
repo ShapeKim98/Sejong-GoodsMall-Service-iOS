@@ -23,24 +23,33 @@ struct SignInView: View {
     var body: some View {
         VStack {
             TextField("이메일", text: $email, prompt: Text("이메일"))
-                .modifier(TextFieldModifier(text: $email, isValidInput: .constant(loginViewModel.isSignInFail ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
+                .modifier(TextFieldModifier(text: $email, isValidInput: .constant(!loginViewModel.isSignInFail), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
                 .onTapGesture {
                     currentField = .emailField
                 }
                 .onSubmit {
                     currentField = .passwordField
                 }
+                .onChange(of: email) { newValue in
+                    withAnimation(.easeInOut) {
+                        loginViewModel.isSignInFail = false
+                    }
+                }
                 .modifier(VibrateAnimation(animatableData: vibrateOffset))
-            
-            
+                .padding(.bottom)
             SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
-                .modifier(TextFieldModifier(text: $password, isValidInput: .constant(loginViewModel.isSignInFail ? false : true), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .password, focusedTextField: .passwordField, submitLabel: .done))
+                .modifier(TextFieldModifier(text: $password, isValidInput: .constant(!loginViewModel.isSignInFail), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .password, focusedTextField: .passwordField, submitLabel: .done))
                 .onTapGesture {
                     currentField = .passwordField
                 }
                 .onSubmit {
                     if email != "" && password != "" {
                         loginViewModel.signIn(email: email, password: password)
+                    }
+                }
+                .onChange(of: password) { newValue in
+                    withAnimation(.easeInOut) {
+                        loginViewModel.isSignInFail = false
                     }
                 }
                 .modifier(VibrateAnimation(animatableData: vibrateOffset))

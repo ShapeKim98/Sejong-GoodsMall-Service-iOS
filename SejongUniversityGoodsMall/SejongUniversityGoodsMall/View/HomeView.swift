@@ -68,6 +68,9 @@ struct HomeView: View {
                         if appViewModel.showMessageBox {
                             MessageBoxView()
                                 .transition(.move(edge: .bottom))
+                                .onAppear() {
+                                    goodsViewModel.hapticFeedback.notificationOccurred(.warning)
+                                }
                         }
                     }
                     .ignoresSafeArea()

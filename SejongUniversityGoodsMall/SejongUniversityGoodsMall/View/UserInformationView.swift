@@ -83,6 +83,7 @@ struct UserInformationView: View {
                 Text("찜한 상품")
                     .font(.headline)
                     .fontWeight(.bold)
+                    .foregroundColor(Color("main-text-color"))
                 
                 Spacer()
             }
@@ -96,6 +97,10 @@ struct UserInformationView: View {
                     .padding()
                     .tint(Color("main-highlight-color"))
                     .unredacted()
+            } else if goodsViewModel.scrapGoodsList.isEmpty {
+                Text("찜한 상품이 없어요.")
+                    .foregroundColor(Color("main-text-color"))
+                    .padding()
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 0) {
@@ -231,82 +236,13 @@ struct UserInformationView: View {
     }
     
     @ViewBuilder
-    func accountManageArea() -> some View {
-        VStack {
-            HStack {
-                Text("계정")
-                    .font(.headline)
-                    .padding(.top, 25)
-                
-                Spacer()
-            }
-            
-            Button {
-                withAnimation(.spring()) {
-                    appViewModel.showMessageBoxBackground = true
-                    appViewModel.showMessageBox = true
-                }
-            } label: {
-                HStack {
-                    Text("내 정보 변경")
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.top)
-                    
-                    Spacer()
-                }
-            }
-            
-            NavigationLink {
-                
-            } label: {
-                HStack {
-                    Text("주문 내역")
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.top)
-                    
-                    Spacer()
-                }
-            }
-            
-            NavigationLink {
-                
-            } label: {
-                HStack {
-                    Text("로그아웃")
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.top)
-                    
-                    Spacer()
-                }
-            }
-            
-            NavigationLink {
-                
-            } label: {
-                HStack {
-                    Text("회원탈퇴")
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.top)
-                        .padding(.bottom, 25)
-                    
-                    Spacer()
-                }
-            }
-        }
-        .padding(.horizontal)
-        .background {
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color("main-text-color"), lineWidth: 0.25)
-        }
-    }
-    
-    @ViewBuilder
     func helpArea() -> some View {
         VStack {
             HStack {
                 Text("도움말")
                     .font(.headline)
                     .padding(.top, 25)
+                    .foregroundColor(Color("main-text-color"))
                 
                 Spacer()
             }

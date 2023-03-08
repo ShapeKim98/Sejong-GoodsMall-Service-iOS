@@ -8,135 +8,6 @@
 import Foundation
 import Combine
 
-enum APIURL {
-    case server
-    case fetchSignUp
-    case fetchSignIn
-    case fetchFindEmail
-    case fetchFindPassword
-    case chechAuthNumber
-    case updatePassword
-    case fetchGoodsList
-    case fetchGoodsDetail
-    case fetchCategory
-    case fetchGoodsListFromCategory
-    case sendCartGoods
-    case fetchCartGoods
-    case deleteCartGoods
-    case updateCartGoods
-    case sendOrderGoodsFromDetailGoods
-    case sendOrderGoodsFromCart
-    case fetchOrderGoodsList
-    case sendIsScrap
-    case deleteIsScrap
-    case fetchScrapList
-    
-    func url(id: Int? = nil) -> URL? {
-        switch self {
-            case .server:
-                return URL(string: "http://13.125.79.156:5763")
-            case .fetchSignUp:
-                return URL(string: "auth/signup", relativeTo: APIURL.server.url())
-            case .fetchSignIn:
-                return URL(string: "auth/signin", relativeTo: APIURL.server.url())
-            case .fetchFindEmail:
-                return URL(string: "auth/find/email", relativeTo: APIURL.server.url())
-            case .fetchFindPassword:
-                return URL(string: "auth/find/password", relativeTo: APIURL.server.url())
-            case .chechAuthNumber:
-                return URL(string: "auth/check/authNumber", relativeTo: APIURL.server.url())
-            case .updatePassword:
-                return URL(string: "auth/update/password", relativeTo: APIURL.server.url())
-            case .fetchGoodsList:
-                return URL(string: "items/all", relativeTo: APIURL.server.url())
-            case .fetchGoodsDetail:
-                guard let id = id else {
-                    return nil
-                }
-                
-                return URL(string: "items/detail/\(id)", relativeTo: APIURL.server.url())
-            case .fetchCategory:
-                return URL(string: "categories/all", relativeTo: APIURL.server.url())
-            case .fetchGoodsListFromCategory:
-                guard let id = id else {
-                    return nil
-                }
-                
-                return URL(string: "items?categoryId=\(id)", relativeTo: APIURL.server.url())
-            case .sendCartGoods:
-                guard let id = id else {
-                    return nil
-                }
-                
-                return URL(string: "cart/\(id)", relativeTo: APIURL.server.url())
-            case .fetchCartGoods:
-                return URL(string: "cart/all", relativeTo: APIURL.server.url())
-            case .deleteCartGoods:
-                guard let id = id else {
-                    return nil
-                }
-                
-                return URL(string: "cart/delete/\(id)", relativeTo: APIURL.server.url())
-            case .updateCartGoods:
-                return URL(string: "cart/update", relativeTo: APIURL.server.url())
-            case .sendOrderGoodsFromDetailGoods:
-                guard let id = id else {
-                    return nil
-                }
-                
-                return URL(string: "order/\(id)", relativeTo: APIURL.server.url())
-            case .sendOrderGoodsFromCart:
-                return URL(string: "order/cart", relativeTo: APIURL.server.url())
-            case .fetchOrderGoodsList:
-                return URL(string: "order/list/all", relativeTo: APIURL.server.url())
-            case .sendIsScrap:
-                guard let id = id else {
-                    return nil
-                }
-                
-                return URL(string: "scrap/\(id)", relativeTo: APIURL.server.url())
-            case .deleteIsScrap:
-                guard let id = id else {
-                    return nil
-                }
-                
-                return URL(string: "scrap/delete/\(id)", relativeTo: APIURL.server.url())
-                
-            case .fetchScrapList:
-                return URL(string: "scrap/list", relativeTo: APIURL.server.url())
-        }
-    }
-}
-
-enum APIError: Error {
-    case alreadyEmail
-    case authenticationFailure
-    case isNoneEmail
-    case isInvalidAuthNumber
-    case alreadyCartGoods
-    case invalidResponse(statusCode: Int)
-    case cannotNetworkConnect
-    case jsonDecodeError
-    case jsonEncodeError
-    case isNoneCartGoods
-    case urlError(URLError)
-    case unknown(Error)
-    
-    static func convert(error: Error) -> APIError {
-        switch error {
-            case is APIError:
-                return error as! APIError
-            case is URLError:
-                return .urlError(error as! URLError)
-            case is DecodingError:
-                return .jsonDecodeError
-            case is EncodingError:
-                return .jsonEncodeError
-            default:
-                return .unknown(error)
-        }
-    }}
-
 enum ApiService {
     static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, APIError> {
         let body = UserRequest(email: email, password: password, userName: userName, birth: birth)
@@ -213,7 +84,7 @@ enum ApiService {
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw APIError.isNoneEmail
+                    throw APIError.isNoneUser
                 } else {
                     throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
@@ -664,7 +535,7 @@ enum ApiService {
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw APIError.isNoneEmail
+                    throw APIError.isNoneUser
                 } else {
                     throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }
