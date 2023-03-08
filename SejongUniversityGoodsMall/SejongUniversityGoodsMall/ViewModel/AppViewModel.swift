@@ -19,6 +19,7 @@ class AppViewModel: ObservableObject {
     @Published var messageBoxMainButtonAction: () -> Void = {}
     @Published var messageBoxSecondaryButtonAction: () -> Void = {}
     @Published var messageBoxCloseButtonAction: () -> Void = {}
+    
     func createMessageBox(title: String, secondaryTitle: String, mainButtonTitle: String, secondaryButtonTitle: String, mainButtonAction: @escaping () -> Void, secondaryButtonAction: @escaping () -> Void, closeButtonAction: @escaping () -> Void) {
         self.messageBoxTitle = title
         self.messageBoxSecondaryTitle = secondaryTitle

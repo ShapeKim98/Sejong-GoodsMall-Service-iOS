@@ -28,12 +28,17 @@ class LoginViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     private var token: String = ""
     
+    let hapticFeedback = UINotificationFeedbackGenerator()
+    
     @Published var error: APIError?
     @Published var errorView: ErrorView?
     @Published var showLoginView: Bool = true
+    @Published var isAlreadyEmail: Bool = false
     @Published var isSignUpComplete: Bool = false
     @Published var isAuthenticate: Bool = false
     @Published var isSignInFail: Bool = false
+    @Published var isNoneEmail: Bool = false
+    @Published var isNoneUser: Bool = false
     @Published var findComplete: Bool = false
     @Published var updatePasswordComplete: Bool = false
     @Published var isInvalidAuthNumber: Bool = false
@@ -183,6 +188,8 @@ class LoginViewModel: ObservableObject {
                                 self.isSignInFail = true
                                 self.isLoading = false
                             }
+                            
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                         print("로그인 실패")
                         break
@@ -195,15 +202,23 @@ class LoginViewModel: ObservableObject {
                         }
                     case .isNoneEmail:
                         DispatchQueue.main.async {
-                            self.message = "존재하지 않는 이메일"
+                            self.isNoneEmail = true
                             self.isLoading = false
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                         print("존재하지 않는 이메일")
                         break
+                    case .isNoneUser:
+                        DispatchQueue.main.async {
+                            self.isNoneUser = true
+                            self.isLoading = false
+                            self.hapticFeedback.notificationOccurred(.error)
+                        }
                     case .alreadyEmail:
                         DispatchQueue.main.async {
-                            self.message = "이미 존재하는 이메일"
+                            self.isAlreadyEmail = true
                             self.isLoading = false
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                         print("이미 존재하는 이메일")
                     case .invalidResponse(statusCode: let statusCode):
@@ -218,6 +233,7 @@ class LoginViewModel: ObservableObject {
                                 self.errorView = nil
                                 self.isLoading = false
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         break
                     case .cannotNetworkConnect:
@@ -232,6 +248,7 @@ class LoginViewModel: ObservableObject {
                                 self.errorView = nil
                                 self.isLoading = false
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         break
                     case .urlError(let error):
@@ -246,19 +263,27 @@ class LoginViewModel: ObservableObject {
                                 self.errorView = nil
                                 self.isLoading = false
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         break
                     case .jsonDecodeError:
                         print("데이터 디코딩 에러")
+                        DispatchQueue.main.async {
+                            self.hapticFeedback.notificationOccurred(.warning)
+                        }
                         break
                     default:
                         DispatchQueue.main.async {
                             self.message = "알 수 없는 오류"
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("알 수 없는 오류")
                         break
                 }
             case .finished:
+                DispatchQueue.main.async {
+                    self.hapticFeedback.notificationOccurred(.success)
+                }
                 print("이메일 찾기 성공")
                 break
         }

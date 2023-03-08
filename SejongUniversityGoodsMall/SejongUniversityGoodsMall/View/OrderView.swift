@@ -10,6 +10,7 @@ import SwiftUI
 struct OrderView: View {
     @StateObject var kakaoPostCodeViewModel: KakaoPostCodeViewModel = KakaoPostCodeViewModel()
     
+    @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
@@ -85,6 +86,19 @@ struct OrderView: View {
         }
         .onTapGesture {
             currentField = nil
+        }
+        .overlay {
+            ZStack {
+                if appViewModel.showMessageBoxBackground {
+                    Color(.black).opacity(0.4)
+                }
+                
+                if appViewModel.showMessageBox {
+                    MessageBoxView()
+                        .transition(.move(edge: .bottom))
+                }
+            }
+            .ignoresSafeArea()
         }
         .fullScreenCover(isPresented: $showFindAddressView) {
             if #available(iOS 16.0, *) {
@@ -397,32 +411,6 @@ struct OrderView: View {
     }
     
     @ViewBuilder
-    func findAddressView() -> some View {
-        VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color("shape-bkg-color"))
-                .frame(height: 10)
-            
-            Text("화면 준비중")
-                .padding()
-            
-            Spacer()
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showFindAddressView = false
-                } label: {
-                    Label("닫기", systemImage: "xmark")
-                        .labelStyle(.iconOnly)
-                        .font(.footnote)
-                        .foregroundColor(Color("main-text-color"))
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
     func orderGoodsList() -> some View {
         VStack {
             HStack {
@@ -511,16 +499,6 @@ struct OrderView: View {
                     .padding(.bottom, 5)
                     
                     HStack {
-                        Text("수량 \(goods.quantity)개")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color("secondary-text-color"))
-                        
-                        Spacer()
-                    }
-                    .padding(.bottom, 5)
-                    
-                    HStack {
                         if goodsViewModel.cartIDList.isEmpty {
                             Text("\(goods.price)원")
                                 .font(.headline)
@@ -534,6 +512,11 @@ struct OrderView: View {
                         }
                         
                         Spacer()
+                        
+                        Text("수량 \(goods.quantity)개")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color("secondary-text-color"))
                     }
                 }
                 .padding(10)
@@ -634,12 +617,35 @@ struct OrderView: View {
     func orderButton() -> some View {
         if goodsViewModel.orderType == .pickUpOrder {
             Button {
-                goodsViewModel.isSendOrderGoodsLoading = true
+                goodsViewModel.hapticFeedback.notificationOccurred(.warning)
                 
-                if goodsViewModel.cartIDList.isEmpty {
-                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, deliveryRequest: nil, token: loginViewModel.returnToken())
-                } else {
-                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, deliveryRequest: nil, token: loginViewModel.returnToken())
+                appViewModel.createMessageBox(title: "주문 전 확인하세요!", secondaryTitle: "＊입력된 개인정보는 주문 이외의 목적으로 이용되지 않습니다.\n＊주문완료 이후 금액을 입금하지 않으면 주문 내용은 일정시간 이후 자동 삭제됩니다, 입금 이후 주문 취소는 판매자 정보의 연락처를 통해 연락바랍니다.\n＊1~2일 이내 입금 내역을 전달받아 배송 상태가 변경됩니다. ", mainButtonTitle: "주문하기", secondaryButtonTitle: "뒤로가기") {
+                    withAnimation(.spring()) {
+                        appViewModel.showMessageBoxBackground = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    goodsViewModel.isSendOrderGoodsLoading = true
+                    
+                    if goodsViewModel.cartIDList.isEmpty {
+                        goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, deliveryRequest: nil, token: loginViewModel.returnToken())
+                    } else {
+                        goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: nil, deliveryRequest: nil, token: loginViewModel.returnToken())
+                    }
+                } secondaryButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showMessageBoxBackground = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    appViewModel.deleteMessageBox()
+                } closeButtonAction: {
+                    appViewModel.deleteMessageBox()
+                }
+                
+                withAnimation(.spring()) {
+                    appViewModel.showMessageBoxBackground = true
+                    appViewModel.showMessageBox = true
                 }
             } label: {
                 HStack {
@@ -669,12 +675,35 @@ struct OrderView: View {
             .padding(.bottom, 20)
         } else {
             Button {
-                goodsViewModel.isSendOrderGoodsLoading = true
+                goodsViewModel.hapticFeedback.notificationOccurred(.warning)
                 
-                if goodsViewModel.cartIDList.isEmpty {
-                    goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, zipcode: postalNumber, detailAddress: detailAddress), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
-                } else {
-                    goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, zipcode: postalNumber, detailAddress: detailAddress), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
+                appViewModel.createMessageBox(title: "주문 전 확인하세요!", secondaryTitle: "＊입력된 개인정보는 주문 이외의 목적으로 이용되지 않습니다.\n＊주문완료 이후 금액을 입금하지 않으면 주문 내용은 일정시간 이후 자동 삭제됩니다, 입금 이후 주문 취소는 판매자 정보의 연락처를 통해 연락바랍니다.\n＊1~2일 이내 입금 내역을 전달받아 배송 상태가 변경됩니다. ", mainButtonTitle: "주문하기", secondaryButtonTitle: "뒤로가기") {
+                    withAnimation(.spring()) {
+                        appViewModel.showMessageBoxBackground = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    goodsViewModel.isSendOrderGoodsLoading = true
+                    
+                    if goodsViewModel.cartIDList.isEmpty {
+                        goodsViewModel.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, zipcode: postalNumber, detailAddress: detailAddress), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
+                    } else {
+                        goodsViewModel.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: Address(mainAddress: mainAddress, zipcode: postalNumber, detailAddress: detailAddress), deliveryRequest: deliveryRequirements == "" ? nil : deliveryRequirements, token: loginViewModel.returnToken())
+                    }
+                } secondaryButtonAction: {
+                    withAnimation(.spring()) {
+                        appViewModel.showMessageBoxBackground = false
+                        appViewModel.showMessageBox = false
+                    }
+                    
+                    appViewModel.deleteMessageBox()
+                } closeButtonAction: {
+                    appViewModel.deleteMessageBox()
+                }
+                
+                withAnimation(.spring()) {
+                    appViewModel.showMessageBoxBackground = true
+                    appViewModel.showMessageBox = true
                 }
             } label: {
                 HStack {
@@ -745,5 +774,6 @@ struct OrderView_Previews: PreviewProvider {
         OrderView()
         .environmentObject(LoginViewModel())
         .environmentObject(GoodsViewModel())
+        .environmentObject(AppViewModel())
     }
 }

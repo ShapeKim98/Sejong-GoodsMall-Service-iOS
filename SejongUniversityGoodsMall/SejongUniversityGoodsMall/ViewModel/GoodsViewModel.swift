@@ -12,6 +12,8 @@ import Combine
 class GoodsViewModel: ObservableObject {
     private var subscriptions = Set<AnyCancellable>()
     
+    let hapticFeedback = UINotificationFeedbackGenerator()
+    
     @Published var error: APIError?
     @Published var errorView: ErrorView?
     @Published var goodsList: GoodsList = GoodsList()
@@ -157,6 +159,8 @@ class GoodsViewModel: ObservableObject {
                 withAnimation(.easeInOut) {
                     self.completeSendCartGoods = true
                 }
+                
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -225,6 +229,8 @@ class GoodsViewModel: ObservableObject {
                     self.updateCartData()
                     self.isCartGoodsListLoading = false
                 }
+                
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -241,6 +247,7 @@ class GoodsViewModel: ObservableObject {
                     self.fetchCartGoods(token: token)
                     self.updateCartData()
                     self.isCartGoodsListLoading = false
+                    self.hapticFeedback.notificationOccurred(.success)
                 }
             }
         }
@@ -256,6 +263,7 @@ class GoodsViewModel: ObservableObject {
             print(data)
             DispatchQueue.main.async {
                 self.fetchCartGoods(token: token)
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -279,6 +287,8 @@ class GoodsViewModel: ObservableObject {
                 }
                 self.isSendOrderGoodsLoading = false
                 self.isOrderComplete = true
+                
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -302,6 +312,8 @@ class GoodsViewModel: ObservableObject {
                 }
                 self.isSendOrderGoodsLoading = false
                 self.isOrderComplete = true
+                
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -354,6 +366,8 @@ class GoodsViewModel: ObservableObject {
                     self.goodsDetail.scraped = true
                     self.goodsDetail.scrapCount = scrap.scrapCount
                 }
+                
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -369,6 +383,8 @@ class GoodsViewModel: ObservableObject {
                 withAnimation(.easeInOut) {
                     self.completeSendCartGoods = true
                 }
+                
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -385,6 +401,8 @@ class GoodsViewModel: ObservableObject {
                     self.goodsDetail.scraped = false
                     self.goodsDetail.scrapCount = scrap.scrapCount
                 }
+                
+                self.hapticFeedback.notificationOccurred(.success)
             }
         }
         .store(in: &subscriptions)
@@ -415,6 +433,7 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("접근 권한 없음")
                         break
@@ -429,6 +448,7 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         break
                     case .cannotNetworkConnect:
@@ -442,6 +462,7 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         break
                     case .urlError(let error):
@@ -455,17 +476,20 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         break
                     case .jsonDecodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 디코딩 에러"
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("데이터 디코딩 에러")
                         break
                     case .jsonEncodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 인코딩 에러"
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("데이터 인코딩 에러")
                         break
@@ -480,6 +504,7 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
+                            self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("알 수 없는 오류")
                         break

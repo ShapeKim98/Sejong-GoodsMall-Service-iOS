@@ -565,6 +565,7 @@ struct GoodsDetailView: View {
                                 }
                             }
                         } else {
+                            goodsViewModel.hapticFeedback.notificationOccurred(.error)
                             withAnimation(.spring()) {
                                 vibrateOffset += 1
                             }
@@ -659,6 +660,7 @@ struct GoodsDetailView: View {
                                 appViewModel.showMessageBox = true
                             }
                         } else {
+                            goodsViewModel.hapticFeedback.notificationOccurred(.error)
                             withAnimation(.spring()) {
                                 vibrateOffset += 1
                             }

@@ -21,6 +21,14 @@ struct OrderCompleteView: View {
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
     
+    init() {
+        if #available(iOS 16.0, *) {
+            
+        } else {
+            SetNavigationBarColor.navigationBarColors(background: .white, titleColor: UIColor(Color("main-text-color")))
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             orderComplete()
@@ -73,6 +81,7 @@ struct OrderCompleteView: View {
             if showOrderCompleteText {
                 Text("상품 주문이 완료되었습니다.")
                     .font(showLimitDate ? .title3 : .title)
+                    .foregroundColor(Color("main-text-color"))
                     .padding(.top)
                     .transition(.opacity)
             }
@@ -201,22 +210,17 @@ struct OrderCompleteView: View {
                         .padding(.bottom, 5)
                         
                         HStack {
-                            Text("수량 \(goods.quantity)개")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color("secondary-text-color"))
-                            
-                            Spacer()
-                        }
-                        .padding(.bottom, 5)
-                        
-                        HStack {
                             Text("\(goods.price)원")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(Color("main-text-color"))
                             
                             Spacer()
+                            
+                            Text("수량 \(goods.quantity)개")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color("secondary-text-color"))
                         }
                     }
                     .padding(10)

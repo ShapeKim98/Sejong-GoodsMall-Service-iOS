@@ -16,6 +16,8 @@ struct SignUpView: View {
     @Binding var showDatePicker: Bool
     @Binding var userBirth: String
     
+    @State private var vibrateOffset: CGFloat = .zero
+    
     init(showDatePicker: Binding<Bool>, userBirth: Binding<String>) {
         self._showDatePicker = showDatePicker
         self._userBirth = userBirth
@@ -32,6 +34,9 @@ struct SignUpView: View {
         .frame(maxWidth: 500)
         .onTapGesture {
             currentField = nil
+        }
+        .onDisappear() {
+            userBirth = ""
         }
         .fullScreenCover(isPresented: $loginViewModel.isSignUpComplete) {
             signUpComplete {
@@ -192,7 +197,7 @@ struct SignUpView: View {
             
             VStack {
                 TextField("사용하실 이메일을 입력해주세요.", text: $email, prompt: Text("사용하실 이메일을 입력해주세요."))
-                    .modifier(TextFieldModifier(text: $email, isValidInput: $isValidEmail, currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
+                    .modifier(TextFieldModifier(text: $email, isValidInput: .constant((isValidEmail ? !loginViewModel.isAlreadyEmail : false)), currentField: _currentField, font: .subheadline.bold(), keyboardType: .emailAddress, contentType: .emailAddress, focusedTextField: .emailField, submitLabel: .next))
                     .onTapGesture {
                         currentField = .emailField
                         showDatePicker = false
@@ -201,10 +206,14 @@ struct SignUpView: View {
                         currentField = .passwordField
                     }
                     .onChange(of: email) { newValue in
-                        if(newValue.range(of:"^\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$", options: .regularExpression) != nil) {
-                            isValidEmail = true
-                        } else {
-                            isValidEmail = false
+                        withAnimation(.easeInOut) {
+                            loginViewModel.isAlreadyEmail = false
+                            
+                            if(newValue.range(of:"^\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$", options: .regularExpression) != nil) {
+                                isValidEmail = true
+                            } else {
+                                isValidEmail = false
+                            }
                         }
                     }
                     .overlay {
@@ -219,13 +228,25 @@ struct SignUpView: View {
                     }
                 
                 HStack {
-                    Text(!isValidEmail && email != "" ? "올바르지 않는 이메일 주소입니다." : " ")
-                        .font(.caption2)
-                        .foregroundColor(Color("main-highlight-color"))
+                    if loginViewModel.isAlreadyEmail {
+                        Text("이미 존재하는 이메일 입니다.")
+                            .font(.caption2)
+                            .foregroundColor(Color("main-highlight-color"))
+                    } else {
+                        Text(!isValidEmail && email != "" ? "올바르지 않는 이메일 주소입니다." : " ")
+                            .font(.caption2)
+                            .foregroundColor(Color("main-highlight-color"))
+                    }
                     
                     Spacer()
                 }
                 .padding(.horizontal)
+            }
+            .modifier(VibrateAnimation(animatableData: vibrateOffset))
+            .onChange(of: loginViewModel.isAlreadyEmail) { newValue in
+                withAnimation(.spring()) {
+                    vibrateOffset += newValue ? 1 : 0
+                }
             }
             
             VStack {
@@ -239,9 +260,11 @@ struct SignUpView: View {
                         currentField = .verifyPasswordField
                     }
                     .onChange(of: password) { newValue in
-                        isValidPassword = newValue.count >= 8 ? true : false
-                        if newValue == "" {
-                            verifyPassword = ""
+                        withAnimation(.easeInOut) {
+                            isValidPassword = newValue.count >= 8 ? true : false
+                            if newValue == "" {
+                                verifyPassword = ""
+                            }
                         }
                     }
                     .overlay {
@@ -276,7 +299,9 @@ struct SignUpView: View {
                         currentField = .nameField
                     }
                     .onChange(of: verifyPassword) { newValue in
-                        isSamePassword = newValue == password ? true : false
+                        withAnimation(.easeInOut) {
+                            isSamePassword = newValue == password ? true : false
+                        }
                     }
                     .overlay {
                         if isValidEmail && verifyPassword != "" && isSamePassword {
@@ -360,6 +385,9 @@ struct SignUpView: View {
     @ViewBuilder
     func signUpButton() -> some View {
         Button {
+            withAnimation(.easeInOut) {
+                loginViewModel.isAlreadyEmail = false
+            }
             loginViewModel.isLoading = true
             loginViewModel.signUp(email: email, password: password, userName: userName, birth: userBirth)
         } label: {
