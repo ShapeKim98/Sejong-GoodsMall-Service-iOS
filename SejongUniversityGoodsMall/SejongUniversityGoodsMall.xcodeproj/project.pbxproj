@@ -341,11 +341,12 @@
 			};
 			buildConfigurationList = C5324C9729794AD20034C710 /* Build configuration list for PBXProject "SejongUniversityGoodsMall" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = C5324C9329794AD20034C710;
 			productRefGroup = C5324C9D29794AD20034C710 /* Products */;

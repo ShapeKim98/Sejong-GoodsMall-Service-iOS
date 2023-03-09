@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import Security
 
 class LoginViewModel: ObservableObject {
     enum FindPasswordTextField {
@@ -80,7 +81,7 @@ class LoginViewModel: ObservableObject {
                 self.isSignInFail = false
                 self.token = loginResponse.token
                 self.memberID = loginResponse.id
-                
+                self.saveToKeychain(email: email, password: password)
                 self.isAuthenticate = true
                 self.showLoginView = false
             }
@@ -291,5 +292,30 @@ class LoginViewModel: ObservableObject {
     
     func returnToken() -> String {
         return self.token
+    }
+    
+    private func saveToKeychain(email: String, password: String) {
+        guard let info = Bundle.main.infoDictionary, let bundleID = info["CFBundleIdentifier"] as? String else {
+            return
+        }
+        
+        let account = email
+        let passwordData = Data(password.utf8)
+        let service = bundleID // Keychain 항목의 이름
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: passwordData,
+            kSecAttrService as String: service
+        ]
+        
+        let status = SecItemAdd(query as CFDictionary, nil)
+        
+        if status == errSecSuccess {
+            print("Saved to Keychain")
+        } else {
+            print("Error saving to Keychain")
+        }
     }
 }
