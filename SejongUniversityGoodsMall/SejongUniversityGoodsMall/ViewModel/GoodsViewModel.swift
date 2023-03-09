@@ -38,7 +38,7 @@ class GoodsViewModel: ObservableObject {
     @Published var isSendGoodsPossible: Bool = false
     @Published var completeSendCartGoods: Bool = false
     @Published var cartGoodsCount: Int = 0
-    @Published var orderType: OrderType = .pickUpOrder
+    @Published var orderType: OrderType = .deliveryOrder
     @Published var orderGoodsListFromCart: CartGoodsList = CartGoodsList()
     @Published var orderGoods: [OrderItem] = [OrderItem]()
     @Published var cartIDList: [Int] = [Int]()
