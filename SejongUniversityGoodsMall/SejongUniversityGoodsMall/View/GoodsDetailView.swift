@@ -199,8 +199,7 @@ struct GoodsDetailView: View {
             .onAppear() {
                 let width = reader.size.width
                 let height = reader.size.height
-                print(width)
-                print(height)
+
                 switch width {
                     case 375 where height == 667:
                         deviceType = .noneNotchiPhone
@@ -214,8 +213,6 @@ struct GoodsDetailView: View {
                         deviceType = .notchiPhone
                         break
                 }
-                
-                print(deviceType)
             }
             .onDisappear() {
                 goodsViewModel.seletedGoods.color = nil
@@ -224,7 +221,6 @@ struct GoodsDetailView: View {
             }
             .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
                 scrollOffset = value
-                print(scrollOffset)
             }
         }
     }
