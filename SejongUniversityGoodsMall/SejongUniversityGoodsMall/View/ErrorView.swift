@@ -94,9 +94,14 @@ struct ErrorView: View {
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
             
-            Text("인터넷 연결이 오프라인 상태입니다.\n인터넷 연결을 확인하세요.")
-                .foregroundColor(Color("secondary-text-color"))
-                .padding()
+            VStack {
+                Text("인터넷 연결이 오프라인 상태입니다.")
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                Text("인터넷 연결을 확인하세요.")
+                    .foregroundColor(Color("secondary-text-color"))
+            }
+            .padding()
         }
         .frame(maxWidth: 500)
     }
@@ -111,9 +116,11 @@ struct ErrorView: View {
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
             
-            Text("로그인이 필요한 기능이에요.\n로그인을 진행해주세요.")
+            Text("로그인이 필요한 기능이에요.")
                 .foregroundColor(Color("secondary-text-color"))
-                .padding()
+            
+            Text("로그인을 진행해주세요.")
+                .foregroundColor(Color("secondary-text-color"))
             
             Button {
                 goodsViewModel.error = nil
@@ -150,9 +157,14 @@ struct ErrorView: View {
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
             
-            Text("서버와의 통신중에 오류가 발생했어요 :(\n다시 시도해 주세요.\n오류코드 : \(statusCode)")
-                .foregroundColor(Color("secondary-text-color"))
-                .padding()
+            VStack {
+                Text("서버와의 통신중에 오류가 발생했어요 :(")
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                Text("다시 시도해 주세요. (오류코드 : \(statusCode))")
+                    .foregroundColor(Color("secondary-text-color"))
+            }
+            .padding()
             
             Button(action: retryAction) {
                 HStack {
@@ -185,10 +197,17 @@ struct ErrorView: View {
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
             
-            
-            Text("인터넷 연결이 불안정해요. :(\n연결되어 있는 인터넷이 잘 작동하는지 확인 후,\n다시 시도해 주세요.")
-                .foregroundColor(Color("secondary-text-color"))
-                .padding()
+            VStack {
+                Text("인터넷 연결이 불안정해요. :(")
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                Text("연결되어 있는 인터넷이 잘 작동하는지 확인 후,")
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                Text("다시 시도해 주세요.")
+                    .foregroundColor(Color("secondary-text-color"))
+            }
+            .padding()
             
             Button(action: retryAction) {
                 HStack {
@@ -222,28 +241,33 @@ struct ErrorView: View {
                 .padding()
             
             Group {
-                switch error.code {
-                    case .badServerResponse, .cannotConnectToHost, .cannotFindHost:
-                        Text("서버와 제대로 통신하지 못했어요. :(\n다시 시도해 주세요.")
-                            .foregroundColor(Color("secondary-text-color"))
-                    case .backgroundSessionWasDisconnected:
-                        Text("서버와의 통신이 알 수 없는 이유로 잠시 중단 되었어요. :(\n다시 시도해 주세요.")
-                            .foregroundColor(Color("secondary-text-color"))
-                    case .cancelled:
-                        Text("서버와의 통신이 알 수 없는 이유로 취소 되었어요. :(\n다시 시도해 주세요.")
-                            .foregroundColor(Color("secondary-text-color"))
-                    case .networkConnectionLost:
-                        Text("서버와의 통신이 알 수 없는 이유로 끊어졌어요. :(\n다시 시도해 주세요.")
-                            .foregroundColor(Color("secondary-text-color"))
-                    case .timedOut:
-                        Text("서버와의 통신이 너무 오래걸려 중단되었어요. :(\n다시 시도해 주세요.")
-                            .foregroundColor(Color("secondary-text-color"))
-                    default:
-                        Text("서버와의 통신중에 알 수 없는 오류가 발생했어요. :(\n다시 시도해 주세요.")
-                            .foregroundColor(Color("secondary-text-color"))
+                VStack {
+                    switch error.code {
+                        case .badServerResponse, .cannotConnectToHost, .cannotFindHost:
+                            Text("서버와 제대로 통신하지 못했어요. :(")
+                                .foregroundColor(Color("secondary-text-color"))
+                        case .backgroundSessionWasDisconnected:
+                            Text("서버와의 통신이 알 수 없는 이유로 잠시 중단 되었어요. :(")
+                                .foregroundColor(Color("secondary-text-color"))
+                        case .cancelled:
+                            Text("서버와의 통신이 알 수 없는 이유로 취소 되었어요. :(")
+                                .foregroundColor(Color("secondary-text-color"))
+                        case .networkConnectionLost:
+                            Text("서버와의 통신이 알 수 없는 이유로 끊어졌어요. :(")
+                                .foregroundColor(Color("secondary-text-color"))
+                        case .timedOut:
+                            Text("서버와의 통신이 너무 오래걸려 중단되었어요. :(")
+                                .foregroundColor(Color("secondary-text-color"))
+                        default:
+                            Text("서버와의 통신중에 알 수 없는 오류가 발생했어요. :(")
+                                .foregroundColor(Color("secondary-text-color"))
+                    }
+                    
+                    Text("다시 시도해 주세요.")
+                        .foregroundColor(Color("secondary-text-color"))
                 }
+                .padding()
             }
-            .padding()
             
             Button(action: retryAction) {
                 HStack {
@@ -276,10 +300,14 @@ struct ErrorView: View {
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
             
-            
-            Text("알 수 없는 오류가 발생했어요. :(\n다시 시도해 주세요.")
-                .foregroundColor(Color("secondary-text-color"))
-                .padding()
+            VStack {
+                Text("알 수 없는 오류가 발생했어요. :(")
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                Text("다시 시도해 주세요.")
+                    .foregroundColor(Color("secondary-text-color"))
+            }
+            .padding()
             
             Button(action: retryAction) {
                 HStack {

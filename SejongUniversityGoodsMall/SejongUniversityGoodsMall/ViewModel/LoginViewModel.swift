@@ -81,7 +81,7 @@ class LoginViewModel: ObservableObject {
                 self.isSignInFail = false
                 self.token = loginResponse.token
                 self.memberID = loginResponse.id
-                self.saveToKeychain(email: email, password: password)
+//                self.saveToKeychain(email: email, password: password)
                 self.isAuthenticate = true
                 self.showLoginView = false
             }

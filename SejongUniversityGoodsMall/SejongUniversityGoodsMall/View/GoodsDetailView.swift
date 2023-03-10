@@ -166,6 +166,19 @@ struct GoodsDetailView: View {
                                 goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
                             }
                     }
+                    .overlay {
+                        ZStack {
+                            if appViewModel.showMessageBoxBackground {
+                                Color(.black).opacity(0.4)
+                            }
+                            
+                            if appViewModel.showMessageBox {
+                                MessageBoxView()
+                                    .transition(.move(edge: .bottom))
+                            }
+                        }
+                        .ignoresSafeArea()
+                    }
                 } else {
                     NavigationView {
                         OrderView()
@@ -193,6 +206,19 @@ struct GoodsDetailView: View {
                             .onAppear() {
                                 goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
                             }
+                    }
+                    .overlay {
+                        ZStack {
+                            if appViewModel.showMessageBoxBackground {
+                                Color(.black).opacity(0.4)
+                            }
+                            
+                            if appViewModel.showMessageBox {
+                                MessageBoxView()
+                                    .transition(.move(edge: .bottom))
+                            }
+                        }
+                        .ignoresSafeArea()
                     }
                 }
             }

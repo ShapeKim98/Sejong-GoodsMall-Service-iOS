@@ -87,64 +87,51 @@ struct OrderView: View {
         .onTapGesture {
             currentField = nil
         }
-        .overlay {
-            ZStack {
-                if appViewModel.showMessageBoxBackground {
-                    Color(.black).opacity(0.4)
+        .fullScreenCover(isPresented: $showFindAddressView) {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    VStack {
+                        FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
+                    }
+                    .environmentObject(kakaoPostCodeViewModel)
+                    .navigationTitle("우편번호 찾기")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .modifier(NavigationColorModifier())
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                showFindAddressView = false
+                            } label: {
+                                Label("닫기", systemImage: "xmark")
+                                    .labelStyle(.iconOnly)
+                                    .font(.footnote)
+                                    .foregroundColor(Color("main-text-color"))
+                            }
+                        }
+                    }
                 }
-                
-                if appViewModel.showMessageBox {
-                    MessageBoxView()
-                        .transition(.move(edge: .bottom))
+            } else {
+                NavigationView {
+                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
+                        .environmentObject(kakaoPostCodeViewModel)
+                        .navigationTitle("우편번호 찾기")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .modifier(NavigationColorModifier())
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button {
+                                    showFindAddressView = false
+                                } label: {
+                                    Label("닫기", systemImage: "xmark")
+                                        .labelStyle(.iconOnly)
+                                        .font(.footnote)
+                                        .foregroundColor(Color("main-text-color"))
+                                }
+                            }
+                        }
                 }
             }
-            .ignoresSafeArea()
         }
-//        .fullScreenCover(isPresented: $showFindAddressView) {
-//            if #available(iOS 16.0, *) {
-//                NavigationStack {
-//                    VStack {
-//                        FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
-//                    }
-//                    .environmentObject(kakaoPostCodeViewModel)
-//                    .navigationTitle("우편번호 찾기")
-//                    .navigationBarTitleDisplayMode(.inline)
-//                    .modifier(NavigationColorModifier())
-//                    .toolbar {
-//                        ToolbarItem(placement: .navigationBarTrailing) {
-//                            Button {
-//                                showFindAddressView = false
-//                            } label: {
-//                                Label("닫기", systemImage: "xmark")
-//                                    .labelStyle(.iconOnly)
-//                                    .font(.footnote)
-//                                    .foregroundColor(Color("main-text-color"))
-//                            }
-//                        }
-//                    }
-//                }
-//            } else {
-//                NavigationView {
-//                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
-//                        .environmentObject(kakaoPostCodeViewModel)
-//                        .navigationTitle("우편번호 찾기")
-//                        .navigationBarTitleDisplayMode(.inline)
-//                        .modifier(NavigationColorModifier())
-//                        .toolbar {
-//                            ToolbarItem(placement: .navigationBarTrailing) {
-//                                Button {
-//                                    showFindAddressView = false
-//                                } label: {
-//                                    Label("닫기", systemImage: "xmark")
-//                                        .labelStyle(.iconOnly)
-//                                        .font(.footnote)
-//                                        .foregroundColor(Color("main-text-color"))
-//                                }
-//                            }
-//                        }
-//                }
-//            }
-//        }
     }
     
     @ViewBuilder
@@ -344,15 +331,6 @@ struct OrderView: View {
                     Spacer()
                 }
                 .padding(.horizontal)
-            }
-            
-            if showFindAddressView {
-                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
-                        .environmentObject(KakaoPostCodeViewModel())
-                        .frame(height: 485)
-//                        .background(.white)
-                        .shadow(color: .black.opacity(0.15), radius: 2)
-                        .padding(.bottom)
             }
             
             Group {
