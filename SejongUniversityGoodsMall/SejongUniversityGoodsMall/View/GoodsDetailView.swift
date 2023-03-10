@@ -166,6 +166,19 @@ struct GoodsDetailView: View {
                                 goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
                             }
                     }
+                    .overlay {
+                        ZStack {
+                            if appViewModel.showMessageBoxBackground {
+                                Color(.black).opacity(0.4)
+                            }
+                            
+                            if appViewModel.showMessageBox {
+                                MessageBoxView()
+                                    .transition(.move(edge: .bottom))
+                            }
+                        }
+                        .ignoresSafeArea()
+                    }
                 } else {
                     NavigationView {
                         OrderView()
@@ -194,13 +207,25 @@ struct GoodsDetailView: View {
                                 goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
                             }
                     }
+                    .overlay {
+                        ZStack {
+                            if appViewModel.showMessageBoxBackground {
+                                Color(.black).opacity(0.4)
+                            }
+                            
+                            if appViewModel.showMessageBox {
+                                MessageBoxView()
+                                    .transition(.move(edge: .bottom))
+                            }
+                        }
+                        .ignoresSafeArea()
+                    }
                 }
             }
             .onAppear() {
                 let width = reader.size.width
                 let height = reader.size.height
-                print(width)
-                print(height)
+
                 switch width {
                     case 375 where height == 667:
                         deviceType = .noneNotchiPhone
@@ -214,8 +239,6 @@ struct GoodsDetailView: View {
                         deviceType = .notchiPhone
                         break
                 }
-                
-                print(deviceType)
             }
             .onDisappear() {
                 goodsViewModel.seletedGoods.color = nil
@@ -224,7 +247,6 @@ struct GoodsDetailView: View {
             }
             .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
                 scrollOffset = value
-                print(scrollOffset)
             }
         }
     }

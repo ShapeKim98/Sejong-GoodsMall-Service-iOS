@@ -33,7 +33,7 @@ enum APIURL {
     func url(id: Int? = nil) -> URL? {
         switch self {
             case .server:
-                return URL(string: "http://13.125.79.156:5763")
+                return URL(string: "https://sejonggoodsmall.shop")
             case .fetchSignUp:
                 return URL(string: "auth/signup", relativeTo: APIURL.server.url())
             case .fetchSignIn:

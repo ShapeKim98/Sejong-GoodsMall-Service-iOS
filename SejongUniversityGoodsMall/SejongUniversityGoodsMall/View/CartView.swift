@@ -187,6 +187,19 @@ struct CartView: View {
                             goodsViewModel.updateCartData()
                         }
                 }
+                .overlay {
+                    ZStack {
+                        if appViewModel.showMessageBoxBackground {
+                            Color(.black).opacity(0.4)
+                        }
+                        
+                        if appViewModel.showMessageBox {
+                            MessageBoxView()
+                                .transition(.move(edge: .bottom))
+                        }
+                    }
+                    .ignoresSafeArea()
+                }
             } else {
                 NavigationView {
                     OrderView()
@@ -235,6 +248,19 @@ struct CartView: View {
                             goodsViewModel.cartGoodsSelections.removeAll()
                             goodsViewModel.updateCartData()
                         }
+                }
+                .overlay {
+                    ZStack {
+                        if appViewModel.showMessageBoxBackground {
+                            Color(.black).opacity(0.4)
+                        }
+                        
+                        if appViewModel.showMessageBox {
+                            MessageBoxView()
+                                .transition(.move(edge: .bottom))
+                        }
+                    }
+                    .ignoresSafeArea()
                 }
             }
         }

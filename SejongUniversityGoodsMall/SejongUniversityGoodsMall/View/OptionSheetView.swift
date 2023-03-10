@@ -294,6 +294,7 @@ struct OptionSheetView: View {
                 Label("마이너스", systemImage: "minus")
                     .labelStyle(.iconOnly)
                     .font(.caption2)
+                    .foregroundColor(Color("main-text-color"))
             }
             .disabled(goodsViewModel.seletedGoods.quantity == 1)
             .frame(minWidth: 21, minHeight: 21)
@@ -311,6 +312,7 @@ struct OptionSheetView: View {
                 Label("플러스", systemImage: "plus")
                     .labelStyle(.iconOnly)
                     .font(.caption2)
+                    .foregroundColor(Color("main-text-color"))
             }
             .frame(minWidth: 21, minHeight: 21)
             .background(Circle().fill(Color("shape-bkg-color")))
@@ -328,6 +330,7 @@ struct OptionSheetView: View {
                 Label("삭제", systemImage: "xmark")
                     .labelStyle(.iconOnly)
                     .frame(minWidth: 21, minHeight: 21)
+                    .foregroundColor(Color("main-text-color"))
             }
             
         }

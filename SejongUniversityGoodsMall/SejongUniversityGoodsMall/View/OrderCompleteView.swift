@@ -304,6 +304,16 @@ struct OrderCompleteView: View {
                 .textSelection(.enabled)
             
             Spacer()
+            
+            if title == "계좌번호" {
+                Button {
+                    UIPasteboard.general.string = content
+                } label: {
+                    Label("클립보드", systemImage: "doc.on.clipboard.fill")
+                        .labelStyle(.iconOnly)
+                        .foregroundColor(Color("shape-bkg-color"))
+                }
+            }
         }
         .padding(.vertical)
         .background(alignment: .bottom) {

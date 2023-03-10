@@ -37,6 +37,7 @@ struct SignInView: View {
                 }
                 .modifier(VibrateAnimation(animatableData: vibrateOffset))
                 .padding(.bottom)
+            
             SecureField("비밀번호", text: $password, prompt: Text("비밀번호"))
                 .modifier(TextFieldModifier(text: $password, isValidInput: .constant(!loginViewModel.isSignInFail), currentField: _currentField, font: .subheadline.bold(), keyboardType: .default, contentType: .password, focusedTextField: .passwordField, submitLabel: .done))
                 .onTapGesture {
@@ -85,6 +86,7 @@ struct SignInView: View {
             } label: {
                 HStack {
                     Spacer()
+                    
                     if loginViewModel.isLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle())

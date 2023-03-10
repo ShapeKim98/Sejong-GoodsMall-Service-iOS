@@ -162,6 +162,7 @@
 				C5C73AD12983CE5100D42719 /* SignUpView.swift */,
 				C5D32C7A29794C8600644BFD /* HomeView.swift */,
 				C52CB0ED29A0DFED0020C7BE /* SearchView.swift */,
+				C5C576F629AF279F0040627D /* OrderCompleteView.swift */,
 				C5DF2FE029798C7900642700 /* GoodsDetailView.swift */,
 				C57973AD29A36EF7007243A3 /* OrderHistoryView.swift */,
 				C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */,
@@ -171,7 +172,6 @@
 				C592F31B299B4D17003CF15E /* UserInformationView.swift */,
 				C5231D1F29A2135600A720DC /* OrderView.swift */,
 				C51F1AC729B4C83D00E00421 /* FindAdressView.swift */,
-				C5C576F629AF279F0040627D /* OrderCompleteView.swift */,
 				C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */,
 				C5543B5929A6483C008D0FEC /* ErrorView.swift */,
 			);
@@ -341,11 +341,12 @@
 			};
 			buildConfigurationList = C5324C9729794AD20034C710 /* Build configuration list for PBXProject "SejongUniversityGoodsMall" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = C5324C9329794AD20034C710;
 			productRefGroup = C5324C9D29794AD20034C710 /* Products */;

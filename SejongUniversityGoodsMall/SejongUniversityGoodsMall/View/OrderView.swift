@@ -87,19 +87,6 @@ struct OrderView: View {
         .onTapGesture {
             currentField = nil
         }
-        .overlay {
-            ZStack {
-                if appViewModel.showMessageBoxBackground {
-                    Color(.black).opacity(0.4)
-                }
-                
-                if appViewModel.showMessageBox {
-                    MessageBoxView()
-                        .transition(.move(edge: .bottom))
-                }
-            }
-            .ignoresSafeArea()
-        }
         .fullScreenCover(isPresented: $showFindAddressView) {
             if #available(iOS 16.0, *) {
                 NavigationStack {
@@ -319,7 +306,9 @@ struct OrderView: View {
                             }
                             
                             Button {
-                                showFindAddressView = true
+                                withAnimation(.easeInOut) {
+                                    showFindAddressView.toggle()
+                                }
                             } label: {
                                 Text("주소찾기")
                                     .font(.caption2)
