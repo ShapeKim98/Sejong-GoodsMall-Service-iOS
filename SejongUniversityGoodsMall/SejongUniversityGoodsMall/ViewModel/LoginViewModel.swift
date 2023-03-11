@@ -81,7 +81,7 @@ class LoginViewModel: ObservableObject {
                 self.isSignInFail = false
                 self.token = loginResponse.token
                 self.memberID = loginResponse.id
-//                self.saveToKeychain(email: email, password: password)
+                self.saveToKeychain(email: email, password: password)
                 self.isAuthenticate = true
                 self.showLoginView = false
             }
@@ -307,7 +307,9 @@ class LoginViewModel: ObservableObject {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: account,
             kSecValueData as String: passwordData,
-            kSecAttrService as String: service
+            kSecAttrService as String: service,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+            kSecAttrSynchronizable as String: true
         ]
         
         let status = SecItemAdd(query as CFDictionary, nil)
