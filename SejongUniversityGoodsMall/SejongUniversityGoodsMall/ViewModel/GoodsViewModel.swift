@@ -188,7 +188,7 @@ class GoodsViewModel: ObservableObject {
         withAnimation(.easeInOut) {
             self.isCartGoodsListLoading = true
         }
-        var publishers = [AnyPublisher<Data, APIError>]()
+        var publishers = [AnyPublisher<CartGoodsList, APIError>]()
         switch orderType {
             case .pickUpOrder:
                 self.pickUpCart.forEach { goods in
@@ -212,7 +212,7 @@ class GoodsViewModel: ObservableObject {
             self.completionHandler(completion: completion) {
                 self.deleteCartGoods(token: token)
             }
-        } receiveValue: { data in
+        } receiveValue: { goodsList in
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
                     self.completeSendCartGoods = true
@@ -220,8 +220,16 @@ class GoodsViewModel: ObservableObject {
                 
                 withAnimation(.spring()) {
                     self.fetchCartGoods(token: token)
-                    self.updateCartData()
-                    self.isCartGoodsListLoading = false
+                    DispatchQueue.main.async {
+                        switch self.orderType {
+                            case .pickUpOrder:
+                                self.pickUpCart = goodsList
+                            case .deliveryOrder:
+                                self.deliveryCart = goodsList
+                        }
+                        
+                        self.isCartGoodsListLoading = false
+                    }
                 }
                 
                 self.hapticFeedback.notificationOccurred(.success)
@@ -452,7 +460,6 @@ class GoodsViewModel: ObservableObject {
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("접근 권한 없음")
-                        break
                     case .invalidResponse(statusCode: let statusCode):
                         DispatchQueue.main.async {
                             self.error = .invalidResponse(statusCode: statusCode)
@@ -466,7 +473,6 @@ class GoodsViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .cannotNetworkConnect:
                         DispatchQueue.main.async {
                             self.error = .cannotNetworkConnect
@@ -480,7 +486,6 @@ class GoodsViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .urlError(let error):
                         DispatchQueue.main.async {
                             self.error = .urlError(error)
@@ -494,21 +499,18 @@ class GoodsViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .jsonDecodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 디코딩 에러"
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("데이터 디코딩 에러")
-                        break
                     case .jsonEncodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 인코딩 에러"
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("데이터 인코딩 에러")
-                        break
                     default:
                         DispatchQueue.main.async {
                             self.error = .unknown(error)
@@ -523,8 +525,8 @@ class GoodsViewModel: ObservableObject {
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("알 수 없는 오류")
-                        break
                 }
+                break
             case .finished:
                 print("패치 성공")
                 break
