@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-enum ApiService {
+enum APIService {
     static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, APIError> {
         let body = UserRequest(email: email, password: password, userName: userName, birth: birth)
         
@@ -134,6 +134,7 @@ enum ApiService {
     }
     
     static func fetchGoodsDetail(id: Int, token: String? = nil) -> AnyPublisher<Goods, APIError> {
+        print("test")
         var request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
         
         if let bearerToken = token {

@@ -53,7 +53,7 @@ class LoginViewModel: ObservableObject {
     @Published var retrySendVerifyCodeEnd: Bool = false
     
     func signUp(email: String, password: String, userName: String, birth: String) {
-        ApiService.fetchSignUp(email: email, password: password, userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchSignUp(email: email, password: password, userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.signUp(email: email, password: password, userName: userName, birth: birth)
             }
@@ -71,7 +71,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-        ApiService.fetchSignIn(email: email, password: password).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchSignIn(email: email, password: password).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.signIn(email: email, password: password)
             }
@@ -91,7 +91,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func fetchFindEmail(userName: String, birth: String) {
-        ApiService.fetchFindEmail(userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchFindEmail(userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchFindEmail(userName: userName, birth: birth)
             }
@@ -109,7 +109,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func fetchFindPassword(userName: String, email: String) {
-        ApiService.fetchFindPassword(userName: userName, email: email).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchFindPassword(userName: userName, email: email).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchFindPassword(userName: userName, email: email)
             }
@@ -141,7 +141,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func checkAuthNumber(email: String, inputNum: Int) {
-        ApiService.checkAuthNumber(email: email, inputNum: inputNum).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.checkAuthNumber(email: email, inputNum: inputNum).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.checkAuthNumber(email: email, inputNum: inputNum)
             }
@@ -164,7 +164,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func updatePassword(email: String, password: String) {
-        ApiService.updatePassword(email: email, password: password).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.updatePassword(email: email, password: password).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.updatePassword(email: email, password: password)
             }
