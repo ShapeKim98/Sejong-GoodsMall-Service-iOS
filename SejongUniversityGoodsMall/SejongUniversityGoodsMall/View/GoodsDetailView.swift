@@ -179,6 +179,12 @@ struct GoodsDetailView: View {
                         }
                         .ignoresSafeArea()
                     }
+                    .overlay {
+                        if let errorView = goodsViewModel.errorView {
+                            errorView
+                                .transition(.opacity.animation(.easeInOut))
+                        }
+                    }
                 } else {
                     NavigationView {
                         OrderView()
@@ -219,6 +225,12 @@ struct GoodsDetailView: View {
                             }
                         }
                         .ignoresSafeArea()
+                    }
+                    .overlay {
+                        if let errorView = goodsViewModel.errorView {
+                            errorView
+                                .transition(.opacity.animation(.easeInOut))
+                        }
                     }
                 }
             }

@@ -116,11 +116,14 @@ struct ErrorView: View {
                 .foregroundColor(Color("shape-bkg-color"))
                 .padding()
             
-            Text("로그인이 필요한 기능이에요.")
-                .foregroundColor(Color("secondary-text-color"))
-            
-            Text("로그인을 진행해주세요.")
-                .foregroundColor(Color("secondary-text-color"))
+            VStack {
+                Text("로그인이 필요한 기능이에요.")
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                Text("로그인을 진행해주세요.")
+                    .foregroundColor(Color("secondary-text-color"))
+            }
+            .padding()
             
             Button {
                 goodsViewModel.error = nil

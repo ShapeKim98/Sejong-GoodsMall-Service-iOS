@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-enum ApiService {
+enum APIService {
     static func fetchSignUp(email: String, password: String, userName: String, birth: String) -> AnyPublisher<UserResponse, APIError> {
         let body = UserRequest(email: email, password: password, userName: userName, birth: birth)
         
@@ -134,6 +134,7 @@ enum ApiService {
     }
     
     static func fetchGoodsDetail(id: Int, token: String? = nil) -> AnyPublisher<Goods, APIError> {
+        print("test")
         var request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
         
         if let bearerToken = token {
@@ -278,7 +279,7 @@ enum ApiService {
         .eraseToAnyPublisher()
     }
     
-    static func deleteCartGoods(id: Int, token: String) -> AnyPublisher<Data, APIError> {
+    static func deleteCartGoods(id: Int, token: String) -> AnyPublisher<CartGoodsList, APIError> {
         var request = URLRequest(url: APIURL.deleteCartGoods.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
@@ -300,6 +301,7 @@ enum ApiService {
 
             return data
         }
+        .decode(type: CartGoodsList.self, decoder: JSONDecoder())
         .mapError { error in
             APIError.convert(error: error)
         }

@@ -56,7 +56,7 @@ class GoodsViewModel: ObservableObject {
     @Published var isSearchLoading: Bool = false
     
     func fetchGoodsList(token: String? = nil) {
-        ApiService.fetchGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchGoodsList(token: token)
             }
@@ -73,7 +73,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchCategory() {
-        ApiService.fetchCategory().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchCategory().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchCategory()
             }
@@ -90,7 +90,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchGoodsListFromCatefory(id: Int) {
-        ApiService.fetchGoodsListFromCategory(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchGoodsListFromCategory(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchGoodsListFromCatefory(id: id)
             }
@@ -106,7 +106,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchGoodsDetail(id: Int, token: String? = nil) {
-        ApiService.fetchGoodsDetail(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchGoodsDetail(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchGoodsDetail(id: id)
             }
@@ -122,21 +122,15 @@ class GoodsViewModel: ObservableObject {
         .store(in: &subscriptions)
     }
     
-    func fetchOrderGoodsInfo(id: Int) {
-        guard !self.orderGoodsInfoList.contains(where: { key, value in
-            return key == id
-        }) else {
-            return
-        }
-        
-        ApiService.fetchGoodsDetail(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+    func fetchOrderGoodsInfo(publishers: [AnyPublisher<Goods, APIError>]) {
+        Publishers.MergeMany(publishers).eraseToAnyPublisher().subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
-                self.fetchGoodsDetail(id: id)
+                self.fetchOrderGoodsInfo(publishers: publishers)
             }
         } receiveValue: { goodsInfo in
             withAnimation(.easeInOut) {
                 DispatchQueue.main.async {
-                    self.orderGoodsInfoList.updateValue(goodsInfo, forKey: id)
+                    self.orderGoodsInfoList.updateValue(goodsInfo, forKey: goodsInfo.id)
                     print("정보 로딩")
                 }
             }
@@ -149,7 +143,7 @@ class GoodsViewModel: ObservableObject {
             return
         }
         
-        ApiService.sendCartGoods(goods: seletedGoods, goodsID: goodsDetail.id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
+        APIService.sendCartGoods(goods: seletedGoods, goodsID: goodsDetail.id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.sendCartGoodsRequest(token: token)
             }
@@ -167,7 +161,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchCartGoods(token: String) {
-        ApiService.fetchCartGoods(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchCartGoods(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchCartGoods(token: token)
             }
@@ -194,12 +188,12 @@ class GoodsViewModel: ObservableObject {
         withAnimation(.easeInOut) {
             self.isCartGoodsListLoading = true
         }
-        var publishers = [AnyPublisher<Data, APIError>]()
+        var publishers = [AnyPublisher<CartGoodsList, APIError>]()
         switch orderType {
             case .pickUpOrder:
                 self.pickUpCart.forEach { goods in
                     if let isSelected = cartGoodsSelections[goods.id], isSelected {
-                        publishers.append(ApiService.deleteCartGoods(id: goods.id, token: token))
+                        publishers.append(APIService.deleteCartGoods(id: goods.id, token: token))
                         cartGoodsSelections.removeValue(forKey: goods.id)
                     }
                 }
@@ -207,18 +201,18 @@ class GoodsViewModel: ObservableObject {
             case .deliveryOrder:
                 self.deliveryCart.forEach { goods in
                     if let isSelected = cartGoodsSelections[goods.id], isSelected {
-                        publishers.append(ApiService.deleteCartGoods(id: goods.id, token: token))
+                        publishers.append(APIService.deleteCartGoods(id: goods.id, token: token))
                         cartGoodsSelections.removeValue(forKey: goods.id)
                     }
                 }
                 break
         }
         
-        Publishers.MergeMany(publishers).eraseToAnyPublisher().subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        Publishers.MergeMany(publishers).eraseToAnyPublisher().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.deleteCartGoods(token: token)
             }
-        } receiveValue: { data in
+        } receiveValue: { goodsList in
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
                     self.completeSendCartGoods = true
@@ -226,8 +220,16 @@ class GoodsViewModel: ObservableObject {
                 
                 withAnimation(.spring()) {
                     self.fetchCartGoods(token: token)
-                    self.updateCartData()
-                    self.isCartGoodsListLoading = false
+                    DispatchQueue.main.async {
+                        switch self.orderType {
+                            case .pickUpOrder:
+                                self.pickUpCart = goodsList
+                            case .deliveryOrder:
+                                self.deliveryCart = goodsList
+                        }
+                        
+                        self.isCartGoodsListLoading = false
+                    }
                 }
                 
                 self.hapticFeedback.notificationOccurred(.success)
@@ -237,7 +239,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func deleteIndividualCartGoods(id: Int, token: String) {
-        ApiService.deleteCartGoods(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        APIService.deleteCartGoods(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.deleteIndividualCartGoods(id: id, token: token)
             }
@@ -255,7 +257,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func updateCartGoods(id: Int, quantity: Int, token: String) {
-        ApiService.updateCartGoods(id: id, quantity: quantity, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        APIService.updateCartGoods(id: id, quantity: quantity, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.updateCartGoods(id: id, quantity: quantity, token: token)
             }
@@ -270,7 +272,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendOrderGoodsFromDetailGoods(buyerName: String, phoneNumber: String, address: Address?, deliveryRequest: String?, token: String) {
-        ApiService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequest: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        APIService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequest: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             self.completionHandler(completion: completion) {
                 self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
             }
@@ -280,11 +282,17 @@ class GoodsViewModel: ObservableObject {
                 self.orderGoodsListFromCart.removeAll()
                 self.cartIDList.removeAll()
                 self.orderCompleteGoods = orderGoods
+                var publishers: [Int: AnyPublisher<Goods, APIError>] = [Int: AnyPublisher<Goods, APIError>]()
+                
                 orderGoods.orderItems.forEach { goods in
-                    if let id = goods.itemID {
-                        self.fetchOrderGoodsInfo(id: id)
+                    if let id = goods.itemID, !publishers.contains(where: { key, value in
+                        return id == key
+                    }) {
+                        publishers.updateValue(APIService.fetchGoodsDetail(id: id), forKey: id)
                     }
                 }
+                
+                self.fetchOrderGoodsInfo(publishers: publishers.values.shuffled())
                 self.isSendOrderGoodsLoading = false
                 self.isOrderComplete = true
                 
@@ -295,7 +303,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendOrderGoodsFromCart(buyerName: String, phoneNumber: String, address: Address?, deliveryRequest: String?, token: String) {
-        ApiService.sendOrderGoodsFromCart(cartIDList: self.cartIDList, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequset: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        APIService.sendOrderGoodsFromCart(cartIDList: self.cartIDList, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequset: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             self.completionHandler(completion: completion) {
                 self.sendOrderGoodsFromCart(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
             }
@@ -305,11 +313,19 @@ class GoodsViewModel: ObservableObject {
                 self.orderGoodsListFromCart.removeAll()
                 self.cartIDList.removeAll()
                 self.orderCompleteGoods = orderGoods
+                
+                var publishers: [Int: AnyPublisher<Goods, APIError>] = [Int: AnyPublisher<Goods, APIError>]()
+                
                 orderGoods.orderItems.forEach { goods in
-                    if let id = goods.itemID {
-                        self.fetchOrderGoodsInfo(id: id)
+                    if let id = goods.itemID, !publishers.contains(where: { key, value in
+                        return id == key
+                    }) {
+                        publishers.updateValue(APIService.fetchGoodsDetail(id: id), forKey: id)
                     }
                 }
+                
+                self.fetchOrderGoodsInfo(publishers: publishers.values.shuffled())
+                
                 self.isSendOrderGoodsLoading = false
                 self.isOrderComplete = true
                 
@@ -320,7 +336,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchOrderGoodsList(token: String) {
-        ApiService.fetchOrderGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchOrderGoodsList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchOrderGoodsList(token: token)
             }
@@ -333,6 +349,8 @@ class GoodsViewModel: ObservableObject {
                 self.pickUpOrderCount = 0
                 self.deliveryOrderCount = 0
                 
+                var publishers: [Int: AnyPublisher<Goods, APIError>] = [Int: AnyPublisher<Goods, APIError>]()
+                
                 self.orderCompleteGoodsList.forEach { orderGoods in
                     if orderGoods.orderMethod == .pickUpOrder {
                         self.pickUpOrderCount += orderGoods.orderItems.count
@@ -341,11 +359,17 @@ class GoodsViewModel: ObservableObject {
                     }
                     
                     orderGoods.orderItems.forEach { goods in
-                        if let id = goods.itemID {
-                            self.fetchOrderGoodsInfo(id: id)
+                        if let id = goods.itemID, !publishers.contains(where: { key, value in
+                            return id == key
+                        }) {
+                            publishers.updateValue(APIService.fetchGoodsDetail(id: id), forKey: id)
                         }
                     }
                 }
+                
+                self.fetchOrderGoodsInfo(publishers: publishers.values.shuffled())
+                
+                print(publishers.count)
                 
                 withAnimation(.easeInOut) {
                     self.isOrderGoodsListLoading = false
@@ -356,7 +380,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendIsScrap(id: Int, token: String) {
-        ApiService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        APIService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.sendIsScrap(id: id, token: token)
             }
@@ -374,7 +398,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendIsScrapFromCart(id: Int, token: String) {
-        ApiService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
+        APIService.sendIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.sendIsScrapFromCart(id: id, token: token)
             }
@@ -391,7 +415,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func deleteIsScrap(id: Int, token: String) {
-        ApiService.deleteIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
+        APIService.deleteIsScrap(id: id, token: token).subscribe(on: DispatchQueue.global(qos: .userInteractive)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.deleteIsScrap(id: id, token: token)
             }
@@ -409,7 +433,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func fetchScrapList(token: String) {
-        ApiService.fetchScrapList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchScrapList(token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchCartGoods(token: token)
             }
@@ -436,7 +460,6 @@ class GoodsViewModel: ObservableObject {
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("접근 권한 없음")
-                        break
                     case .invalidResponse(statusCode: let statusCode):
                         DispatchQueue.main.async {
                             self.error = .invalidResponse(statusCode: statusCode)
@@ -450,7 +473,6 @@ class GoodsViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .cannotNetworkConnect:
                         DispatchQueue.main.async {
                             self.error = .cannotNetworkConnect
@@ -464,7 +486,6 @@ class GoodsViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .urlError(let error):
                         DispatchQueue.main.async {
                             self.error = .urlError(error)
@@ -478,21 +499,18 @@ class GoodsViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .jsonDecodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 디코딩 에러"
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("데이터 디코딩 에러")
-                        break
                     case .jsonEncodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 인코딩 에러"
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("데이터 인코딩 에러")
-                        break
                     default:
                         DispatchQueue.main.async {
                             self.error = .unknown(error)
@@ -507,8 +525,8 @@ class GoodsViewModel: ObservableObject {
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("알 수 없는 오류")
-                        break
                 }
+                break
             case .finished:
                 print("패치 성공")
                 break
@@ -537,7 +555,7 @@ class GoodsViewModel: ObservableObject {
     }
     
     func searchGoods(searchText: String) {
-        ApiService.fetchGoodsList().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        APIService.fetchGoodsList().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.fetchGoodsList()
             }
