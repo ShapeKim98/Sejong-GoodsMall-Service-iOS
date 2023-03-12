@@ -110,6 +110,12 @@ struct OrderView: View {
                         }
                     }
                 }
+                .overlay {
+                    if let errorView = goodsViewModel.errorView {
+                        errorView
+                            .transition(.opacity.animation(.easeInOut))
+                    }
+                }
             } else {
                 NavigationView {
                     FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
@@ -129,6 +135,12 @@ struct OrderView: View {
                                 }
                             }
                         }
+                }
+                .overlay {
+                    if let errorView = goodsViewModel.errorView {
+                        errorView
+                            .transition(.opacity.animation(.easeInOut))
+                    }
                 }
             }
         }

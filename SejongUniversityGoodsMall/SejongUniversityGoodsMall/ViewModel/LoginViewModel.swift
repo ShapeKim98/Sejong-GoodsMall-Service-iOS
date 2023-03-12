@@ -193,7 +193,6 @@ class LoginViewModel: ObservableObject {
                             self.hapticFeedback.notificationOccurred(.error)
                         }
                         print("로그인 실패")
-                        break
                     case .isInvalidAuthNumber:
                         DispatchQueue.main.async {
                             withAnimation(.easeInOut) {
@@ -208,7 +207,6 @@ class LoginViewModel: ObservableObject {
                             self.hapticFeedback.notificationOccurred(.error)
                         }
                         print("존재하지 않는 이메일")
-                        break
                     case .isNoneUser:
                         DispatchQueue.main.async {
                             self.isNoneUser = true
@@ -236,7 +234,6 @@ class LoginViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .cannotNetworkConnect:
                         DispatchQueue.main.async {
                             self.error = .cannotNetworkConnect
@@ -251,7 +248,6 @@ class LoginViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .urlError(let error):
                         DispatchQueue.main.async {
                             self.error = .urlError(error)
@@ -266,21 +262,19 @@ class LoginViewModel: ObservableObject {
                             })
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     case .jsonDecodeError:
                         print("데이터 디코딩 에러")
                         DispatchQueue.main.async {
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
-                        break
                     default:
                         DispatchQueue.main.async {
                             self.message = "알 수 없는 오류"
                             self.hapticFeedback.notificationOccurred(.warning)
                         }
                         print("알 수 없는 오류")
-                        break
                 }
+                break
             case .finished:
                 DispatchQueue.main.async {
                     self.hapticFeedback.notificationOccurred(.success)
