@@ -117,10 +117,10 @@ struct ErrorView: View {
                 .padding()
             
             VStack {
-                Text("로그인이 필요한 기능이에요.")
+                Text("사용자 인증이 만료되었어요. :(")
                     .foregroundColor(Color("secondary-text-color"))
                 
-                Text("로그인을 진행해주세요.")
+                Text("다시 로그인을 진행해주세요.")
                     .foregroundColor(Color("secondary-text-color"))
             }
             .padding()
@@ -128,6 +128,7 @@ struct ErrorView: View {
             Button {
                 goodsViewModel.error = nil
                 goodsViewModel.errorView = nil
+                loginViewModel.isAuthenticate = false
                 loginViewModel.showLoginView = true
             } label: {
                 HStack {

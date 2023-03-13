@@ -76,6 +76,8 @@ struct AppView: View {
                         } else {
                             goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
                         }
+                        
+                        goodsViewModel.fetchCategory()
                     }
                     .overlay {
                         if let errorView = loginViewModel.errorView {

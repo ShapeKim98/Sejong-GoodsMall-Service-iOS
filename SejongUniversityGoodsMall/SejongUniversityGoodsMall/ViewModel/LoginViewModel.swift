@@ -28,15 +28,31 @@ class LoginViewModel: ObservableObject {
     
     private var subscriptions = Set<AnyCancellable>()
     private var token: String = ""
+    private var tokenAccesskey: String {
+        guard let file = Bundle.main.path(forResource: "TokenAccessKey", ofType: "plist") else {
+            return ""
+        }
+        
+        guard let resource = NSDictionary(contentsOfFile: file) else {
+            return ""
+        }
+        
+        guard let key = resource["TOKEN_ACCESS_KEY"] as? String else {
+            return ""
+        }
+        
+        return key
+    }
     
     let hapticFeedback = UINotificationFeedbackGenerator()
     
+    @AppStorage("AUTHENTICATE") var isAuthenticate: Bool = false
+    @AppStorage("SHOWLOGINVIEW") var showLoginView: Bool = true
+    
     @Published var error: APIError?
     @Published var errorView: ErrorView?
-    @Published var showLoginView: Bool = true
     @Published var isAlreadyEmail: Bool = false
     @Published var isSignUpComplete: Bool = false
-    @Published var isAuthenticate: Bool = false
     @Published var isSignInFail: Bool = false
     @Published var isNoneEmail: Bool = false
     @Published var isNoneUser: Bool = false
@@ -52,6 +68,15 @@ class LoginViewModel: ObservableObject {
     @Published var retrySendVerifyCodeStart: Bool = false
     @Published var retrySendVerifyCodeEnd: Bool = false
     
+    init() {
+        if let token = self.loadTokenFromKeychain() {
+            self.token = token
+        } else {
+            self.isAuthenticate = false
+            self.showLoginView = true
+        }
+    }
+    
     func signUp(email: String, password: String, userName: String, birth: String) {
         APIService.fetchSignUp(email: email, password: password, userName: userName, birth: birth).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
@@ -64,7 +89,6 @@ class LoginViewModel: ObservableObject {
                 withAnimation(.easeInOut) {
                     self.isSignUpComplete = true
                 }
-                print(user)
             }
         }
         .store(in: &subscriptions)
@@ -81,11 +105,10 @@ class LoginViewModel: ObservableObject {
                 self.isSignInFail = false
                 self.token = loginResponse.token
                 self.memberID = loginResponse.id
-                self.saveToKeychain(email: email, password: password)
+                self.saveTokenToKeychain(token: loginResponse.token)
                 self.isAuthenticate = true
                 self.showLoginView = false
             }
-            print(loginResponse)
         }
         .store(in: &subscriptions)
     }
@@ -103,7 +126,6 @@ class LoginViewModel: ObservableObject {
                     self.findComplete = true
                 }
             }
-            print(findEmailResponse)
         }
         .store(in: &subscriptions)
     }
@@ -187,12 +209,12 @@ class LoginViewModel: ObservableObject {
                         DispatchQueue.main.async {
                             withAnimation(.easeInOut) {
                                 self.isSignInFail = true
+                                self.isAuthenticate = false
                                 self.isLoading = false
                             }
                             
                             self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("로그인 실패")
                     case .isInvalidAuthNumber:
                         DispatchQueue.main.async {
                             withAnimation(.easeInOut) {
@@ -206,7 +228,6 @@ class LoginViewModel: ObservableObject {
                             self.isLoading = false
                             self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("존재하지 않는 이메일")
                     case .isNoneUser:
                         DispatchQueue.main.async {
                             self.isNoneUser = true
@@ -219,7 +240,6 @@ class LoginViewModel: ObservableObject {
                             self.isLoading = false
                             self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("이미 존재하는 이메일")
                     case .invalidResponse(statusCode: let statusCode):
                         DispatchQueue.main.async {
                             self.error = .invalidResponse(statusCode: statusCode)
@@ -232,7 +252,8 @@ class LoginViewModel: ObservableObject {
                                 self.errorView = nil
                                 self.isLoading = false
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                     case .cannotNetworkConnect:
                         DispatchQueue.main.async {
@@ -246,7 +267,8 @@ class LoginViewModel: ObservableObject {
                                 self.errorView = nil
                                 self.isLoading = false
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                     case .urlError(let error):
                         DispatchQueue.main.async {
@@ -260,26 +282,33 @@ class LoginViewModel: ObservableObject {
                                 self.errorView = nil
                                 self.isLoading = false
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                     case .jsonDecodeError:
-                        print("데이터 디코딩 에러")
                         DispatchQueue.main.async {
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                     default:
                         DispatchQueue.main.async {
-                            self.message = "알 수 없는 오류"
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.error = error
+                            self.errorView = ErrorView(retryAction: {
+                                self.error = nil
+                                self.errorView = nil
+                                retryAction()
+                            }, closeAction: {
+                                self.error = nil
+                                self.errorView = nil
+                            })
+                            
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("알 수 없는 오류")
                 }
                 break
             case .finished:
                 DispatchQueue.main.async {
                     self.hapticFeedback.notificationOccurred(.success)
                 }
-                print("이메일 찾기 성공")
                 break
         }
     }
@@ -288,30 +317,82 @@ class LoginViewModel: ObservableObject {
         return self.token
     }
     
-    private func saveToKeychain(email: String, password: String) {
-        guard let info = Bundle.main.infoDictionary, let bundleID = info["CFBundleIdentifier"] as? String else {
+    func saveTokenToKeychain(token: String) {
+        guard let data = token.data(using: String.Encoding.utf8) else {
             return
         }
         
-        let account = email
-        let passwordData = Data(password.utf8)
-        let service = bundleID // Keychain 항목의 이름
-        
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
-            kSecValueData as String: passwordData,
-            kSecAttrService as String: service,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
-            kSecAttrSynchronizable as String: true
+            kSecAttrAccount as String: tokenAccesskey,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ]
         
+        SecItemDelete(query as CFDictionary)
         let status = SecItemAdd(query as CFDictionary, nil)
         
-        if status == errSecSuccess {
-            print("Saved to Keychain")
-        } else {
-            print("Error saving to Keychain")
+        guard status == errSecSuccess else {
+            self.deleteTokenFromKeychain()
+            self.saveTokenToKeychain(token: token)
+            
+            return
         }
+    }
+    
+    func deleteTokenFromKeychain() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: tokenAccesskey
+        ]
+        
+        SecItemDelete(query as CFDictionary)
+    }
+    
+    func loadTokenFromKeychain() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: tokenAccesskey,
+            kSecReturnData as String: kCFBooleanTrue!,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var dataTypeRef: AnyObject?
+        
+        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
+        
+        guard status == errSecSuccess else {
+            return nil
+        }
+        
+        guard let retrievedData = dataTypeRef as? Data else {
+            return nil
+        }
+        
+        let result = String(data: retrievedData, encoding: .utf8)
+        
+        return result
+    }
+    
+    func reset() {
+        error = nil
+        errorView = nil
+        isAlreadyEmail = false
+        isSignUpComplete = false
+        isSignInFail = false
+        isNoneEmail = false
+        isNoneUser = false
+        findComplete = false
+        updatePasswordComplete = false
+        isInvalidAuthNumber = false
+        isLoading = false
+        message = nil
+        findEmail = ""
+        memberID = nil
+        findPasswordTextField = .inputField
+        findPasswordButton = .inputButton
+        retrySendVerifyCodeStart = false
+        retrySendVerifyCodeEnd = false
+        token = ""
     }
 }

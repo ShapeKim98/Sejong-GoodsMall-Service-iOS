@@ -134,7 +134,6 @@ enum APIService {
     }
     
     static func fetchGoodsDetail(id: Int, token: String? = nil) -> AnyPublisher<Goods, APIError> {
-        print("test")
         var request = URLRequest(url: APIURL.fetchGoodsDetail.url(id: id)!)
         
         if let bearerToken = token {
@@ -283,10 +282,8 @@ enum APIService {
         var request = URLRequest(url: APIURL.deleteCartGoods.url(id: id)!)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "DELETE"
-        print(request)
         
         return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
-            print(Thread.current)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw APIError.cannotNetworkConnect
             }

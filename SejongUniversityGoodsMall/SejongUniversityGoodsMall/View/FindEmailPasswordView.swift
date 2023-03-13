@@ -833,6 +833,7 @@ struct FindEmailPasswordView: View {
                     userBirth = ""
                     
                     loginViewModel.findComplete = false
+                    loginViewModel.findEmail = ""
                     
                     dismiss()
                 } label: {
