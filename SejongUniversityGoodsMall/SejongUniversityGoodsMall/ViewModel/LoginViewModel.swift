@@ -28,21 +28,7 @@ class LoginViewModel: ObservableObject {
     
     private var subscriptions = Set<AnyCancellable>()
     private var token: String = ""
-    private var tokenAccesskey: String {
-        guard let file = Bundle.main.path(forResource: "TokenAccessKey", ofType: "plist") else {
-            return ""
-        }
-        
-        guard let resource = NSDictionary(contentsOfFile: file) else {
-            return ""
-        }
-        
-        guard let key = resource["TOKEN_ACCESS_KEY"] as? String else {
-            return ""
-        }
-        
-        return key
-    }
+    private let tokenAccessKey = UIDevice.current.identifierForVendor!.uuidString
     
     let hapticFeedback = UINotificationFeedbackGenerator()
     
@@ -324,7 +310,7 @@ class LoginViewModel: ObservableObject {
         
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: tokenAccesskey,
+            kSecAttrAccount as String: tokenAccessKey,
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ]
@@ -343,7 +329,7 @@ class LoginViewModel: ObservableObject {
     func deleteTokenFromKeychain() {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: tokenAccesskey
+            kSecAttrAccount as String: tokenAccessKey
         ]
         
         SecItemDelete(query as CFDictionary)
@@ -352,7 +338,7 @@ class LoginViewModel: ObservableObject {
     func loadTokenFromKeychain() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: tokenAccesskey,
+            kSecAttrAccount as String: tokenAccessKey,
             kSecReturnData as String: kCFBooleanTrue!,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
@@ -394,5 +380,6 @@ class LoginViewModel: ObservableObject {
         retrySendVerifyCodeStart = false
         retrySendVerifyCodeEnd = false
         token = ""
+        deleteTokenFromKeychain()
     }
 }
