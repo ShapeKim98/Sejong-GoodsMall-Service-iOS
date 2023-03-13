@@ -19,10 +19,8 @@
 		C5231D2029A2135600A720DC /* OrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D1F29A2135600A720DC /* OrderView.swift */; };
 		C5231D2229A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */; };
 		C5231D2429A2281100A720DC /* OrderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5231D2329A2281100A720DC /* OrderType.swift */; };
-		C525CCD329BB2AC600999ABE /* TermsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525CCD229BB2AC600999ABE /* TermsView.swift */; };
-		C525CCDB29BB667700999ABE /* 세종이의 집 (전자상거래 표준약관).pdf in Resources */ = {isa = PBXBuildFile; fileRef = C525CCDA29BB667700999ABE /* 세종이의 집 (전자상거래 표준약관).pdf */; };
-		C525CCDD29BB6AA500999ABE /* 세종이의 집 (개인정보처리방침).pdf in Resources */ = {isa = PBXBuildFile; fileRef = C525CCDC29BB6AA500999ABE /* 세종이의 집 (개인정보처리방침).pdf */; };
 		C525CCDF29BC897700999ABE /* TermsOfUseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525CCDE29BC897700999ABE /* TermsOfUseView.swift */; };
+		C525CCE129BDEDBB00999ABE /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C525CCE029BDEDBB00999ABE /* PrivacyPolicyView.swift */; };
 		C526A7BF297CC2F8009BE7EF /* NavigationColorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */; };
 		C529B43D298BBC3700958B7D /* FocusedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43C298BBC3700958B7D /* FocusedTextField.swift */; };
 		C529B43F298BC48000958B7D /* TextFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C529B43E298BC48000958B7D /* TextFieldModifier.swift */; };
@@ -89,10 +87,8 @@
 		C5231D1F29A2135600A720DC /* OrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderView.swift; sourceTree = "<group>"; };
 		C5231D2129A213E600A720DC /* OrderGoodsRequestFromDetailGoods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderGoodsRequestFromDetailGoods.swift; sourceTree = "<group>"; };
 		C5231D2329A2281100A720DC /* OrderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderType.swift; sourceTree = "<group>"; };
-		C525CCD229BB2AC600999ABE /* TermsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsView.swift; sourceTree = "<group>"; };
-		C525CCDA29BB667700999ABE /* 세종이의 집 (전자상거래 표준약관).pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "세종이의 집 (전자상거래 표준약관).pdf"; sourceTree = "<group>"; };
-		C525CCDC29BB6AA500999ABE /* 세종이의 집 (개인정보처리방침).pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "세종이의 집 (개인정보처리방침).pdf"; sourceTree = "<group>"; };
 		C525CCDE29BC897700999ABE /* TermsOfUseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfUseView.swift; sourceTree = "<group>"; };
+		C525CCE029BDEDBB00999ABE /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		C526A7BE297CC2F8009BE7EF /* NavigationColorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationColorModifier.swift; sourceTree = "<group>"; };
 		C529B43C298BBC3700958B7D /* FocusedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusedTextField.swift; sourceTree = "<group>"; };
 		C529B43E298BC48000958B7D /* TextFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldModifier.swift; sourceTree = "<group>"; };
@@ -168,8 +164,8 @@
 				C5C73B0129879F8800D42719 /* SignInView.swift */,
 				C5534D2E29892EF6006DBE09 /* FindEmailPasswordView.swift */,
 				C5C73AD12983CE5100D42719 /* SignUpView.swift */,
-				C525CCD229BB2AC600999ABE /* TermsView.swift */,
 				C525CCDE29BC897700999ABE /* TermsOfUseView.swift */,
+				C525CCE029BDEDBB00999ABE /* PrivacyPolicyView.swift */,
 				C5D32C7A29794C8600644BFD /* HomeView.swift */,
 				C52CB0ED29A0DFED0020C7BE /* SearchView.swift */,
 				C5C576F629AF279F0040627D /* OrderCompleteView.swift */,
@@ -186,15 +182,6 @@
 				C5543B5929A6483C008D0FEC /* ErrorView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		C525CCD929BB666200999ABE /* Terms */ = {
-			isa = PBXGroup;
-			children = (
-				C525CCDA29BB667700999ABE /* 세종이의 집 (전자상거래 표준약관).pdf */,
-				C525CCDC29BB6AA500999ABE /* 세종이의 집 (개인정보처리방침).pdf */,
-			);
-			path = Terms;
 			sourceTree = "<group>";
 		};
 		C526A7A6297C2240009BE7EF /* Modifier */ = {
@@ -226,7 +213,6 @@
 		C5324C9E29794AD20034C710 /* SejongUniversityGoodsMall */ = {
 			isa = PBXGroup;
 			children = (
-				C525CCD929BB666200999ABE /* Terms */,
 				C5543B5B29A64945008D0FEC /* Manager */,
 				C52CB0EA29A0C9FF0020C7BE /* SejongUniversityGoodsMall.entitlements */,
 				C5C73AEC298653F800D42719 /* Api */,
@@ -385,8 +371,6 @@
 			files = (
 				C5BB655B299F84320083CA69 /* Launch Screen.storyboard in Resources */,
 				C5324CA729794AD30034C710 /* Preview Assets.xcassets in Resources */,
-				C525CCDB29BB667700999ABE /* 세종이의 집 (전자상거래 표준약관).pdf in Resources */,
-				C525CCDD29BB6AA500999ABE /* 세종이의 집 (개인정보처리방침).pdf in Resources */,
 				C5324CA429794AD30034C710 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -455,8 +439,8 @@
 				C5BD2F0329B8AD5300520774 /* APIError.swift in Sources */,
 				C51F1AC429B48FFB00E00421 /* AuthNumberRequest.swift in Sources */,
 				C52CB0EC29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift in Sources */,
+				C525CCE129BDEDBB00999ABE /* PrivacyPolicyView.swift in Sources */,
 				C5C73AF82986611600D42719 /* FindEmailResponse.swift in Sources */,
-				C525CCD329BB2AC600999ABE /* TermsView.swift in Sources */,
 				C5C73B062987C12C00D42719 /* DrawingCheckmark.swift in Sources */,
 				C5C73AFC298676C600D42719 /* LoginViewModel.swift in Sources */,
 				C50FD0FA29A601250001DAB9 /* GoodsListRequest.swift in Sources */,

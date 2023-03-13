@@ -492,7 +492,7 @@ struct FindEmailPasswordView: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding([.vertical, .leading])
                 }
             
             HStack {

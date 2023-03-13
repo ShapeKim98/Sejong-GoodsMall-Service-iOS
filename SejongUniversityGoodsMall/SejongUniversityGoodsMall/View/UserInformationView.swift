@@ -260,7 +260,9 @@ struct UserInformationView: View {
             }
             
             NavigationLink {
-                
+                PrivacyPolicyView()
+                    .navigationTitle("개인정보 처리 방침")
+                    .modifier(NavigationColorModifier())
             } label: {
                 HStack {
                     Text("개인정보 처리 방침")
@@ -272,7 +274,9 @@ struct UserInformationView: View {
             }
             
             NavigationLink {
-                
+                TermsOfUseView()
+                    .navigationTitle("이용약관 확인")
+                    .modifier(NavigationColorModifier())
             } label: {
                 HStack {
                     Text("이용약관 확인")
