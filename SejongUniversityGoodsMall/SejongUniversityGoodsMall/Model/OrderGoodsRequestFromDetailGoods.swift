@@ -7,7 +7,6 @@
 
 import Foundation
 
-// MARK: - OrderGoods
 struct OrderGoodsRequestFromDetailGoods: Codable {
     let buyerName, phoneNumber: String
     let address: Address?

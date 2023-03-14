@@ -12,9 +12,10 @@ struct OrderItem: Codable, Hashable {
     var color, size: String?
     let quantity, price: Int
     var seller: Seller?
+    var deliveryFee: Int?
     
     enum CodingKeys: String, CodingKey {
-        case color, size, quantity, price, seller
+        case color, size, quantity, price, seller, deliveryFee
         case itemID = "itemId"
     }
 }

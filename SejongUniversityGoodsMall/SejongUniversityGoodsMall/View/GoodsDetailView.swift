@@ -284,7 +284,7 @@ struct GoodsDetailView: View {
                 .tag(image.id - goodsViewModel.goodsDetail.id)
                 .overlay {
                     Color(.black)
-                        .opacity(scrollOffset / (height * 3))
+                        .opacity(scrollOffset / (height * 2))
                 }
             }
         }
@@ -324,7 +324,20 @@ struct GoodsDetailView: View {
                 .font(.title.bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
+            
             Spacer()
+            
+            if !(goodsViewModel.goodsDetail.seller.method == .pickUp) {
+                if goodsViewModel.goodsDetail.deliveryFee == 0 {
+                    Label("무료배송", systemImage: "box.truck")
+                        .font(.caption)
+                        .foregroundColor(Color("point-color"))
+                } else {
+                    Label("\(goodsViewModel.goodsDetail.deliveryFee)원", systemImage: "box.truck")
+                        .font(.caption)
+                        .foregroundColor(Color("point-color"))
+                }
+            }
         }
         .padding(.horizontal)
     }

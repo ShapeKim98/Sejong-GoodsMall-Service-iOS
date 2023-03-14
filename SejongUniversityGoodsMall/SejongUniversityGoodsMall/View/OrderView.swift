@@ -63,6 +63,10 @@ struct OrderView: View {
                                 goodsViewModel.orderGoods.forEach { goods in
                                     orderPrice += (goods.price)
                                 }
+                                
+                                if goodsViewModel.orderType == .deliveryOrder {
+                                    orderPrice += goodsViewModel.goodsDetail.deliveryFee
+                                }
                             } else {
                                 goodsViewModel.orderGoods.forEach { goods in
                                     orderPrice += (goods.price * goods.quantity)
@@ -738,7 +742,7 @@ struct OrderView: View {
     @ViewBuilder
     func deliveryInfoAlert() -> some View {
         HStack {
-            Text("• 기본 배송료는 3,000원 입니다.\n• 40,000원 이상 구매시 무료배송입니다.")
+            Text("• 기본 배송료는 \(goodsViewModel.goodsDetail.deliveryFee)원 입니다.\n• 40,000원 이상 구매시 무료배송입니다.")
                 .font(.caption)
                 .foregroundColor(Color("secondary-text-color"))
             

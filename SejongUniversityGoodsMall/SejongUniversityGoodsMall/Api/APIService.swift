@@ -592,7 +592,7 @@ enum APIService {
             
             guard httpResponse.statusCode == 200 else {
                 if httpResponse.statusCode == 400 {
-                    throw APIError.isNoneEmail
+                    throw APIError.authenticationFailure
                 } else {
                     throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
                 }

@@ -17,7 +17,7 @@ class GoodsViewModel: ObservableObject {
     @Published var error: APIError?
     @Published var errorView: ErrorView?
     @Published var goodsList: GoodsList = GoodsList()
-    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false)
+    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false, deliveryFee: 9999)
     @Published var isGoodsListLoading: Bool = true
     @Published var isGoodsDetailLoading: Bool = true
     @Published var isCategoryLoading: Bool = true
@@ -38,7 +38,7 @@ class GoodsViewModel: ObservableObject {
     @Published var isSendGoodsPossible: Bool = false
     @Published var completeSendCartGoods: Bool = false
     @Published var cartGoodsCount: Int = 0
-    @Published var orderType: OrderType = .deliveryOrder
+    @Published var orderType: OrderType = .pickUpOrder
     @Published var orderGoodsListFromCart: CartGoodsList = CartGoodsList()
     @Published var orderGoods: [OrderItem] = [OrderItem]()
     @Published var cartIDList: [Int] = [Int]()
@@ -207,7 +207,7 @@ class GoodsViewModel: ObservableObject {
                 break
         }
         
-        Publishers.MergeMany(publishers).eraseToAnyPublisher().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+        Publishers.MergeMany(publishers).eraseToAnyPublisher().subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).last().sink { completion in
             self.completionHandler(completion: completion) {
                 self.deleteCartGoods(token: token)
             }
@@ -579,7 +579,7 @@ class GoodsViewModel: ObservableObject {
         error = nil
         errorView = nil
         goodsList = GoodsList()
-        goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false)
+        goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false, deliveryFee: 9999)
         isGoodsListLoading = true
         isGoodsDetailLoading = true
         isCategoryLoading = true

@@ -393,10 +393,26 @@ struct HomeView: View {
                             }
                         }
                         
-                        Text("\(goods.price)원")
-                            .font(.headline)
-                            .fontWeight(.bold)
+                        HStack {
+                            Text("\(goods.price)원")
+                                .font(.headline)
+                                .fontWeight(.bold)
                             .foregroundColor(Color("main-text-color"))
+                            
+                            Spacer()
+                            
+                            if !(goods.seller.method == .pickUp) {
+                                if goods.deliveryFee == 0 {
+                                    Label("무료배송", systemImage: "box.truck")
+                                        .font(.caption)
+                                        .foregroundColor(Color("point-color"))
+                                } else {
+                                    Label("\(goods.deliveryFee)원", systemImage: "box.truck")
+                                        .font(.caption)
+                                        .foregroundColor(Color("point-color"))
+                                }
+                            }
+                        }
                     }
                     .padding(.top, 5)
                     .padding(.horizontal, 5)

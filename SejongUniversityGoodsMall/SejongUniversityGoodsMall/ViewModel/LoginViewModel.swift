@@ -208,12 +208,6 @@ class LoginViewModel: ObservableObject {
                                 self.isLoading = false
                             }
                         }
-                    case .isNoneEmail:
-                        DispatchQueue.main.async {
-                            self.isNoneEmail = true
-                            self.isLoading = false
-                            self.hapticFeedback.notificationOccurred(.error)
-                        }
                     case .isNoneUser:
                         DispatchQueue.main.async {
                             self.isNoneUser = true
