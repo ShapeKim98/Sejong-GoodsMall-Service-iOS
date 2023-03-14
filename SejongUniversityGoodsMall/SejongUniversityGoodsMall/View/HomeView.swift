@@ -178,7 +178,7 @@ struct HomeView: View {
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
             } label: {
-                Label("내정보", systemImage: "person")
+                Label("내 정보", systemImage: "person")
                     .font(.title)
                     .labelStyle(.iconOnly)
             }

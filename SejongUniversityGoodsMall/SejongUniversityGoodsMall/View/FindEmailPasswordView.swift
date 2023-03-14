@@ -492,7 +492,7 @@ struct FindEmailPasswordView: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding([.vertical, .leading])
                 }
             
             HStack {
@@ -833,6 +833,7 @@ struct FindEmailPasswordView: View {
                     userBirth = ""
                     
                     loginViewModel.findComplete = false
+                    loginViewModel.findEmail = ""
                     
                     dismiss()
                 } label: {

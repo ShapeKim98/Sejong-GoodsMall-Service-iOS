@@ -24,21 +24,4 @@ class NetworkManager: ObservableObject {
         
         monitor.start(queue: queue)
     }
-    
-//    func startMonitoring() {
-//        monitor.start(queue: queue)
-//        monitor.pathUpdateHandler = { path in
-//            self.isConnected = path.status == .satisfied
-//
-//            if path.usesInterfaceType(.wifi) {
-//                print("Using wifi")
-//            } else if path.usesInterfaceType(.cellular) {
-//                print("Using cellular")
-//            }
-//        }
-//    }
-//
-//    func stopMonitoring() {
-//        monitor.cancel()
-//    }
 }

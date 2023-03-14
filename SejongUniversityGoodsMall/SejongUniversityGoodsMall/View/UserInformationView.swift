@@ -14,6 +14,8 @@ struct UserInformationView: View {
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     @EnvironmentObject var loginViewModel: LoginViewModel
     
+    @State private var showSignOutMessage: Bool = false
+    
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
     ]
@@ -30,10 +32,29 @@ struct UserInformationView: View {
                 helpArea()
                     .padding([.horizontal, .top])
                 
+                signOutAndWithdrawal()
+                    .padding([.horizontal, .top])
+                    .padding(.horizontal)
+                
                 Spacer()
             }
         }
         .background(.white)
+        .confirmationDialog("로그아웃", isPresented: $showSignOutMessage) {
+            Button("로그아웃", role: .destructive) {
+                loginViewModel.isAuthenticate = false
+                loginViewModel.showLoginView = true
+                goodsViewModel.reset()
+                loginViewModel.reset()
+                dismiss()
+            }
+            
+            Button("취소", role: .cancel) {
+                showSignOutMessage = false
+            }
+        } message: {
+            Text("로그아웃 하시겠습니까?")
+        }
         .onAppear() {
             if !loginViewModel.isAuthenticate {
                 appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
@@ -260,7 +281,9 @@ struct UserInformationView: View {
             }
             
             NavigationLink {
-                
+                PrivacyPolicyView()
+                    .navigationTitle("개인정보 처리 방침")
+                    .modifier(NavigationColorModifier())
             } label: {
                 HStack {
                     Text("개인정보 처리 방침")
@@ -272,7 +295,9 @@ struct UserInformationView: View {
             }
             
             NavigationLink {
-                
+                TermsOfUseView()
+                    .navigationTitle("이용약관 확인")
+                    .modifier(NavigationColorModifier())
             } label: {
                 HStack {
                     Text("이용약관 확인")
@@ -289,6 +314,35 @@ struct UserInformationView: View {
             RoundedRectangle(cornerRadius: 10)
                 .fill(.white)
                 .shadow(color: .black.opacity(0.15), radius: 2)
+        }
+    }
+    
+    @ViewBuilder
+    func signOutAndWithdrawal() -> some View {
+        HStack {
+            Button {
+                showSignOutMessage = true
+            } label: {
+                Text("로그아웃")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color("main-highlight-color"))
+            }
+            
+            Spacer()
+            
+            Button {
+                
+            } label: {
+                Text("회원탈퇴")
+                    .font(.caption)
+                    .foregroundColor(Color("secondary-text-color"))
+                    .background(alignment: .bottom) {
+                        Rectangle()
+                            .fill(Color("secondary-text-color"))
+                            .frame(height: 0.5)
+                    }
+            }
         }
     }
 }

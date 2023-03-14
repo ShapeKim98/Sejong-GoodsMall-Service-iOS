@@ -85,7 +85,7 @@ struct SignUpView: View {
                 .frame(height: 1)
             
             termsLinks(title: "이용약관 (필수)", checked: agreeTermsOfUse) {
-                TermsView(name: "세종이의 집 (전자상거래 표준약관)")
+                TermsOfUseView()
                     .navigationTitle("이용약관 (필수)")
                     .modifier(NavigationColorModifier())
             } action: {
@@ -103,7 +103,7 @@ struct SignUpView: View {
             }
             
             termsLinks(title: "개인정보 수집 및 이용 (필수)", checked: agreePersonalInfo) {
-                TermsView(name: "세종이의 집 (개인정보처리방침)")
+                PrivacyPolicyView()
                     .navigationTitle("개인정보 수집 및 이용 (필수)")
                     .modifier(NavigationColorModifier())
             } action: {

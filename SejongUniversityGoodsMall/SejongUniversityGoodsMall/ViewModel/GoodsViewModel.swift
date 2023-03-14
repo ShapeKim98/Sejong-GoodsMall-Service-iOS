@@ -131,7 +131,6 @@ class GoodsViewModel: ObservableObject {
             withAnimation(.easeInOut) {
                 DispatchQueue.main.async {
                     self.orderGoodsInfoList.updateValue(goodsInfo, forKey: goodsInfo.id)
-                    print("정보 로딩")
                 }
             }
         }
@@ -148,13 +147,13 @@ class GoodsViewModel: ObservableObject {
                 self.sendCartGoodsRequest(token: token)
             }
         } receiveValue: { data in
-            print(data)
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
                     self.completeSendCartGoods = true
                 }
                 
-                self.hapticFeedback.notificationOccurred(.success)
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -232,7 +231,8 @@ class GoodsViewModel: ObservableObject {
                     }
                 }
                 
-                self.hapticFeedback.notificationOccurred(.success)
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -249,7 +249,9 @@ class GoodsViewModel: ObservableObject {
                     self.fetchCartGoods(token: token)
                     self.updateCartData()
                     self.isCartGoodsListLoading = false
-                    self.hapticFeedback.notificationOccurred(.success)
+                    
+                    let haptic = UIImpactFeedbackGenerator(style: .light)
+                    haptic.impactOccurred()
                 }
             }
         }
@@ -262,10 +264,11 @@ class GoodsViewModel: ObservableObject {
                 self.updateCartGoods(id: id, quantity: quantity, token: token)
             }
         } receiveValue: { data in
-            print(data)
             DispatchQueue.main.async {
                 self.fetchCartGoods(token: token)
-                self.hapticFeedback.notificationOccurred(.success)
+                
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -296,7 +299,8 @@ class GoodsViewModel: ObservableObject {
                 self.isSendOrderGoodsLoading = false
                 self.isOrderComplete = true
                 
-                self.hapticFeedback.notificationOccurred(.success)
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -329,7 +333,8 @@ class GoodsViewModel: ObservableObject {
                 self.isSendOrderGoodsLoading = false
                 self.isOrderComplete = true
                 
-                self.hapticFeedback.notificationOccurred(.success)
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -369,8 +374,6 @@ class GoodsViewModel: ObservableObject {
                 
                 self.fetchOrderGoodsInfo(publishers: publishers.values.shuffled())
                 
-                print(publishers.count)
-                
                 withAnimation(.easeInOut) {
                     self.isOrderGoodsListLoading = false
                 }
@@ -391,7 +394,8 @@ class GoodsViewModel: ObservableObject {
                     self.goodsDetail.scrapCount = scrap.scrapCount
                 }
                 
-                self.hapticFeedback.notificationOccurred(.success)
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -408,7 +412,8 @@ class GoodsViewModel: ObservableObject {
                     self.completeSendCartGoods = true
                 }
                 
-                self.hapticFeedback.notificationOccurred(.success)
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -426,7 +431,8 @@ class GoodsViewModel: ObservableObject {
                     self.goodsDetail.scrapCount = scrap.scrapCount
                 }
                 
-                self.hapticFeedback.notificationOccurred(.success)
+                let haptic = UIImpactFeedbackGenerator(style: .light)
+                haptic.impactOccurred()
             }
         }
         .store(in: &subscriptions)
@@ -457,9 +463,8 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("접근 권한 없음")
                     case .invalidResponse(statusCode: let statusCode):
                         DispatchQueue.main.async {
                             self.error = .invalidResponse(statusCode: statusCode)
@@ -471,7 +476,7 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                     case .cannotNetworkConnect:
                         DispatchQueue.main.async {
@@ -484,7 +489,7 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                     case .urlError(let error):
                         DispatchQueue.main.async {
@@ -497,20 +502,18 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
                     case .jsonDecodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 디코딩 에러"
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("데이터 디코딩 에러")
                     case .jsonEncodeError:
                         DispatchQueue.main.async {
                             self.message = "데이터 인코딩 에러"
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("데이터 인코딩 에러")
                     default:
                         DispatchQueue.main.async {
                             self.error = .unknown(error)
@@ -522,13 +525,11 @@ class GoodsViewModel: ObservableObject {
                                 self.error = nil
                                 self.errorView = nil
                             })
-                            self.hapticFeedback.notificationOccurred(.warning)
+                            self.hapticFeedback.notificationOccurred(.error)
                         }
-                        print("알 수 없는 오류")
                 }
                 break
             case .finished:
-                print("패치 성공")
                 break
         }
     }
@@ -572,5 +573,48 @@ class GoodsViewModel: ObservableObject {
             }
         }
         .store(in: &subscriptions)
+    }
+    
+    func reset() {
+        error = nil
+        errorView = nil
+        goodsList = GoodsList()
+        goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false)
+        isGoodsListLoading = true
+        isGoodsDetailLoading = true
+        isCategoryLoading = true
+        isCartGoodsListLoading = true
+        isSendOrderGoodsLoading = false
+        message = nil
+        pickUpCart = CartGoodsList()
+        deliveryCart = CartGoodsList()
+        seletedGoods = CartGoodsRequest(quantity: 0, cartMethod: .pickUpOrder)
+        categoryList = [Category(id: 0, name: "PLACEHOLDER"),
+                        Category(id: 1, name: "PLACEHOLDER"),
+                        Category(id: 2, name: "PLACEHOLDER"),
+                        Category(id: 3, name: "PLACEHOLDER")
+        ]
+        cartGoodsSelections = [Int: Bool]()
+        selectedCartGoodsCount = 0
+        selectedCartGoodsPrice = 0
+        isSendGoodsPossible = false
+        completeSendCartGoods = false
+        cartGoodsCount = 0
+        orderType = .deliveryOrder
+        orderGoodsListFromCart = CartGoodsList()
+        orderGoods = [OrderItem]()
+        cartIDList = [Int]()
+        orderCompleteGoodsList = OrderGoodsRespnoseList()
+        pickUpOrderCount = 0
+        deliveryOrderCount = 0
+        orderCompleteGoods = nil
+        isOrderGoodsListLoading = true
+        isOrderComplete = false
+        showOrderView = false
+        orderGoodsInfoList = [Int: Goods]()
+        scrapGoodsList = ScrapGoodsList()
+        isScrapListLoading = true
+        searchList = GoodsList()
+        isSearchLoading = false
     }
 }
