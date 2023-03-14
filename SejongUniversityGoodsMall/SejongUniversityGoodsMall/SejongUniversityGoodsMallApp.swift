@@ -21,7 +21,6 @@ struct SejongUniversityGoodsMallApp: App {
                 .environmentObject(goodsViewModel)
                 .environmentObject(loginViewModel)
                 .environmentObject(networkManager)
-                .preferredColorScheme(.light)
         }
     }
 }

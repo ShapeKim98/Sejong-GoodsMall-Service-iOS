@@ -10,7 +10,6 @@ import Foundation
 enum APIError: Error {
     case alreadyEmail
     case authenticationFailure
-    case isNoneEmail
     case isNoneUser
     case isInvalidAuthNumber
     case alreadyCartGoods

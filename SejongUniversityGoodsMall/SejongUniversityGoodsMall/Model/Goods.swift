@@ -21,13 +21,14 @@ struct Goods: Codable, Identifiable {
     let cartItemCount: Int
     var scrapCount: Int
     var scraped: Bool
+    var deliveryFee: Int
 
     enum CodingKeys: String, CodingKey {
         case id
         case categoryID = "categoryId"
         case goodsImages = "itemImages"
         case goodsInfos = "itemInfos"
-        case categoryName, title, color, size, price, seller, description, cartItemCount, scrapCount, scraped
+        case categoryName, title, color, size, price, seller, description, cartItemCount, scrapCount, scraped, deliveryFee
     }
  
     func representativeImage() -> GoodsImage? {

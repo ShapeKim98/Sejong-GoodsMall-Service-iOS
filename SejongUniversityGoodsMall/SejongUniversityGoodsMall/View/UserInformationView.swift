@@ -145,34 +145,48 @@ struct UserInformationView: View {
     
     @ViewBuilder
     func subWishGoods(goods: ScrapGoods) -> some View {
-        VStack {
-            AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
-                image
-                    .resizable()
-                    .scaledToFit()
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-            } placeholder: {
-                ZStack {
-                    Color("main-shape-bkg-color")
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
-                    ProgressView()
-                        .tint(Color("main-highlight-color"))
+        NavigationLink {
+            GoodsDetailView()
+                .onAppear(){
+                    withAnimation(.easeInOut) {
+                        goodsViewModel.isGoodsDetailLoading = true
+                    }
+                    goodsViewModel.fetchGoodsDetail(id: goods.id, token: loginViewModel.returnToken())
                 }
+                .navigationTitle("상품 정보")
+                .navigationBarTitleDisplayMode(.inline)
+                .modifier(NavigationColorModifier())
+                .redacted(reason: goodsViewModel.isGoodsDetailLoading ? .placeholder : [])
+        } label: {
+            VStack {
+                AsyncImage(url: URL(string: goods.repImage.oriImgName)) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } placeholder: {
+                    ZStack {
+                        Color("main-shape-bkg-color")
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        ProgressView()
+                            .tint(Color("main-highlight-color"))
+                    }
+                }
+                .frame(width: 100, height: 100)
+                .shadow(radius: 1)
+                
+                Text(goods.title)
+                    .font(.footnote)
+                    .foregroundColor(Color("main-text-color"))
+                
+                Text("\(goods.price)원")
+                    .font(.footnote)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color("main-text-color"))
             }
-            .frame(width: 100, height: 100)
-            .shadow(radius: 1)
-            
-            Text(goods.title)
-                .font(.footnote)
-                .foregroundColor(Color("main-text-color"))
-            
-            Text("\(goods.price)원")
-                .font(.footnote)
-                .fontWeight(.semibold)
-                .foregroundColor(Color("main-text-color"))
+            .padding([.bottom, .leading])
         }
-        .padding([.bottom, .leading])
     }
     
     @ViewBuilder

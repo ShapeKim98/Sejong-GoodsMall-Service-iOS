@@ -21,6 +21,7 @@ struct GoodsDetailView: View {
     }
     
     @Environment(\.dismiss) var dismiss
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     @Namespace var heroEffect
     
@@ -105,7 +106,7 @@ struct GoodsDetailView: View {
                 ZStack(alignment: .bottom) {
                     if showOptionSheet {
                         OptionSheetView(isOptionSelected: $isOptionSelected, vibrateOffset: $vibrateOffset)
-                            .frame(height: reader.size.height - (deviceType == .noneNotchiPhone ? 270 : (deviceType == .noneNotchiPhonePlus ? 350 : (deviceType == .notchiPhoneMini ? reader.size.width - 15 : reader.size.width))) + 5)
+                            .frame(height: reader.size.height - (deviceType == .noneNotchiPhone ? 270 : (deviceType == .noneNotchiPhonePlus ? 350 : (deviceType == .notchiPhoneMini ? reader.size.width - 15 : (horizontalSizeClass == .regular ? 700 : reader.size.width)))) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
                             .gesture(
@@ -284,7 +285,7 @@ struct GoodsDetailView: View {
                 .tag(image.id - goodsViewModel.goodsDetail.id)
                 .overlay {
                     Color(.black)
-                        .opacity(scrollOffset / (height * 3))
+                        .opacity(scrollOffset / (height * 2))
                 }
             }
         }
@@ -324,7 +325,20 @@ struct GoodsDetailView: View {
                 .font(.title.bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
+            
             Spacer()
+            
+            if !(goodsViewModel.goodsDetail.seller.method == .pickUp) {
+                if goodsViewModel.goodsDetail.deliveryFee == 0 {
+                    Label("무료배송", systemImage: "box.truck")
+                        .font(.caption)
+                        .foregroundColor(Color("point-color"))
+                } else {
+                    Label("\(goodsViewModel.goodsDetail.deliveryFee)원", systemImage: "box.truck")
+                        .font(.caption)
+                        .foregroundColor(Color("point-color"))
+                }
+            }
         }
         .padding(.horizontal)
     }
