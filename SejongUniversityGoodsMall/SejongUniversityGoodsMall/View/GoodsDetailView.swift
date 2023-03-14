@@ -21,6 +21,7 @@ struct GoodsDetailView: View {
     }
     
     @Environment(\.dismiss) var dismiss
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     @Namespace var heroEffect
     
@@ -105,7 +106,7 @@ struct GoodsDetailView: View {
                 ZStack(alignment: .bottom) {
                     if showOptionSheet {
                         OptionSheetView(isOptionSelected: $isOptionSelected, vibrateOffset: $vibrateOffset)
-                            .frame(height: reader.size.height - (deviceType == .noneNotchiPhone ? 270 : (deviceType == .noneNotchiPhonePlus ? 350 : (deviceType == .notchiPhoneMini ? reader.size.width - 15 : reader.size.width))) + 5)
+                            .frame(height: reader.size.height - (deviceType == .noneNotchiPhone ? 270 : (deviceType == .noneNotchiPhonePlus ? 350 : (deviceType == .notchiPhoneMini ? reader.size.width - 15 : (horizontalSizeClass == .regular ? 700 : reader.size.width)))) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
                             .gesture(
