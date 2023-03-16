@@ -29,6 +29,7 @@ struct SearchView: View {
                         
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle())
+                            .controlSize(.large)
                             .padding()
                             .tint(Color("main-highlight-color"))
                             .unredacted()

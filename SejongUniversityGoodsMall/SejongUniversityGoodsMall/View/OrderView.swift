@@ -65,7 +65,7 @@ struct OrderView: View {
                                 }
                                 
                                 if goodsViewModel.orderType == .deliveryOrder {
-                                    orderPrice += goodsViewModel.goodsDetail.deliveryFee
+                                    orderPrice += goodsViewModel.goodsDetail?.deliveryFee ?? 0
                                 }
                             } else {
                                 goodsViewModel.orderGoods.forEach { goods in
@@ -445,7 +445,7 @@ struct OrderView: View {
     func subOrderGoods(goods: OrderItem) -> some View {
         VStack {
             HStack() {
-                if let image = goodsViewModel.goodsDetail.goodsImages.first {
+                if let image = goodsViewModel.goodsDetail?.goodsImages.first {
                     AsyncImage(url: URL(string: image.oriImgName)) { image in
                         image
                             .resizable()
@@ -467,7 +467,7 @@ struct OrderView: View {
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
                         
-                        Text(goodsViewModel.goodsDetail.title)
+                        Text(goodsViewModel.goodsDetail?.title ?? "")
                             .foregroundColor(Color("main-text-color"))
                             .padding(.trailing)
                         
@@ -494,7 +494,7 @@ struct OrderView: View {
                     .padding(.bottom, 5)
                     
                     HStack {
-                        Text(goodsViewModel.goodsDetail.seller.name)
+                        Text(goodsViewModel.goodsDetail?.seller.name ?? "")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("point-color"))
@@ -672,10 +672,10 @@ struct OrderView: View {
                 }
                 .background {
                     RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(isValidBuyerName && isValidPhoneNumber ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                        .foregroundColor((isValidBuyerName && isValidPhoneNumber) || !goodsViewModel.isSendOrderGoodsLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                 }
             }
-            .disabled(!isValidBuyerName || !isValidPhoneNumber)
+            .disabled(!isValidBuyerName || !isValidPhoneNumber || goodsViewModel.isSendOrderGoodsLoading)
             .padding([.horizontal, .bottom])
             .padding(.bottom, 20)
         } else {
@@ -742,12 +742,8 @@ struct OrderView: View {
     @ViewBuilder
     func deliveryInfoAlert() -> some View {
         HStack {
-            if goodsViewModel.goodsDetail.deliveryFee == 0 {
-                Text("• 본 상품은 무료배송인 상품입니다.")
-                    .font(.caption)
-                    .foregroundColor(Color("secondary-text-color"))
-            } else {
-                Text("• 기본 배송료는 \(goodsViewModel.goodsDetail.deliveryFee)원 입니다.")
+            if let fee = goodsViewModel.goodsDetail?.deliveryFee, fee != 0 {
+                Text("• 기본 배송료는 \(fee)원 입니다.")
                     .font(.caption)
                     .foregroundColor(Color("secondary-text-color"))
                 
@@ -774,6 +770,10 @@ struct OrderView: View {
                             .fontWeight(.semibold)
                     }
                 }
+            } else {
+                Text("• 본 상품은 무료배송인 상품입니다.")
+                    .font(.caption)
+                    .foregroundColor(Color("secondary-text-color"))
             }
         }
         .padding()

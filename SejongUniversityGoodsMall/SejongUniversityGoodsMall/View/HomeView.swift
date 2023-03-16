@@ -39,19 +39,22 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             navigationBar()
                             
-                            categorySelection()
-                            
                             if goodsViewModel.goodsList.isEmpty {
+                                Spacer()
+                                
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle())
+                                    .controlSize(.large)
                                     .padding()
                                     .tint(Color("main-highlight-color"))
                                     .unredacted()
+                                
+                                Spacer()
                             } else {
+                                categorySelection()
+                                
                                 goodList()
                             }
-                            
-                            Spacer()
                         }
                     }
                     .navigationTitle("")
@@ -84,16 +87,19 @@ struct HomeView: View {
                             categorySelection()
                             
                             if goodsViewModel.goodsList.isEmpty {
+                                Spacer()
+                                
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle())
+                                    .controlSize(.large)
                                     .padding()
                                     .tint(Color("main-highlight-color"))
                                     .unredacted()
+                                
+                                Spacer()
                             } else {
                                 goodList()
                             }
-                            
-                            Spacer()
                         }
                     }
                     .navigationTitle("")

@@ -26,18 +26,21 @@ struct OrderHistoryView: View {
     var body: some View {
         VStack {
             if goodsViewModel.isOrderGoodsListLoading {
+                Spacer()
+                
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
+                    .controlSize(.large)
                     .padding()
                     .tint(Color("main-highlight-color"))
                     .unredacted()
+                
+                Spacer()
             } else {
                 ScrollView {
                     orderHistoryList()
                 }
             }
-
-            Spacer()
         }
         .background(.white)
     }
