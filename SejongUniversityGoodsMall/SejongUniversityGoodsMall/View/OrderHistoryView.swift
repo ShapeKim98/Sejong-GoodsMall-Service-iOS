@@ -38,6 +38,10 @@ struct OrderHistoryView: View {
                 Spacer()
             } else {
                 ScrollView {
+                    Rectangle()
+                        .fill(Color("shape-bkg-color"))
+                        .frame(height: 10)
+                    
                     orderHistoryList()
                 }
             }
@@ -66,10 +70,6 @@ struct OrderHistoryView: View {
     func orderHistoryList() -> some View {
         LazyVGrid(columns: columns) {
             ForEach(goodsViewModel.orderCompleteGoodsList) { orderCompleteGoods in
-                Rectangle()
-                    .fill(Color("shape-bkg-color"))
-                    .frame(height: 10)
-                
                 LazyVStack(pinnedViews: [.sectionHeaders]) {
                     Section {
                         ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in

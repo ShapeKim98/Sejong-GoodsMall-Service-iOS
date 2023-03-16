@@ -12,45 +12,62 @@ struct OrderDetailView: View {
     
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
-    @State var orderCompleteGoods: OrderGoodsRespnose
     @State private var copyClipBoardComplete: Bool = false
     
+    private var orderCompleteGoods: OrderGoodsRespnose
+    private let formatter = DateFormatter()
+    
+    init(orderCompleteGoods: OrderGoodsRespnose) {
+        self.orderCompleteGoods = orderCompleteGoods
+        self.formatter.dateFormat = "yyyy.MM.dd HH:mm:ss"
+    }
+    
     var body: some View {
-        VStack {
-            ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in
-                subOrderGoods(orderCompleteGoods: orderCompleteGoods, goods: goods)
-                
-                VStack(spacing: 0) {
-                    Group {
-                        if let seller = goods.seller {
-                            Group {
-                                orderCompleteInfo(title: "예금주", content: seller.accountHolder)
-                                
-                                orderCompleteInfo(title: "입금은행", content: seller.bank)
-                                
-                                orderCompleteInfo(title: "계좌번호", content: seller.account)
-                            }
-                        }
+        ScrollView {
+            Rectangle()
+                .fill(Color("shape-bkg-color"))
+                .frame(height: 10)
+            
+            LazyVStack(pinnedViews: [.sectionHeaders]) {
+                Section {
+                    ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in
+                        subOrderGoods(orderCompleteGoods: orderCompleteGoods, goods: goods)
                         
-                        Group {
-                            orderCompleteInfo(title: "수령인", content: orderCompleteGoods.buyerName)
-                            
-                            orderCompleteInfo(title: "휴대전화", content: orderCompleteGoods.phoneNumber)
-                        }
-                        
-                        if let address = orderCompleteGoods.address {
+                        VStack(spacing: 0) {
                             Group {
-                                orderCompleteInfo(title: "우편번호", content: address.zipcode)
+                                if let seller = goods.seller {
+                                    Group {
+                                        orderCompleteInfo(title: "예금주", content: seller.accountHolder)
+                                        
+                                        orderCompleteInfo(title: "입금은행", content: seller.bank)
+                                        
+                                        orderCompleteInfo(title: "계좌번호", content: seller.account)
+                                    }
+                                }
                                 
-                                orderCompleteInfo(title: "주소", content: address.mainAddress)
+                                Group {
+                                    orderCompleteInfo(title: "수령인", content: orderCompleteGoods.buyerName)
+                                    
+                                    orderCompleteInfo(title: "휴대전화", content: orderCompleteGoods.phoneNumber)
+                                }
                                 
-                                orderCompleteInfo(title: "상세주소", content: address.detailAddress ?? "없습니다.")
-                                
-                                orderCompleteInfo(title: "요청사항", content: orderCompleteGoods.deliveryRequest ?? "없습니다.")
+                                if let address = orderCompleteGoods.address {
+                                    Group {
+                                        orderCompleteInfo(title: "우편번호", content: address.zipcode)
+                                        
+                                        orderCompleteInfo(title: "주소", content: address.mainAddress)
+                                        
+                                        orderCompleteInfo(title: "상세주소", content: address.detailAddress ?? "없습니다.")
+                                        
+                                        orderCompleteInfo(title: "요청사항", content: orderCompleteGoods.deliveryRequest ?? "없습니다.")
+                                    }
+                                }
                             }
+                            .padding(.horizontal)
                         }
                     }
-                    .padding(.horizontal)
+                } header: {
+                    orderDateHeader(date: orderCompleteGoods.createdAt)
                 }
             }
         }
@@ -265,6 +282,23 @@ struct OrderDetailView: View {
     }
     
     @ViewBuilder
+    func orderDateHeader(date: Date) -> some View {
+        let dateString = formatter.string(from: date.addingTimeInterval(3600 * 9))
+        
+        VStack {
+            HStack {
+                Text("주문일자 : \(dateString)")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .padding()
+                
+                Spacer()
+            }
+        }
+        .background(.white)
+    }
+    
+    @ViewBuilder
     func copyClipBoardView() -> some View {
         HStack {
             Spacer()
@@ -284,9 +318,3 @@ struct OrderDetailView: View {
         .frame(height: 70)
     }
 }
-
-//struct OrderDetailView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        OrderDetailView(orderGoods: OrderGoodsRespnose(id: 0, buyerName: "sejo", phoneNumber: <#T##String#>, seller: <#T##Seller?#>, address: <#T##Address?#>, orderMethod: <#T##OrderType#>, status: <#T##String?#>, createdAt: <#T##Date#>, deliveryRequest: <#T##String?#>, orderItems: <#T##[OrderItem]#>, cartIDList: <#T##[Int]?#>))
-//    }
-//}
