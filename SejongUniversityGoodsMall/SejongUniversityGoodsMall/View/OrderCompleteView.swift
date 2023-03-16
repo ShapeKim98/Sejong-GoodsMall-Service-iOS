@@ -16,6 +16,7 @@ struct OrderCompleteView: View {
     @State private var showOrderCompleteText: Bool = false
     @State private var showLimitDate: Bool = false
     @State private var showOrderCompleteList: Bool = false
+    @State private var copyClipBoardComplete: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -44,6 +45,19 @@ struct OrderCompleteView: View {
                     
                     orderHistoryButton()
                         .transition(.opacity)
+                }
+                .overlay(alignment: .bottom) {
+                    if copyClipBoardComplete {
+                        copyClipBoardView()
+                            .padding(.bottom, 40)
+                            .onAppear() {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                    withAnimation(.easeInOut) {
+                                        copyClipBoardComplete = false
+                                    }
+                                }
+                            }
+                    }
                 }
             }
         }
@@ -111,36 +125,16 @@ struct OrderCompleteView: View {
                     VStack(spacing: 0) {
                         subOrderGoods(goods: goods)
                         
-                        Group {
-                            if let seller = goods.seller {
-                                Group {
-                                    orderCompleteInfo(title: "예금주", content: seller.accountHolder)
-                                    
-                                    orderCompleteInfo(title: "입금은행", content: seller.bank)
-                                    
-                                    orderCompleteInfo(title: "계좌번호", content: seller.account)
-                                }
-                            }
-                            
+                        if let seller = goods.seller {
                             Group {
-                                orderCompleteInfo(title: "수령인", content: orderCompleteGoods.buyerName)
+                                orderCompleteInfo(title: "예금주", content: seller.accountHolder)
                                 
-                                orderCompleteInfo(title: "휴대전화", content: orderCompleteGoods.phoneNumber)
+                                orderCompleteInfo(title: "입금은행", content: seller.bank)
+                                
+                                orderCompleteInfo(title: "계좌번호", content: seller.account)
                             }
-                            
-                            if let address = orderCompleteGoods.address {
-                                Group {
-                                    orderCompleteInfo(title: "우편번호", content: address.zipcode)
-                                    
-                                    orderCompleteInfo(title: "주소", content: address.mainAddress)
-                                    
-                                    orderCompleteInfo(title: "상세주소", content: address.detailAddress ?? "없습니다.")
-                                    
-                                    orderCompleteInfo(title: "요청사항", content: orderCompleteGoods.deliveryRequest ?? "없습니다.")
-                                }
-                            }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                     }
                 }
             }
@@ -308,10 +302,13 @@ struct OrderCompleteView: View {
             if title == "계좌번호" {
                 Button {
                     UIPasteboard.general.string = content
+                    withAnimation(.easeInOut) {
+                        copyClipBoardComplete = true
+                    }
                 } label: {
                     Label("클립보드", systemImage: "doc.on.clipboard.fill")
                         .labelStyle(.iconOnly)
-                        .foregroundColor(Color("shape-bkg-color"))
+                        .foregroundColor(Color("secondary-text-color-strong"))
                 }
             }
         }
@@ -356,6 +353,26 @@ struct OrderCompleteView: View {
         .padding([.horizontal, .bottom])
         .padding(.vertical, 20)
         .padding(.top, 20)
+    }
+    
+    @ViewBuilder
+    func copyClipBoardView() -> some View {
+        HStack {
+            Spacer()
+            
+            Text("클립보드에 복사 되었습니다.")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .padding(2)
+                .background {
+                    Rectangle()
+                        .foregroundColor(Color("main-text-color"))
+                }
+            
+            Spacer()
+        }
+        .frame(height: 70)
     }
 }
 
