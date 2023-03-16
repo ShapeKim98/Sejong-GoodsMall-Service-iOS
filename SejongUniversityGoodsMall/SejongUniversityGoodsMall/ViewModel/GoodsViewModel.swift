@@ -17,7 +17,7 @@ class GoodsViewModel: ObservableObject {
     @Published var error: APIError?
     @Published var errorView: ErrorView?
     @Published var goodsList: GoodsList = GoodsList()
-    @Published var goodsDetail: Goods = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false, deliveryFee: 9999)
+    @Published var goodsDetail: Goods?
     @Published var isGoodsListLoading: Bool = true
     @Published var isGoodsDetailLoading: Bool = true
     @Published var isCategoryLoading: Bool = true
@@ -27,11 +27,7 @@ class GoodsViewModel: ObservableObject {
     @Published var pickUpCart: CartGoodsList = CartGoodsList()
     @Published var deliveryCart: CartGoodsList = CartGoodsList()
     @Published var seletedGoods: CartGoodsRequest = CartGoodsRequest(quantity: 0, cartMethod: .pickUpOrder)
-    @Published var categoryList: CategoryList = [Category(id: 0, name: "PLACEHOLDER"),
-                                                 Category(id: 1, name: "PLACEHOLDER"),
-                                                 Category(id: 2, name: "PLACEHOLDER"),
-                                                 Category(id: 3, name: "PLACEHOLDER")
-    ]
+    @Published var categoryList: CategoryList = [Category]()
     @Published var cartGoodsSelections: [Int: Bool] = [Int: Bool]()
     @Published var selectedCartGoodsCount: Int = 0
     @Published var selectedCartGoodsPrice: Int = 0
@@ -138,11 +134,11 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendCartGoodsRequest(token: String) {
-        guard isSendGoodsPossible else {
+        guard isSendGoodsPossible, let goodID = goodsDetail?.id else {
             return
         }
         
-        APIService.sendCartGoods(goods: seletedGoods, goodsID: goodsDetail.id, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
+        APIService.sendCartGoods(goods: seletedGoods, goodsID: goodID, token: token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
             self.completionHandler(completion: completion) {
                 self.sendCartGoodsRequest(token: token)
             }
@@ -275,7 +271,11 @@ class GoodsViewModel: ObservableObject {
     }
     
     func sendOrderGoodsFromDetailGoods(buyerName: String, phoneNumber: String, address: Address?, deliveryRequest: String?, token: String) {
-        APIService.sendOrderGoodsFromDetailGoods(id: self.goodsDetail.id, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequest: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
+        guard let goodsID = goodsDetail?.id else {
+            return
+        }
+        
+        APIService.sendOrderGoodsFromDetailGoods(id: goodsID, buyerName: buyerName, phoneNumber: phoneNumber, address: address, orderMethod: self.orderType.rawValue, deliveryRequest: deliveryRequest, orderItems: self.orderGoods, token: token).subscribe(on: DispatchQueue.global(qos: .userInitiated)).sink { completion in
             self.completionHandler(completion: completion) {
                 self.sendOrderGoodsFromDetailGoods(buyerName: buyerName, phoneNumber: phoneNumber, address: address, deliveryRequest: deliveryRequest, token: token)
             }
@@ -390,8 +390,8 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { scrap in
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
-                    self.goodsDetail.scraped = true
-                    self.goodsDetail.scrapCount = scrap.scrapCount
+                    self.goodsDetail?.scraped = true
+                    self.goodsDetail?.scrapCount = scrap.scrapCount
                 }
                 
                 let haptic = UIImpactFeedbackGenerator(style: .light)
@@ -427,8 +427,8 @@ class GoodsViewModel: ObservableObject {
         } receiveValue: { scrap in
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
-                    self.goodsDetail.scraped = false
-                    self.goodsDetail.scrapCount = scrap.scrapCount
+                    self.goodsDetail?.scraped = false
+                    self.goodsDetail?.scrapCount = scrap.scrapCount
                 }
                 
                 let haptic = UIImpactFeedbackGenerator(style: .light)

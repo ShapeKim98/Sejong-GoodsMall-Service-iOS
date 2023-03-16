@@ -123,7 +123,7 @@ struct UserInformationView: View {
                     .foregroundColor(Color("main-text-color"))
                     .padding()
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(.horizontal) {
                     HStack(spacing: 0) {
                         ForEach(goodsViewModel.scrapGoodsList) { goods in
                             subWishGoods(goods: goods)
@@ -238,6 +238,7 @@ struct UserInformationView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(Color("main-highlight-color"))
+                        .redacted(reason: goodsViewModel.isOrderGoodsListLoading ? .placeholder : [])
                 }
                 .padding(.vertical, 30)
                 
@@ -257,6 +258,7 @@ struct UserInformationView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(Color("main-highlight-color"))
+                        .redacted(reason: goodsViewModel.isOrderGoodsListLoading ? .placeholder : [])
                 }
                 .padding(.vertical, 30)
                 

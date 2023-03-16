@@ -36,8 +36,11 @@ struct CartView: View {
                     .frame(height: 10)
                 
                 if (goodsViewModel.pickUpCart.isEmpty && goodsViewModel.isCartGoodsListLoading) || (goodsViewModel.deliveryCart.isEmpty && goodsViewModel.isCartGoodsListLoading) {
+                    Spacer()
+                    
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
+                        .controlSize(.large)
                         .padding()
                         .tint(Color("main-highlight-color"))
                         .unredacted()
@@ -271,7 +274,7 @@ struct CartView: View {
         HStack {
             Spacer()
             
-            orderTypeButton("현장 수령", .pickUpOrder) {
+            orderTypeButton("현장수령", .pickUpOrder) {
                 isAllSelected = false
                 
                 goodsViewModel.cartGoodsSelections.removeAll()
@@ -288,7 +291,7 @@ struct CartView: View {
             
             Spacer(minLength: 150)
             
-            orderTypeButton("택배 수령", .deliveryOrder) {
+            orderTypeButton("택배수령", .deliveryOrder) {
                 isAllSelected = false
                 
                 goodsViewModel.cartGoodsSelections.removeAll()
@@ -335,6 +338,7 @@ struct CartView: View {
                                 .fontWeight(isSelected ? .bold : .light)
                                 .foregroundColor(isSelected ? Color("point-color") : Color("secondary-text-color"))
                                 .padding(.bottom, 10)
+                                .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
                         }
                     case .deliveryOrder:
                         HStack(spacing: 0) {
@@ -350,6 +354,7 @@ struct CartView: View {
                                 .fontWeight(isSelected ? .bold : .light)
                                 .foregroundColor(isSelected ? Color("point-color") : Color("secondary-text-color"))
                                 .padding(.bottom, 10)
+                                .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
                         }
                 }
             }
@@ -545,9 +550,14 @@ struct CartView: View {
             HStack {
                 Spacer()
                 
-                Text("장바구니에 상품이 없습니다.\n상품을 추가해 보세요.")
-                    .foregroundColor(Color("secondary-text-color"))
-                    .padding()
+                VStack {
+                    Text("장바구니에 상품이 없습니다.")
+                        .foregroundColor(Color("secondary-text-color"))
+                    
+                    Text("상품을 추가해 보세요.")
+                        .foregroundColor(Color("secondary-text-color"))
+                }
+                .padding()
                 
                 Spacer()
             }

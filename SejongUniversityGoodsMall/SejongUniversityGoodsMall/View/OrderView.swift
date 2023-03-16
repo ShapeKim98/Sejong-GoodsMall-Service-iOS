@@ -65,7 +65,7 @@ struct OrderView: View {
                                 }
                                 
                                 if goodsViewModel.orderType == .deliveryOrder {
-                                    orderPrice += goodsViewModel.goodsDetail.deliveryFee
+                                    orderPrice += goodsViewModel.goodsDetail?.deliveryFee ?? 0
                                 }
                             } else {
                                 goodsViewModel.orderGoods.forEach { goods in
@@ -445,7 +445,7 @@ struct OrderView: View {
     func subOrderGoods(goods: OrderItem) -> some View {
         VStack {
             HStack() {
-                if let image = goodsViewModel.goodsDetail.goodsImages.first {
+                if let image = goodsViewModel.goodsDetail?.goodsImages.first {
                     AsyncImage(url: URL(string: image.oriImgName)) { image in
                         image
                             .resizable()
@@ -467,7 +467,7 @@ struct OrderView: View {
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
                         
-                        Text(goodsViewModel.goodsDetail.title)
+                        Text(goodsViewModel.goodsDetail?.title ?? "")
                             .foregroundColor(Color("main-text-color"))
                             .padding(.trailing)
                         
@@ -494,7 +494,7 @@ struct OrderView: View {
                     .padding(.bottom, 5)
                     
                     HStack {
-                        Text(goodsViewModel.goodsDetail.seller.name)
+                        Text(goodsViewModel.goodsDetail?.seller.name ?? "")
                             .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(Color("point-color"))
@@ -672,10 +672,10 @@ struct OrderView: View {
                 }
                 .background {
                     RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(isValidBuyerName && isValidPhoneNumber ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                        .foregroundColor((isValidBuyerName && isValidPhoneNumber) || !goodsViewModel.isSendOrderGoodsLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                 }
             }
-            .disabled(!isValidBuyerName || !isValidPhoneNumber)
+            .disabled(!isValidBuyerName || !isValidPhoneNumber || goodsViewModel.isSendOrderGoodsLoading)
             .padding([.horizontal, .bottom])
             .padding(.bottom, 20)
         } else {
@@ -742,32 +742,38 @@ struct OrderView: View {
     @ViewBuilder
     func deliveryInfoAlert() -> some View {
         HStack {
-            Text("• 기본 배송료는 \(goodsViewModel.goodsDetail.deliveryFee)원 입니다.\n• 40,000원 이상 구매시 무료배송입니다.")
-                .font(.caption)
-                .foregroundColor(Color("secondary-text-color"))
-            
-            Spacer()
-            
-            Button {
-                showDeliveryInfo = true
-            } label: {
-                Label("도움말", systemImage: "info.circle")
-                    .font(.title3)
-                    .labelStyle(.iconOnly)
-                    .foregroundColor(Color("point-color"))
-            }
-            .alert("지역별 추가 배송비 안내", isPresented: $showDeliveryInfo) {
+            if let fee = goodsViewModel.goodsDetail?.deliveryFee, fee != 0 {
+                Text("• 기본 배송료는 \(fee)원 입니다.")
+                    .font(.caption)
+                    .foregroundColor(Color("secondary-text-color"))
+                
+                Spacer()
+                
                 Button {
-                    showDeliveryInfo = false
+                    showDeliveryInfo = true
                 } label: {
-                    Text("확인")
+                    Label("도움말", systemImage: "info.circle")
+                        .font(.title3)
+                        .labelStyle(.iconOnly)
+                        .foregroundColor(Color("point-color"))
                 }
-                .foregroundColor(Color("main-highlight-color"))
-            } message: {
-                VStack {
-                    Text("제주도 3,000원 추가\n제주도 외 도서산간 5,000원 추가").font(.caption)
-                        .fontWeight(.semibold)
+                .alert("지역별 추가 배송비 안내", isPresented: $showDeliveryInfo) {
+                    Button {
+                        showDeliveryInfo = false
+                    } label: {
+                        Text("확인")
+                    }
+                    .foregroundColor(Color("main-highlight-color"))
+                } message: {
+                    VStack {
+                        Text("제주도 3,000원 추가\n제주도 외 도서산간 5,000원 추가").font(.caption)
+                            .fontWeight(.semibold)
+                    }
                 }
+            } else {
+                Text("• 본 상품은 무료배송인 상품입니다.")
+                    .font(.caption)
+                    .foregroundColor(Color("secondary-text-color"))
             }
         }
         .padding()

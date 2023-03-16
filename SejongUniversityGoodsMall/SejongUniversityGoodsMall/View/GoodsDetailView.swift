@@ -43,61 +43,82 @@ struct GoodsDetailView: View {
     var body: some View {
         GeometryReader { reader in
             ZStack(alignment: .top) {
-                Group {
-                    if goodsViewModel.isGoodsDetailLoading {
-                        Color("main-shape-bkg-color")
-                            .frame(width: reader.size.width, height: reader.size.width - (scrollOffset < 0 ? scrollOffset : 0))
-                            .shadow(radius: 1)
-                    } else {
-                        imageView(height: reader.size.width)
-                            .unredacted()
+                if let goods = goodsViewModel.goodsDetail {
+                    Group {
+                        if goodsViewModel.isGoodsDetailLoading {
+                            Color("main-shape-bkg-color")
+                                .frame(width: reader.size.width, height: reader.size.width - (scrollOffset < 0 ? scrollOffset : 0))
+                                .shadow(radius: 1)
+                        } else {
+                            imageView(goods: goods, height: reader.size.width)
+                                .unredacted()
+                        }
                     }
-                }
-                .zIndex(scrollOffset <= 0 ? 2 : 0)
-                
-                ScrollView {
-                    VStack {
-                        Spacer()
-                            .frame(height: reader.size.width)
-                        
+                    .zIndex(scrollOffset <= 0 ? 2 : 0)
+                    
+                    ScrollView {
                         VStack {
-                            VStack(spacing: 10) {
-                                HStack(spacing: 0) {
-                                    Text("\(imagePage) ")
-                                        .foregroundColor(Color("main-text-color"))
-                                    Text("/ \(goodsViewModel.goodsDetail.goodsImages.count)")
-                                        .foregroundColor(Color("secondary-text-color"))
+                            Spacer()
+                                .frame(height: reader.size.width)
+                            
+                            VStack {
+                                VStack(spacing: 10) {
+                                    HStack(spacing: 0) {
+                                        Text("\(imagePage) ")
+                                            .foregroundColor(Color("main-text-color"))
+                                        Text("/ \(goods.goodsImages.count)")
+                                            .foregroundColor(Color("secondary-text-color"))
+                                        
+                                        Spacer()
+                                    }
+                                    .font(.footnote)
+                                    .padding(.horizontal)
                                     
-                                    Spacer()
+                                    nameAndPriceView(goods: goods)
                                 }
-                                .font(.footnote)
-                                .padding(.horizontal)
+                                .padding(.vertical)
                                 
-                                nameAndPriceView()
-                            }
-                            .padding(.vertical)
-                            
-                            Rectangle()
-                                .foregroundColor(Color("shape-bkg-color"))
-                                .frame(height: 10)
-                            
+                                Rectangle()
+                                    .foregroundColor(Color("shape-bkg-color"))
+                                    .frame(height: 10)
+                                
                                 switch service {
                                     case .goodsInformation:
-                                        goodsInformationPage()
+                                        goodsInformationPage(goods: goods)
                                     case .sellerInformation:
-                                        sellerInformationPage()
+                                        sellerInformationPage(goods: goods)
                                 }
-     
-                            Spacer()
-                                .frame(height: 80)
+                                
+                                Spacer()
+                                    .frame(height: 80)
+                            }
+                            .background(.white)
                         }
-                        .background(.white)
+                        .background {
+                            GeometryReader { reader in
+                                let offset = -reader.frame(in: .named("SCROLL")).minY
+                                Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                            }
+                        }
                     }
-                    .background {
-                        GeometryReader { reader in
-                            let offset = -reader.frame(in: .named("SCROLL")).minY
-                            Color.clear.preference(key: ScrollViewOffsetPreferenceKey.self, value: offset)
+                } else {
+                    VStack {
+                        Spacer()
+                        
+                        HStack {
+                            Spacer()
+                            
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .controlSize(.large)
+                                .padding()
+                                .tint(Color("main-highlight-color"))
+                                .unredacted()
+                            
+                            Spacer()
                         }
+                        
+                        Spacer()
                     }
                 }
             }
@@ -164,7 +185,7 @@ struct GoodsDetailView: View {
                                 }
                             }
                             .onAppear() {
-                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
+                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: (goodsViewModel.goodsDetail?.price ?? 0) * goodsViewModel.seletedGoods.quantity))
                             }
                     }
                     .overlay {
@@ -211,7 +232,7 @@ struct GoodsDetailView: View {
                                 }
                             }
                             .onAppear() {
-                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: goodsViewModel.goodsDetail.price * goodsViewModel.seletedGoods.quantity))
+                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: (goodsViewModel.goodsDetail?.price ?? 0) * goodsViewModel.seletedGoods.quantity))
                             }
                     }
                     .overlay {
@@ -265,9 +286,9 @@ struct GoodsDetailView: View {
     }
     
     @ViewBuilder
-    func imageView(height: CGFloat) -> some View {
+    func imageView(goods: Goods, height: CGFloat) -> some View {
         TabView(selection: $imagePage) {
-            ForEach(goodsViewModel.goodsDetail.goodsImages, id: \.id) { image in
+            ForEach(goods.goodsImages, id: \.id) { image in
                 AsyncImage(url: URL(string: image.oriImgName)) { img in
                     img
                         .resizable()
@@ -282,7 +303,7 @@ struct GoodsDetailView: View {
                     }
                 }
                 .frame(width: height, height: height - (scrollOffset < 0 ? scrollOffset : 0))
-                .tag(image.id - goodsViewModel.goodsDetail.id)
+                .tag(image.id - goods.id)
                 .overlay {
                     Color(.black)
                         .opacity(scrollOffset / (height * 2))
@@ -294,16 +315,16 @@ struct GoodsDetailView: View {
     }
     
     @ViewBuilder
-    func nameAndPriceView() -> some View {
+    func nameAndPriceView(goods: Goods) -> some View {
         HStack {
-            Text(goodsViewModel.goodsDetail.title)
+            Text(goods.title)
                 .font(.title2.bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
             
             Spacer()
             
-            switch goodsViewModel.goodsDetail.seller.method {
+            switch goods.seller.method {
                 case .both:
                     Text("현장수령, 택배수령")
                         .font(.caption)
@@ -321,20 +342,20 @@ struct GoodsDetailView: View {
         .padding(.horizontal)
         
         HStack {
-            Text("\(goodsViewModel.goodsDetail.price)원")
+            Text("\(goods.price)원")
                 .font(.title.bold())
                 .foregroundColor(Color("main-text-color"))
                 .padding(.horizontal, 5)
             
             Spacer()
             
-            if !(goodsViewModel.goodsDetail.seller.method == .pickUp) {
-                if goodsViewModel.goodsDetail.deliveryFee == 0 {
+            if !(goods.seller.method == .pickUp) {
+                if goods.deliveryFee == 0 {
                     Label("무료배송", systemImage: "box.truck")
                         .font(.caption)
                         .foregroundColor(Color("point-color"))
                 } else {
-                    Label("\(goodsViewModel.goodsDetail.deliveryFee)원", systemImage: "box.truck")
+                    Label("\(goods.deliveryFee)원", systemImage: "box.truck")
                         .font(.caption)
                         .foregroundColor(Color("point-color"))
                 }
@@ -397,10 +418,10 @@ struct GoodsDetailView: View {
     }
     
     @ViewBuilder
-    func goodsInformationPage() -> some View {
+    func goodsInformationPage(goods: Goods) -> some View {
         LazyVStack(pinnedViews: [.sectionHeaders]) {
             Section {
-                ForEach(goodsViewModel.goodsDetail.goodsInfos, id: \.infoURL) { info in
+                ForEach(goods.goodsInfos, id: \.infoURL) { info in
                     AsyncImage(url: URL(string: info.infoURL.replacingOccurrences(of: "/images/info/", with: ""))) { image in
                         image
                             .resizable()
@@ -422,18 +443,12 @@ struct GoodsDetailView: View {
     }
     
     @ViewBuilder
-    func sellerInformationPage() -> some View {
+    func sellerInformationPage(goods: Goods) -> some View {
         LazyVStack(pinnedViews: [.sectionHeaders]) {
             Section {
-                orderCompleteInfo(title: "업체명", content: goodsViewModel.goodsDetail.seller.name)
+                orderCompleteInfo(title: "업체명", content: goods.seller.name)
                 
-                orderCompleteInfo(title: "전화번호", content: goodsViewModel.goodsDetail.seller.phoneNumber)
-                
-                orderCompleteInfo(title: "예금주", content: goodsViewModel.goodsDetail.seller.accountHolder)
-                
-                orderCompleteInfo(title: "입금은행", content: goodsViewModel.goodsDetail.seller.bank)
-                
-                orderCompleteInfo(title: "계좌번호", content: goodsViewModel.goodsDetail.seller.account)
+                orderCompleteInfo(title: "전화번호", content: goods.seller.phoneNumber)
             } header: {
                 goodsInformationView()
             }
@@ -480,7 +495,9 @@ struct GoodsDetailView: View {
                         Button {
                             if loginViewModel.isAuthenticate {
                                 withAnimation(.easeInOut) {
-                                    goodsViewModel.goodsDetail.scraped ? goodsViewModel.deleteIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken()) : goodsViewModel.sendIsScrap(id: goodsViewModel.goodsDetail.id, token: loginViewModel.returnToken())
+                                    if let goods = goodsViewModel.goodsDetail {
+                                        goods.scraped ? goodsViewModel.deleteIsScrap(id: goods.id, token: loginViewModel.returnToken()) : goodsViewModel.sendIsScrap(id: goods.id, token: loginViewModel.returnToken())
+                                    }
                                 }
                             } else {
                                 appViewModel.createMessageBox(title: "로그인이 필요한 서비스 입니다", secondaryTitle: "로그인 하시겠습니까?", mainButtonTitle: "로그인 하러 가기", secondaryButtonTitle: "계속 둘러보기") {
@@ -506,7 +523,7 @@ struct GoodsDetailView: View {
                             }
                         } label: {
                             VStack(spacing: 0) {
-                                if goodsViewModel.goodsDetail.scraped {
+                                if goodsViewModel.goodsDetail?.scraped ?? false {
                                     Image(systemName: "heart.fill")
                                         .font(.title2)
                                         .foregroundColor(Color("main-highlight-color"))
@@ -515,7 +532,7 @@ struct GoodsDetailView: View {
                                         .font(.title2)
                                 }
                                 
-                                Text("\(goodsViewModel.goodsDetail.scrapCount)")
+                                Text("\(goodsViewModel.goodsDetail?.scrapCount ?? 0)")
                                     .font(.caption2)
                             }
                         }
@@ -546,7 +563,7 @@ struct GoodsDetailView: View {
                                 
                             }
                         } else if goodsViewModel.isSendGoodsPossible {
-                            if goodsViewModel.goodsDetail.seller.method == .both {
+                            if goodsViewModel.goodsDetail?.seller.method == .both {
                                 appViewModel.createMessageBox(title: "담을 방법을 선택해 주세요", secondaryTitle: "주문 후 24시간 이내에 입금하지 않을시 주문이 취소될 수 있습니다.", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
                                     withAnimation(.spring()) {
                                         appViewModel.showMessageBoxBackground = false
@@ -586,14 +603,14 @@ struct GoodsDetailView: View {
                                     appViewModel.showMessageBox = true
                                 }
                             } else {
-                                appViewModel.createMessageBox(title: "본 상품은 \(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령만 가능합니다.", secondaryTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배")만 가능하니 다시 한번 확인하고 주문해주세요.", mainButtonTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령하기", secondaryButtonTitle: "둘러보기") {
+                                appViewModel.createMessageBox(title: "본 상품은 \(goodsViewModel.goodsDetail?.seller.method == .pickUp ? "현장" : "택배") 수령만 가능합니다.", secondaryTitle: "\(goodsViewModel.goodsDetail?.seller.method == .pickUp ? "현장" : "택배")만 가능하니 다시 한번 확인하고 주문해주세요.", mainButtonTitle: "\(goodsViewModel.goodsDetail?.seller.method == .pickUp ? "현장" : "택배") 수령하기", secondaryButtonTitle: "둘러보기") {
                                     withAnimation(.spring()) {
                                         appViewModel.showMessageBoxBackground = false
                                         appViewModel.showMessageBox = false
                                     }
                                     
                                     withAnimation(.easeInOut) {
-                                        goodsViewModel.seletedGoods.cartMethod = goodsViewModel.goodsDetail.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
+                                        goodsViewModel.seletedGoods.cartMethod = goodsViewModel.goodsDetail?.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
                                         goodsViewModel.sendCartGoodsRequest(token: loginViewModel.returnToken())
                                         goodsViewModel.seletedGoods.quantity = 0
                                         goodsViewModel.seletedGoods.color = nil
@@ -664,7 +681,7 @@ struct GoodsDetailView: View {
                                 
                             }
                         } else if goodsViewModel.isSendGoodsPossible {
-                            if goodsViewModel.goodsDetail.seller.method == .both {
+                            if goodsViewModel.goodsDetail?.seller.method == .both {
                                 appViewModel.createMessageBox(title: "주문 방법을 선택해 주세요", secondaryTitle: "주문 후 24시간 이내에 입금하지 않을시 주문이 취소될 수 있습니다. ", mainButtonTitle: "현장 수령하기", secondaryButtonTitle: "택배 수령하기") {
                                     withAnimation(.spring()) {
                                         showOptionSheet = false
@@ -687,13 +704,13 @@ struct GoodsDetailView: View {
                                     appViewModel.deleteMessageBox()
                                 }
                             } else {
-                                appViewModel.createMessageBox(title: "본 상품은 \(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령만 가능합니다.", secondaryTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배")만 가능하니 다시 한번 확인하고 주문해주세요.", mainButtonTitle: "\(goodsViewModel.goodsDetail.seller.method == .pickUp ? "현장" : "택배") 수령하기", secondaryButtonTitle: "둘러보기") {
+                                appViewModel.createMessageBox(title: "본 상품은 \(goodsViewModel.goodsDetail?.seller.method == .pickUp ? "현장" : "택배") 수령만 가능합니다.", secondaryTitle: "\(goodsViewModel.goodsDetail?.seller.method == .pickUp ? "현장" : "택배")만 가능하니 다시 한번 확인하고 주문해주세요.", mainButtonTitle: "\(goodsViewModel.goodsDetail?.seller.method == .pickUp ? "현장" : "택배") 수령하기", secondaryButtonTitle: "둘러보기") {
                                     withAnimation(.spring()) {
                                         showOptionSheet = false
                                         appViewModel.showMessageBoxBackground = false
                                         appViewModel.showMessageBox = false
                                         
-                                        goodsViewModel.orderType = goodsViewModel.goodsDetail.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
+                                        goodsViewModel.orderType = goodsViewModel.goodsDetail?.seller.method == .pickUp ? .pickUpOrder : .deliveryOrder
                                         goodsViewModel.showOrderView = true
                                     }
                                 } secondaryButtonAction: {

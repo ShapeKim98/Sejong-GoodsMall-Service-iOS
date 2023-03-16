@@ -51,91 +51,65 @@ struct OptionSheetView: View {
                 .foregroundColor(Color("secondary-text-color"))
                 .padding(.bottom)
             
-            if !extendSizeOptions {
-                if let colorOptions = goodsViewModel.goodsDetail.color?.components(separatedBy: ", ") {
-                    optionSelectionList(options: colorOptions, selectedOptions: goodsViewModel.seletedGoods.color, isExtended: extendColorOptions, optionType: .color) {
-                        withAnimation(.spring()) {
-                            extendColorOptions.toggle()
-                            isOptionSelected.toggle()
-                            optionChevronDegree = extendColorOptions ? 0 : 180
+            if let goods = goodsViewModel.goodsDetail {
+                if !extendSizeOptions {
+                    if let colorOptions = goods.color?.components(separatedBy: ", ") {
+                        optionSelectionList(options: colorOptions, selectedOptions: goodsViewModel.seletedGoods.color, isExtended: extendColorOptions, optionType: .color) {
+                            withAnimation(.spring()) {
+                                extendColorOptions.toggle()
+                                isOptionSelected.toggle()
+                                optionChevronDegree = extendColorOptions ? 0 : 180
+                            }
                         }
                     }
                 }
-            }
-            
-            if !extendColorOptions {
-                if let sizeOptions = goodsViewModel.goodsDetail.size?.components(separatedBy: ", ") {
-                    optionSelectionList(options: sizeOptions, selectedOptions: goodsViewModel.seletedGoods.size, isExtended: extendSizeOptions, optionType: .size) {
-                        withAnimation(.spring()) {
-                            extendSizeOptions.toggle()
-                            isOptionSelected.toggle()
-                            optionChevronDegree = extendSizeOptions ? 0 : 180
+                
+                if !extendColorOptions {
+                    if let sizeOptions = goods.size?.components(separatedBy: ", ") {
+                        optionSelectionList(options: sizeOptions, selectedOptions: goodsViewModel.seletedGoods.size, isExtended: extendSizeOptions, optionType: .size) {
+                            withAnimation(.spring()) {
+                                extendSizeOptions.toggle()
+                                isOptionSelected.toggle()
+                                optionChevronDegree = extendSizeOptions ? 0 : 180
+                            }
                         }
                     }
                 }
-            }
-            
-            if goodsViewModel.goodsDetail.color == nil && goodsViewModel.goodsDetail.size == nil {
-                optionSelectionList(options: [goodsViewModel.goodsDetail.title], selectedOptions: noneOption, isExtended: extendNoneOption, optionType: .none) {
-                    withAnimation(.spring()) {
-                        extendNoneOption.toggle()
-                        isOptionSelected.toggle()
-                        optionChevronDegree = extendNoneOption ? 0 : 180
+                
+                if goods.color == nil && goods.size == nil {
+                    optionSelectionList(options: [goods.title], selectedOptions: noneOption, isExtended: extendNoneOption, optionType: .none) {
+                        withAnimation(.spring()) {
+                            extendNoneOption.toggle()
+                            isOptionSelected.toggle()
+                            optionChevronDegree = extendNoneOption ? 0 : 180
+                        }
                     }
                 }
-            }
-            
-            Spacer()
-            
-            if !extendSizeOptions && !extendColorOptions && !extendNoneOption {
-                VStack(spacing: 0) {
-                    ZStack {
-                        if goodsViewModel.completeSendCartGoods {
-                            alertMessageView(message: "장바구니에 보관되었습니다.")
-                                .onAppear() {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                                        withAnimation(.easeInOut) {
-                                            goodsViewModel.completeSendCartGoods = false
+                
+                Spacer()
+                
+                if !extendSizeOptions && !extendColorOptions && !extendNoneOption {
+                    VStack(spacing: 0) {
+                        ZStack {
+                            if goodsViewModel.completeSendCartGoods {
+                                alertMessageView(message: "장바구니에 보관되었습니다.")
+                                    .onAppear() {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                            withAnimation(.easeInOut) {
+                                                goodsViewModel.completeSendCartGoods = false
+                                            }
                                         }
                                     }
-                                }
-                        } else {
-                            if goodsViewModel.goodsDetail.color != nil && goodsViewModel.goodsDetail.size != nil {
-                                if goodsViewModel.seletedGoods.color == nil {
-                                    alertMessageView(message: "색상 옵션을 선택해 주세요")
-                                        .modifier(VibrateAnimation(animatableData: vibrateOffset))
-                                } else if goodsViewModel.seletedGoods.size == nil {
-                                    alertMessageView(message: "사이즈 옵션을 선택해 주세요")
-                                        .modifier(VibrateAnimation(animatableData: vibrateOffset))
-                                } else {
-                                    selectedGoodsOptions()
-                                        .onAppear() {
-                                            goodsViewModel.isSendGoodsPossible = true
-                                        }
-                                        .onDisappear() {
-                                            goodsViewModel.isSendGoodsPossible = false
-                                        }
-                                }
                             } else {
-                                if goodsViewModel.goodsDetail.color != nil {
+                                if goods.color != nil && goods.size != nil {
                                     if goodsViewModel.seletedGoods.color == nil {
                                         alertMessageView(message: "색상 옵션을 선택해 주세요")
                                             .modifier(VibrateAnimation(animatableData: vibrateOffset))
-                                    } else {
-                                        selectedGoodsOptions()
-                                            .onAppear() {
-                                                goodsViewModel.isSendGoodsPossible = true
-                                            }
-                                            .onDisappear() {
-                                                goodsViewModel.isSendGoodsPossible = false
-                                            }
-                                    }
-                                } else if goodsViewModel.goodsDetail.size != nil {
-                                    if goodsViewModel.seletedGoods.size == nil {
+                                    } else if goodsViewModel.seletedGoods.size == nil {
                                         alertMessageView(message: "사이즈 옵션을 선택해 주세요")
                                             .modifier(VibrateAnimation(animatableData: vibrateOffset))
                                     } else {
-                                        selectedGoodsOptions()
+                                        selectedGoodsOptions(goods: goods)
                                             .onAppear() {
                                                 goodsViewModel.isSendGoodsPossible = true
                                             }
@@ -144,27 +118,56 @@ struct OptionSheetView: View {
                                             }
                                     }
                                 } else {
-                                    if goodsViewModel.seletedGoods.quantity < 1 {
-                                        alertMessageView(message: "상품을 선택해 주세요")
-                                            .modifier(VibrateAnimation(animatableData: vibrateOffset))
+                                    if goods.color != nil {
+                                        if goodsViewModel.seletedGoods.color == nil {
+                                            alertMessageView(message: "색상 옵션을 선택해 주세요")
+                                                .modifier(VibrateAnimation(animatableData: vibrateOffset))
+                                        } else {
+                                            selectedGoodsOptions(goods: goods)
+                                                .onAppear() {
+                                                    goodsViewModel.isSendGoodsPossible = true
+                                                }
+                                                .onDisappear() {
+                                                    goodsViewModel.isSendGoodsPossible = false
+                                                }
+                                        }
+                                    } else if goods.size != nil {
+                                        if goodsViewModel.seletedGoods.size == nil {
+                                            alertMessageView(message: "사이즈 옵션을 선택해 주세요")
+                                                .modifier(VibrateAnimation(animatableData: vibrateOffset))
+                                        } else {
+                                            selectedGoodsOptions(goods: goods)
+                                                .onAppear() {
+                                                    goodsViewModel.isSendGoodsPossible = true
+                                                }
+                                                .onDisappear() {
+                                                    goodsViewModel.isSendGoodsPossible = false
+                                                }
+                                        }
                                     } else {
-                                        selectedGoodsOptions()
-                                            .onAppear() {
-                                                goodsViewModel.isSendGoodsPossible = true
-                                            }
-                                            .onDisappear() {
-                                                goodsViewModel.isSendGoodsPossible = false
-                                            }
+                                        if goodsViewModel.seletedGoods.quantity < 1 {
+                                            alertMessageView(message: "상품을 선택해 주세요")
+                                                .modifier(VibrateAnimation(animatableData: vibrateOffset))
+                                        } else {
+                                            selectedGoodsOptions(goods: goods)
+                                                .onAppear() {
+                                                    goodsViewModel.isSendGoodsPossible = true
+                                                }
+                                                .onDisappear() {
+                                                    goodsViewModel.isSendGoodsPossible = false
+                                                }
+                                        }
                                     }
                                 }
                             }
                         }
+                        
+                        Spacer()
                     }
+                    .background(Color("shape-bkg-color"))
+                    .frame(height: 140)
                     
-                    Spacer()
                 }
-                .background(Color("shape-bkg-color"))
-                .frame(height: 140)
                 
             }
         }
@@ -265,7 +268,7 @@ struct OptionSheetView: View {
     }
     
     @ViewBuilder
-    func selectedGoodsOptions() -> some View {
+    func selectedGoodsOptions(goods: Goods) -> some View {
         HStack {
             Group {
                 if let color = goodsViewModel.seletedGoods.color, let size = goodsViewModel.seletedGoods.size {
@@ -273,7 +276,7 @@ struct OptionSheetView: View {
                         .font(.footnote)
                         .fontWeight(.light)
                 } else if goodsViewModel.seletedGoods.color == nil, goodsViewModel.seletedGoods.size == nil {
-                    Text(goodsViewModel.goodsDetail.title)
+                    Text(goods.title)
                         .font(.footnote)
                         .fontWeight(.light)
                 } else {
