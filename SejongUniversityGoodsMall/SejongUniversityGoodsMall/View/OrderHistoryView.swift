@@ -81,14 +81,14 @@ struct OrderHistoryView: View {
                             .fullScreenCover(isPresented: $showOrderDetaiView) {
                                 if #available(iOS 16.0, *) {
                                     NavigationStack {
-                                        OrderDetailView(orderCompleteGoods: orderCompleteGoods)
+                                        OrderDetailView(id: orderCompleteGoods.id)
                                             .navigationTitle("주문 상세 내역")
                                             .navigationBarTitleDisplayMode(.inline)
                                             .modifier(NavigationColorModifier())
                                     }
                                 } else {
                                     NavigationView {
-                                        OrderDetailView(orderCompleteGoods: orderCompleteGoods)
+                                        OrderDetailView(id: orderCompleteGoods.id)
                                             .navigationTitle("주문 상세 내역")
                                             .navigationBarTitleDisplayMode(.inline)
                                             .modifier(NavigationColorModifier())

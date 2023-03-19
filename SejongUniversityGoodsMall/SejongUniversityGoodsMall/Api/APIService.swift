@@ -605,4 +605,30 @@ enum APIService {
         }
         .eraseToAnyPublisher()
     }
+    
+    static func userDelete(token: String) -> AnyPublisher<Data, APIError> {
+        var request = URLRequest(url: APIURL.userDelete.url()!)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "DELETE"
+        
+        return URLSession.shared.dataTaskPublisher(for: request).tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.cannotNetworkConnect
+            }
+            
+            guard httpResponse.statusCode == 200 else {
+                if httpResponse.statusCode == 400 {
+                    throw APIError.authenticationFailure
+                } else {
+                    throw APIError.invalidResponse(statusCode: httpResponse.statusCode)
+                }
+            }
+            
+            return data
+        }
+        .mapError { error in
+            APIError.convert(error: error)
+        }
+        .eraseToAnyPublisher()
+    }
 }

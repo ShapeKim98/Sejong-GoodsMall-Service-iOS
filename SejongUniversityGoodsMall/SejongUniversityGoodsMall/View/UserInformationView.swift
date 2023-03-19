@@ -15,6 +15,7 @@ struct UserInformationView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     
     @State private var showSignOutMessage: Bool = false
+    @State private var showUserDeleteView: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -32,7 +33,7 @@ struct UserInformationView: View {
                 helpArea()
                     .padding([.horizontal, .top])
                 
-                signOutAndWithdrawal()
+                signOutAndUserDelete()
                     .padding([.horizontal, .top])
                     .padding(.horizontal)
                 
@@ -54,6 +55,18 @@ struct UserInformationView: View {
             }
         } message: {
             Text("로그아웃 하시겠습니까?")
+        }
+        .fullScreenCover(isPresented: $showUserDeleteView) {
+            UserDeleteView {
+                showUserDeleteView = false
+                dismiss()
+            }
+            .onDisappear() {
+                loginViewModel.isAuthenticate = false
+                loginViewModel.showLoginView = true
+                goodsViewModel.reset()
+                loginViewModel.reset()
+            }
         }
         .onAppear() {
             if !loginViewModel.isAuthenticate {
@@ -334,7 +347,7 @@ struct UserInformationView: View {
     }
     
     @ViewBuilder
-    func signOutAndWithdrawal() -> some View {
+    func signOutAndUserDelete() -> some View {
         HStack {
             Button {
                 showSignOutMessage = true
@@ -348,7 +361,7 @@ struct UserInformationView: View {
             Spacer()
             
             Button {
-                
+                showUserDeleteView = true
             } label: {
                 Text("회원탈퇴")
                     .font(.caption)

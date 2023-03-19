@@ -38,7 +38,6 @@ struct OptionSheetView: View {
             .frame(height: 5)
             .opacity(0.3)
             
-            
             optionsAndSelection()
         }
     }
@@ -168,7 +167,6 @@ struct OptionSheetView: View {
                     .frame(height: 140)
                     
                 }
-                
             }
         }
         .padding(.top)

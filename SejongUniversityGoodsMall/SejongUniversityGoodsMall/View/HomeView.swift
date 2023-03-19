@@ -329,7 +329,6 @@ struct HomeView: View {
                 .navigationTitle("상품 정보")
                 .navigationBarTitleDisplayMode(.inline)
                 .modifier(NavigationColorModifier())
-                .redacted(reason: goodsViewModel.isGoodsDetailLoading ? .placeholder : [])
                 .onDisappear() {
                     withAnimation(.easeInOut) {
                         goodsViewModel.isGoodsListLoading = true

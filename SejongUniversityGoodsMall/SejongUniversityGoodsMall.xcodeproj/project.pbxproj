@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C508884429C5BDC900C2D56E /* UserDeleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C508884329C5BDC900C2D56E /* UserDeleteView.swift */; };
 		C50FD0F629A3B2170001DAB9 /* NoticeAndFAQView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */; };
 		C50FD0FA29A601250001DAB9 /* GoodsListRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50FD0F929A601250001DAB9 /* GoodsListRequest.swift */; };
 		C5167BB6299E7324006C5B23 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5167BB5299E7324006C5B23 /* AppViewModel.swift */; };
@@ -76,6 +77,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C508884329C5BDC900C2D56E /* UserDeleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDeleteView.swift; sourceTree = "<group>"; };
 		C50FD0F529A3B2170001DAB9 /* NoticeAndFAQView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoticeAndFAQView.swift; sourceTree = "<group>"; };
 		C50FD0F929A601250001DAB9 /* GoodsListRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodsListRequest.swift; sourceTree = "<group>"; };
 		C5167BB5299E7324006C5B23 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 				C51F1AC729B4C83D00E00421 /* FindAdressView.swift */,
 				C5515ECA299BD1CF00A3B850 /* MessageBoxView.swift */,
 				C5543B5929A6483C008D0FEC /* ErrorView.swift */,
+				C508884329C5BDC900C2D56E /* UserDeleteView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -445,6 +448,7 @@
 				C52CB0EC29A0CF9E0020C7BE /* UpdateCartGoodsRequest.swift in Sources */,
 				C525CCE129BDEDBB00999ABE /* PrivacyPolicyView.swift in Sources */,
 				C5C73AF82986611600D42719 /* FindEmailResponse.swift in Sources */,
+				C508884429C5BDC900C2D56E /* UserDeleteView.swift in Sources */,
 				C5C73B062987C12C00D42719 /* DrawingCheckmark.swift in Sources */,
 				C5C73AFC298676C600D42719 /* LoginViewModel.swift in Sources */,
 				C50FD0FA29A601250001DAB9 /* GoodsListRequest.swift in Sources */,

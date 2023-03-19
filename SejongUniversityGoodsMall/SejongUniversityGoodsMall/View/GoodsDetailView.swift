@@ -45,14 +45,7 @@ struct GoodsDetailView: View {
             ZStack(alignment: .top) {
                 if let goods = goodsViewModel.goodsDetail {
                     Group {
-                        if goodsViewModel.isGoodsDetailLoading {
-                            Color("main-shape-bkg-color")
-                                .frame(width: reader.size.width, height: reader.size.width - (scrollOffset < 0 ? scrollOffset : 0))
-                                .shadow(radius: 1)
-                        } else {
-                            imageView(goods: goods, height: reader.size.width)
-                                .unredacted()
-                        }
+                        imageView(goods: goods, height: reader.size.width)
                     }
                     .zIndex(scrollOffset <= 0 ? 2 : 0)
                     
@@ -278,6 +271,7 @@ struct GoodsDetailView: View {
                 goodsViewModel.seletedGoods.color = nil
                 goodsViewModel.seletedGoods.size = nil
                 goodsViewModel.seletedGoods.quantity = 0
+                goodsViewModel.goodsDetail = nil
             }
             .onPreferenceChange(ScrollViewOffsetPreferenceKey.self) { value in
                 scrollOffset = value
