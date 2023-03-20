@@ -71,7 +71,7 @@ struct OrderHistoryView: View {
     @ViewBuilder
     func orderDateHeader(date: Date) -> some View {
         let dateString = formatter.string(from: date.addingTimeInterval(3600 * 9))
-        let limitDate = formatter.string(from: date.addingTimeInterval(3600 * 11))
+        let limitDate = formatter.string(from: date.addingTimeInterval(3600 * 9 + 3600 * 24 * 2))
         
         VStack {
             HStack {
