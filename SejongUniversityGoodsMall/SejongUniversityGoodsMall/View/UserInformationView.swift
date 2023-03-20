@@ -34,7 +34,7 @@ struct UserInformationView: View {
                     .padding([.horizontal, .top])
                 
                 signOutAndUserDelete()
-                    .padding([.horizontal, .top])
+                    .padding([.horizontal, .vertical])
                     .padding(.horizontal)
                 
                 Spacer()
@@ -62,10 +62,12 @@ struct UserInformationView: View {
                 dismiss()
             }
             .onDisappear() {
-                loginViewModel.isAuthenticate = false
-                loginViewModel.showLoginView = true
-                goodsViewModel.reset()
-                loginViewModel.reset()
+                if loginViewModel.isUserDeleteComplete {
+                    loginViewModel.isAuthenticate = false
+                    loginViewModel.showLoginView = true
+                    goodsViewModel.reset()
+                    loginViewModel.reset()
+                }
             }
         }
         .onAppear() {
@@ -220,6 +222,9 @@ struct UserInformationView: View {
 
                         goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
                     }
+                    .onDisappear() {
+                        goodsViewModel.orderGoodsInfoList.removeAll()
+                    }
             } label: {
                 HStack {
                     Text("주문 내역")
@@ -240,6 +245,7 @@ struct UserInformationView: View {
                     .fill(Color("secondary-text-color"))
                     .frame(height: 0.5)
             }
+            .disabled(goodsViewModel.orderCompleteGoodsList.isEmpty)
             
             HStack {
                 Spacer()
@@ -296,18 +302,6 @@ struct UserInformationView: View {
                     .foregroundColor(Color("main-text-color"))
                 
                 Spacer()
-            }
-            
-            NavigationLink {
-                NoticeAndFAQView()
-            } label: {
-                HStack {
-                    Text("공지사항")
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.top)
-                    
-                    Spacer()
-                }
             }
             
             NavigationLink {

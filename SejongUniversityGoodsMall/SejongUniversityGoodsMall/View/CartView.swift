@@ -154,6 +154,8 @@ struct CartView: View {
                                     
                                     goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
                                     
+                                    goodsViewModel.orderGoodsInfoList.removeAll()
+                                    
                                     goodsViewModel.showOrderView = false
                                 } label: {
                                     Label("닫기", systemImage: "xmark")
@@ -217,6 +219,8 @@ struct CartView: View {
                                     goodsViewModel.isOrderComplete = false
                                     
                                     goodsViewModel.fetchCartGoods(token: loginViewModel.returnToken())
+                                    
+                                    goodsViewModel.orderGoodsInfoList.removeAll()
                                     
                                     goodsViewModel.showOrderView = false
                                 } label: {

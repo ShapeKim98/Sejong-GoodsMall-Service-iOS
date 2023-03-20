@@ -14,6 +14,7 @@ struct GoodsDetailView: View {
     }
     
     enum DeviceType {
+        case oldiPhone
         case noneNotchiPhone
         case noneNotchiPhonePlus
         case notchiPhoneMini
@@ -120,7 +121,7 @@ struct GoodsDetailView: View {
                 ZStack(alignment: .bottom) {
                     if showOptionSheet {
                         OptionSheetView(isOptionSelected: $isOptionSelected, vibrateOffset: $vibrateOffset)
-                            .frame(height: reader.size.height - (deviceType == .noneNotchiPhone ? 270 : (deviceType == .noneNotchiPhonePlus ? 350 : (deviceType == .notchiPhoneMini ? reader.size.width - 15 : (horizontalSizeClass == .regular ? 700 : reader.size.width)))) + 5)
+                            .frame(height: reader.size.height - (deviceType == .oldiPhone ? 180 : (deviceType == .noneNotchiPhone ? 270 : (deviceType == .noneNotchiPhonePlus ? 350 : (deviceType == .notchiPhoneMini ? reader.size.width - 15 : (horizontalSizeClass == .regular ? 700 : reader.size.width))))) + 5)
                             .transition(.move(edge: .bottom))
                             .offset(y: optionSheetDrag)
                             .gesture(
@@ -160,6 +161,7 @@ struct GoodsDetailView: View {
                                 ToolbarItem(placement: .navigationBarTrailing) {
                                     Button {
                                         if goodsViewModel.isOrderComplete {
+                                            goodsViewModel.orderGoodsInfoList.removeAll()
                                             dismiss()
                                         }
                                         
@@ -207,6 +209,7 @@ struct GoodsDetailView: View {
                                 ToolbarItem(placement: .navigationBarTrailing) {
                                     Button {
                                         if goodsViewModel.isOrderComplete {
+                                            goodsViewModel.orderGoodsInfoList.removeAll()
                                             dismiss()
                                         }
                                         
@@ -252,8 +255,11 @@ struct GoodsDetailView: View {
             .onAppear() {
                 let width = reader.size.width
                 let height = reader.size.height
-
+                print(width)
+                print(height)
                 switch width {
+                    case 320 where height == 568:
+                        deviceType = .oldiPhone
                     case 375 where height == 667:
                         deviceType = .noneNotchiPhone
                         break
@@ -294,6 +300,7 @@ struct GoodsDetailView: View {
                         
                         ProgressView()
                             .tint(Color("main-highlight-color"))
+                            .controlSize(.large)
                     }
                 }
                 .frame(width: height, height: height - (scrollOffset < 0 ? scrollOffset : 0))
@@ -442,7 +449,7 @@ struct GoodsDetailView: View {
             Section {
                 orderCompleteInfo(title: "업체명", content: goods.seller.name)
                 
-                if let phoneNumber = goods.seller.phoneNumber {
+                if let phoneNumber = goods.seller.phoneNumber, phoneNumber != "미공개" {
                     orderCompleteInfo(title: "전화번호", content: phoneNumber)
                 }
                 

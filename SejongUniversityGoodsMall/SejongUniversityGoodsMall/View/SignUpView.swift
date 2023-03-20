@@ -119,24 +119,6 @@ struct SignUpView: View {
                     }
                 }
             }
-            
-            termsLinks(title: "마케팅 정보 수집 (선택)", checked: agreeMarketingInfo) {
-                VStack {
-                    
-                }
-            } action: {
-                withAnimation(.easeInOut) {
-                    agreeMarketingInfo.toggle()
-                    if !agreeMarketingInfo {
-                        fullAgreement = false
-                    }
-                    
-                    
-                    if agreeTermsOfUse, agreePersonalInfo, agreeMarketingInfo {
-                        fullAgreement = true
-                    }
-                }
-            }
             .padding(.bottom)
         }
         .background {

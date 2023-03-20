@@ -52,6 +52,11 @@ struct UserDeleteView: View {
                 .onTapGesture {
                     currentField = nil
                 }
+                .onChange(of: loginViewModel.isSignInFail) { newValue in
+                    withAnimation(.spring()) {
+                        vibrateOffset += newValue ? 1 : 0
+                    }
+                }
                 .navigationTitle(loginViewModel.isUserDeleteComplete ? "" : "회원탈퇴")
                 .toolbar {
                     if !loginViewModel.isUserDeleteComplete {
@@ -87,6 +92,11 @@ struct UserDeleteView: View {
                                 userDeleteButton()
                             }
                         }
+                    }
+                }
+                .onChange(of: loginViewModel.isSignInFail) { newValue in
+                    withAnimation(.spring()) {
+                        vibrateOffset += newValue ? 1 : 0
                     }
                 }
                 .onTapGesture {
@@ -221,9 +231,12 @@ struct UserDeleteView: View {
     func signInButton() -> some View {
         Button {
             loginViewModel.isLoading = true
+            currentField = nil
+            
             withAnimation(.easeInOut) {
                 loginViewModel.isSignInFail = false
             }
+            
             loginViewModel.signIn(email: email, password: password)
             
         } label: {
@@ -281,7 +294,7 @@ struct UserDeleteView: View {
         .disabled(!loginViewModel.isUserConfirm)
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .foregroundColor(loginViewModel.isUserConfirm ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                .foregroundColor(loginViewModel.isUserConfirm && !tapUserDeleteButton ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
         }
         .padding(.horizontal)
         .padding(.bottom, 20)

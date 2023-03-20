@@ -103,9 +103,7 @@ struct OrderView: View {
         .fullScreenCover(isPresented: $showFindAddressView) {
             if #available(iOS 16.0, *) {
                 NavigationStack {
-                    VStack {
-                        FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
-                    }
+                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
                     .environmentObject(kakaoPostCodeViewModel)
                     .navigationTitle("우편번호 찾기")
                     .navigationBarTitleDisplayMode(.inline)

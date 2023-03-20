@@ -84,9 +84,7 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             navigationBar()
                             
-                            categorySelection()
-                            
-                            if goodsViewModel.goodsList.isEmpty {
+                            if goodsViewModel.goodsList.isEmpty && goodsViewModel.isGoodsListLoading {
                                 Spacer()
                                 
                                 ProgressView()
@@ -98,6 +96,8 @@ struct HomeView: View {
                                 
                                 Spacer()
                             } else {
+                                categorySelection()
+                                
                                 goodList()
                             }
                         }
