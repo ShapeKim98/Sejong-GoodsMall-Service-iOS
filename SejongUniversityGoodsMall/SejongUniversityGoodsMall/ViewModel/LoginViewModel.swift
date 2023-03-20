@@ -48,11 +48,12 @@ class LoginViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var message: String?
     @Published var findEmail: String = ""
-    @Published var memberID: Int?
     @Published var findPasswordTextField: FindPasswordTextField = .inputField
     @Published var findPasswordButton: FindPasswordButton = .inputButton
     @Published var retrySendVerifyCodeStart: Bool = false
     @Published var retrySendVerifyCodeEnd: Bool = false
+    @Published var isUserConfirm: Bool = false
+    @Published var isUserDeleteComplete: Bool = false
     
     init() {
         if let token = self.loadTokenFromKeychain() {
@@ -90,10 +91,13 @@ class LoginViewModel: ObservableObject {
                 self.isLoading = false
                 self.isSignInFail = false
                 self.token = loginResponse.token
-                self.memberID = loginResponse.id
                 self.saveTokenToKeychain(token: loginResponse.token)
                 self.isAuthenticate = true
                 self.showLoginView = false
+                
+                withAnimation(.easeInOut) {
+                    self.isUserConfirm = true
+                }
             }
         }
         .store(in: &subscriptions)
@@ -182,6 +186,23 @@ class LoginViewModel: ObservableObject {
                 self.updatePasswordComplete = true
                 self.findPasswordTextField = .inputField
                 self.findPasswordButton = .inputButton
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func userDelete() {
+        APIService.userDelete(token: self.token).subscribe(on: DispatchQueue.global(qos: .background)).retry(1).sink { completion in
+            self.completionHandler(completion: completion) {
+                self.userDelete()
+            }
+        } receiveValue: { data in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                
+                withAnimation(.spring()) {
+                    self.isUserDeleteComplete = true
+                }
             }
         }
         .store(in: &subscriptions)
@@ -368,12 +389,13 @@ class LoginViewModel: ObservableObject {
         isLoading = false
         message = nil
         findEmail = ""
-        memberID = nil
         findPasswordTextField = .inputField
         findPasswordButton = .inputButton
         retrySendVerifyCodeStart = false
         retrySendVerifyCodeEnd = false
         token = ""
         deleteTokenFromKeychain()
+        isUserConfirm = false
+        isUserDeleteComplete = false
     }
 }

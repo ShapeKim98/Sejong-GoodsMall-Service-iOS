@@ -61,15 +61,24 @@ struct OrderView: View {
                             orderPrice = 0
                             if goodsViewModel.cartIDList.isEmpty {
                                 goodsViewModel.orderGoods.forEach { goods in
-                                    orderPrice += (goods.price)
+                                    orderPrice += (goods.price * goods.quantity)
                                 }
                                 
                                 if goodsViewModel.orderType == .deliveryOrder {
                                     orderPrice += goodsViewModel.goodsDetail?.deliveryFee ?? 0
                                 }
-                            } else {
+                            }
+                        }
+                        .onChange(of: goodsViewModel.orderGoodsDeliveryFeeFromCart) { newValue in
+                            if !goodsViewModel.cartIDList.isEmpty {
+                                orderPrice = 0
+                                
                                 goodsViewModel.orderGoods.forEach { goods in
-                                    orderPrice += (goods.price * goods.quantity)
+                                    orderPrice += (goods.price)
+                                }
+                                
+                                goodsViewModel.orderGoodsDeliveryFeeFromCart.forEach { key, value in
+                                    orderPrice += value
                                 }
                             }
                         }
@@ -94,9 +103,7 @@ struct OrderView: View {
         .fullScreenCover(isPresented: $showFindAddressView) {
             if #available(iOS 16.0, *) {
                 NavigationStack {
-                    VStack {
-                        FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
-                    }
+                    FindAdressView(request: URLRequest(url: URL(string: "https://shapekim98.github.io/Sejong-University-GoodsMall-KaKao-PostCode-Service/")!))
                     .environmentObject(kakaoPostCodeViewModel)
                     .navigationTitle("우편번호 찾기")
                     .navigationBarTitleDisplayMode(.inline)
@@ -431,6 +438,7 @@ struct OrderView: View {
                 if !goodsViewModel.cartIDList.isEmpty {
                     ForEach(goodsViewModel.orderGoodsListFromCart) { goods in
                         subOrderGoodsFromCart(goods: goods)
+                        
                     }
                 } else {
                     ForEach(goodsViewModel.orderGoods, id: \.hashValue) { goods in
@@ -466,11 +474,15 @@ struct OrderView: View {
                 
                 VStack(spacing: 0) {
                     HStack(spacing: 0) {
-                        
                         Text(goodsViewModel.goodsDetail?.title ?? "")
                             .foregroundColor(Color("main-text-color"))
                             .padding(.trailing)
                         
+                        Spacer()
+                    }
+                    .padding(.bottom, 5)
+                    
+                    HStack {
                         if goods.color != nil || goods.size != nil {
                             Group {
                                 if let color = goods.color, let size = goods.size {
@@ -481,12 +493,6 @@ struct OrderView: View {
                             }
                             .font(.caption.bold())
                             .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
-                            }
                         }
                         
                         Spacer()
@@ -563,25 +569,26 @@ struct OrderView: View {
                             .foregroundColor(Color("main-text-color"))
                             .padding(.trailing)
                         
-                        Group {
-                            if let color = goods.color, let size = goods.size {
-                                Text("\(color), \(size)")
-                            } else {
-                                Text("\(goods.color ?? "")\(goods.size ?? "")")
+                        Spacer()
+                    }
+                    .padding(.bottom, 10)
+                    
+                    HStack {
+                        if goods.color != nil || goods.size != nil {
+                            Group {
+                                if let color = goods.color, let size = goods.size {
+                                    Text("\(color), \(size)")
+                                } else {
+                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
+                                }
                             }
-                        }
-                        .font(.caption.bold())
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.leading)
-                        .background(alignment: .leading) {
-                            Rectangle()
-                                .fill(Color("main-text-color"))
-                                .frame(width: 1)
+                            .font(.caption.bold())
+                            .foregroundColor(Color("main-text-color"))
                         }
                         
                         Spacer()
                     }
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 5)
                     
                     HStack {
                         Text(goods.seller)
@@ -730,7 +737,7 @@ struct OrderView: View {
                 }
                 .background {
                     RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(isValidBuyerName && isValidPhoneNumber && isValidPostalNumber && isValidMainAddress ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
+                        .foregroundColor(isValidBuyerName && isValidPhoneNumber && isValidPostalNumber && isValidMainAddress && !goodsViewModel.isSendOrderGoodsLoading ? Color("main-highlight-color") : Color("main-shape-bkg-color"))
                 }
             }
             .disabled(!isValidBuyerName || !isValidPhoneNumber || !isValidPostalNumber || !isValidMainAddress)
@@ -741,39 +748,81 @@ struct OrderView: View {
     
     @ViewBuilder
     func deliveryInfoAlert() -> some View {
-        HStack {
-            if let fee = goodsViewModel.goodsDetail?.deliveryFee, fee != 0 {
-                Text("• 기본 배송료는 \(fee)원 입니다.")
+        VStack {
+            HStack {
+                if goodsViewModel.cartIDList.isEmpty {
+                    if let fee = goodsViewModel.goodsDetail?.deliveryFee, fee != 0 {
+                        Text("• 기본 배송료는 \(fee)원 입니다.")
+                            .font(.caption)
+                            .foregroundColor(Color("secondary-text-color"))
+                        
+                        Spacer()
+                        
+                        Button {
+                            showDeliveryInfo = true
+                        } label: {
+                            Label("도움말", systemImage: "info.circle")
+                                .font(.title3)
+                                .labelStyle(.iconOnly)
+                                .foregroundColor(Color("point-color"))
+                        }
+                        .alert("지역별 추가 배송비 안내", isPresented: $showDeliveryInfo) {
+                            Button {
+                                showDeliveryInfo = false
+                            } label: {
+                                Text("확인")
+                            }
+                            .foregroundColor(Color("main-highlight-color"))
+                        } message: {
+                            VStack {
+                                Text("판매자에 따라 제주도 외 도서산간에선 추가 배송비가 붙을 수 있으며,\n판매자에게 별도의 연락이 올 수 있습니다.").font(.caption)
+                                    .fontWeight(.semibold)
+                            }
+                        }
+                    } else {
+                        Text("• 본 상품은 무료배송인 상품입니다.")
+                            .font(.caption)
+                            .foregroundColor(Color("secondary-text-color"))
+                        
+                        Spacer()
+                    }
+                } else {
+                    Text("• 상품에 따라 별도의 배송비가 추가됩니다.")
+                        .font(.caption)
+                        .foregroundColor(Color("secondary-text-color"))
+                    
+                    Spacer()
+                    
+                    Button {
+                        showDeliveryInfo = true
+                    } label: {
+                        Label("도움말", systemImage: "info.circle")
+                            .font(.title3)
+                            .labelStyle(.iconOnly)
+                            .foregroundColor(Color("point-color"))
+                    }
+                    .alert("지역별 추가 배송비 안내", isPresented: $showDeliveryInfo) {
+                        Button {
+                            showDeliveryInfo = false
+                        } label: {
+                            Text("확인")
+                        }
+                        .foregroundColor(Color("main-highlight-color"))
+                    } message: {
+                        VStack {
+                            Text("판매자에 따라 제주도 외 도서산간에선 추가 배송비가 붙을 수 있으며,\n판매자에게 별도의 연락이 올 수 있습니다.").font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                    }
+                }
+            }
+            
+            HStack {
+                Text("• 총 주문금액은 배송비 포함 금액입니다.")
                     .font(.caption)
                     .foregroundColor(Color("secondary-text-color"))
                 
                 Spacer()
-                
-                Button {
-                    showDeliveryInfo = true
-                } label: {
-                    Label("도움말", systemImage: "info.circle")
-                        .font(.title3)
-                        .labelStyle(.iconOnly)
-                        .foregroundColor(Color("point-color"))
-                }
-                .alert("지역별 추가 배송비 안내", isPresented: $showDeliveryInfo) {
-                    Button {
-                        showDeliveryInfo = false
-                    } label: {
-                        Text("확인")
-                    }
-                    .foregroundColor(Color("main-highlight-color"))
-                } message: {
-                    VStack {
-                        Text("제주도 3,000원 추가\n제주도 외 도서산간 5,000원 추가").font(.caption)
-                            .fontWeight(.semibold)
-                    }
-                }
-            } else {
-                Text("• 본 상품은 무료배송인 상품입니다.")
-                    .font(.caption)
-                    .foregroundColor(Color("secondary-text-color"))
             }
         }
         .padding()

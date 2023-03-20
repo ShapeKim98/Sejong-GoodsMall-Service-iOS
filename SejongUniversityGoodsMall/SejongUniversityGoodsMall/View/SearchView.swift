@@ -24,6 +24,8 @@ struct SearchView: View {
         GeometryReader { reader in
             VStack {
                 if goodsViewModel.isSearchLoading {
+                    Spacer()
+                    
                     HStack {
                         Spacer()
                         
@@ -99,6 +101,7 @@ struct SearchView: View {
                     .foregroundColor(Color("secondary-text-color"))
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
             .onDisappear() {
                 goodsViewModel.searchList.removeAll()
             }
@@ -121,7 +124,7 @@ struct SearchView: View {
                 goodsViewModel.searchGoods(searchText: searchText)
             }
         } else {
-            List(goodsViewModel.goodsList) { item in
+            List(goodsViewModel.searchList) { item in
                 subGoodsView(item)
                     .redacted(reason: goodsViewModel.isGoodsListLoading ? .placeholder : [])
                     .listRowSeparatorTint(.clear)
@@ -211,10 +214,26 @@ struct SearchView: View {
                             }
                         }
                         
-                        Text("\(goods.price)원")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color("main-text-color"))
+                        HStack {
+                            Text("\(goods.price)원")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(Color("main-text-color"))
+                            
+                            Spacer()
+                            
+                            if !(goods.seller.method == .pickUp) {
+                                if goods.deliveryFee == 0 {
+                                    Label("무료배송", systemImage: "box.truck")
+                                        .font(.caption)
+                                        .foregroundColor(Color("point-color"))
+                                } else {
+                                    Label("\(goods.deliveryFee)원", systemImage: "box.truck")
+                                        .font(.caption)
+                                        .foregroundColor(Color("point-color"))
+                                }
+                            }
+                        }
                     }
                     .padding(.top, 5)
                     .padding(.horizontal, 5)

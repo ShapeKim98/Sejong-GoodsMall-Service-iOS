@@ -11,11 +11,12 @@ struct Seller: Codable, Hashable {
     let createdAt, modifiedAt: Date
     let id: Int
     let name: String
-    let phoneNumber: String
+    let phoneNumber: String?
     let accountHolder: String
     let bank: String
     let account: String
     let method: SellerMethod
+    let sns: String?
 }
 
 enum SellerMethod: String, Codable {

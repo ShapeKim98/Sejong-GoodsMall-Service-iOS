@@ -29,6 +29,7 @@ enum APIURL {
     case sendIsScrap
     case deleteIsScrap
     case fetchScrapList
+    case userDelete
     
     func url(id: Int? = nil) -> URL? {
         switch self {
@@ -103,6 +104,8 @@ enum APIURL {
                 
             case .fetchScrapList:
                 return URL(string: "scrap/list", relativeTo: APIURL.server.url())
+            case .userDelete:
+                return URL(string: "auth/delete", relativeTo: APIURL.server.url())
         }
     }
 }

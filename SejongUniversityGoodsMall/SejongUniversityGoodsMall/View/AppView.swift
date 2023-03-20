@@ -78,6 +78,7 @@ struct AppView: View {
                         }
                         
                         goodsViewModel.fetchCategory()
+                        loginViewModel.isUserConfirm = false
                     }
                     .overlay {
                         if let errorView = loginViewModel.errorView {

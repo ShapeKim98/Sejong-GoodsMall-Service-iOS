@@ -15,6 +15,7 @@ struct UserInformationView: View {
     @EnvironmentObject var loginViewModel: LoginViewModel
     
     @State private var showSignOutMessage: Bool = false
+    @State private var showUserDeleteView: Bool = false
     
     private let columns = [
         GridItem(.adaptive(minimum: 350, maximum: .infinity), spacing: nil, alignment: .top)
@@ -32,8 +33,8 @@ struct UserInformationView: View {
                 helpArea()
                     .padding([.horizontal, .top])
                 
-                signOutAndWithdrawal()
-                    .padding([.horizontal, .top])
+                signOutAndUserDelete()
+                    .padding([.horizontal, .vertical])
                     .padding(.horizontal)
                 
                 Spacer()
@@ -54,6 +55,20 @@ struct UserInformationView: View {
             }
         } message: {
             Text("로그아웃 하시겠습니까?")
+        }
+        .fullScreenCover(isPresented: $showUserDeleteView) {
+            UserDeleteView {
+                showUserDeleteView = false
+                dismiss()
+            }
+            .onDisappear() {
+                if loginViewModel.isUserDeleteComplete {
+                    loginViewModel.isAuthenticate = false
+                    loginViewModel.showLoginView = true
+                    goodsViewModel.reset()
+                    loginViewModel.reset()
+                }
+            }
         }
         .onAppear() {
             if !loginViewModel.isAuthenticate {
@@ -115,6 +130,7 @@ struct UserInformationView: View {
             if goodsViewModel.scrapGoodsList.isEmpty && goodsViewModel.isScrapListLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
+                    .controlSize(.regular)
                     .padding()
                     .tint(Color("main-highlight-color"))
                     .unredacted()
@@ -206,6 +222,9 @@ struct UserInformationView: View {
 
                         goodsViewModel.fetchOrderGoodsList(token: loginViewModel.returnToken())
                     }
+                    .onDisappear() {
+                        goodsViewModel.orderGoodsInfoList.removeAll()
+                    }
             } label: {
                 HStack {
                     Text("주문 내역")
@@ -226,6 +245,7 @@ struct UserInformationView: View {
                     .fill(Color("secondary-text-color"))
                     .frame(height: 0.5)
             }
+            .disabled(goodsViewModel.orderCompleteGoodsList.isEmpty)
             
             HStack {
                 Spacer()
@@ -285,18 +305,6 @@ struct UserInformationView: View {
             }
             
             NavigationLink {
-                NoticeAndFAQView()
-            } label: {
-                HStack {
-                    Text("공지사항")
-                        .foregroundColor(Color("main-text-color"))
-                        .padding(.top)
-                    
-                    Spacer()
-                }
-            }
-            
-            NavigationLink {
                 PrivacyPolicyView()
                     .navigationTitle("개인정보 처리 방침")
                     .modifier(NavigationColorModifier())
@@ -334,7 +342,7 @@ struct UserInformationView: View {
     }
     
     @ViewBuilder
-    func signOutAndWithdrawal() -> some View {
+    func signOutAndUserDelete() -> some View {
         HStack {
             Button {
                 showSignOutMessage = true
@@ -348,7 +356,7 @@ struct UserInformationView: View {
             Spacer()
             
             Button {
-                
+                showUserDeleteView = true
             } label: {
                 Text("회원탈퇴")
                     .font(.caption)

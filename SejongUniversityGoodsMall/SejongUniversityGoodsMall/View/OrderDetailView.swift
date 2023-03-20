@@ -2,7 +2,7 @@
 //  OrderDetailView.swift
 //  SejongUniversityGoodsMall
 //
-//  Created by 김도형 on 2023/03/16.
+//  Created by 김도형 on 2023/03/21.
 //
 
 import SwiftUI
@@ -12,13 +12,13 @@ struct OrderDetailView: View {
     
     @EnvironmentObject var goodsViewModel: GoodsViewModel
     
-    @State private var copyClipBoardComplete: Bool = false
+    @Binding var orderCompleteGoods: OrderGoodsRespnose?
     
-    private var orderCompleteGoods: OrderGoodsRespnose
+    @State private var copyClipBoardComplete: Bool = false
     private let formatter = DateFormatter()
     
-    init(orderCompleteGoods: OrderGoodsRespnose) {
-        self.orderCompleteGoods = orderCompleteGoods
+    init(orderCompleteGoods: Binding<OrderGoodsRespnose?>) {
+        self._orderCompleteGoods = orderCompleteGoods
         self.formatter.dateFormat = "yyyy.MM.dd HH:mm:ss"
     }
     
@@ -28,46 +28,48 @@ struct OrderDetailView: View {
                 .fill(Color("shape-bkg-color"))
                 .frame(height: 10)
             
-            LazyVStack(pinnedViews: [.sectionHeaders]) {
-                Section {
-                    ForEach(orderCompleteGoods.orderItems, id:\.hashValue) { goods in
-                        subOrderGoods(orderCompleteGoods: orderCompleteGoods, goods: goods)
-                        
-                        VStack(spacing: 0) {
-                            Group {
-                                if let seller = goods.seller {
-                                    Group {
-                                        orderCompleteInfo(title: "예금주", content: seller.accountHolder)
-                                        
-                                        orderCompleteInfo(title: "입금은행", content: seller.bank)
-                                        
-                                        orderCompleteInfo(title: "계좌번호", content: seller.account)
-                                    }
-                                }
-                                
+            if let orderGoods = orderCompleteGoods {
+                LazyVStack(pinnedViews: [.sectionHeaders]) {
+                    Section {
+                        ForEach(orderGoods.orderItems, id:\.hashValue) { goods in
+                            subOrderGoods(orderCompleteGoods: orderGoods, goods: goods)
+                            
+                            VStack(spacing: 0) {
                                 Group {
-                                    orderCompleteInfo(title: "수령인", content: orderCompleteGoods.buyerName)
+                                    if let seller = goods.seller {
+                                        Group {
+                                            orderCompleteInfo(title: "예금주", content: seller.accountHolder)
+                                            
+                                            orderCompleteInfo(title: "입금은행", content: seller.bank)
+                                            
+                                            orderCompleteInfo(title: "계좌번호", content: seller.account)
+                                        }
+                                    }
                                     
-                                    orderCompleteInfo(title: "휴대전화", content: orderCompleteGoods.phoneNumber)
-                                }
-                                
-                                if let address = orderCompleteGoods.address {
                                     Group {
-                                        orderCompleteInfo(title: "우편번호", content: address.zipcode)
+                                        orderCompleteInfo(title: "수령인", content: orderGoods.buyerName)
                                         
-                                        orderCompleteInfo(title: "주소", content: address.mainAddress)
-                                        
-                                        orderCompleteInfo(title: "상세주소", content: address.detailAddress ?? "없습니다.")
-                                        
-                                        orderCompleteInfo(title: "요청사항", content: orderCompleteGoods.deliveryRequest ?? "없습니다.")
+                                        orderCompleteInfo(title: "휴대전화", content: orderGoods.phoneNumber)
+                                    }
+                                    
+                                    if let address = orderGoods.address {
+                                        Group {
+                                            orderCompleteInfo(title: "우편번호", content: address.zipcode)
+                                            
+                                            orderCompleteInfo(title: "주소", content: address.mainAddress)
+                                            
+                                            orderCompleteInfo(title: "상세주소", content: address.detailAddress ?? "없습니다.")
+                                            
+                                            orderCompleteInfo(title: "요청사항", content: orderGoods.deliveryRequest ?? "없습니다.")
+                                        }
                                     }
                                 }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
+                    } header: {
+                        orderDateHeader(date: orderGoods.createdAt)
                     }
-                } header: {
-                    orderDateHeader(date: orderCompleteGoods.createdAt)
                 }
             }
         }
@@ -127,7 +129,12 @@ struct OrderDetailView: View {
                             Text(info.title)
                                 .foregroundColor(Color("main-text-color"))
                                 .padding(.trailing)
-                            
+
+                            Spacer()
+                        }
+                        .padding(.bottom, 5)
+                        
+                        HStack {
                             if goods.color != nil || goods.size != nil {
                                 Group {
                                     if let color = goods.color, let size = goods.size {
@@ -138,12 +145,6 @@ struct OrderDetailView: View {
                                 }
                                 .font(.caption.bold())
                                 .foregroundColor(Color("main-text-color"))
-                                .padding(.leading)
-                                .background(alignment: .leading) {
-                                    Rectangle()
-                                        .fill(Color("main-text-color"))
-                                        .frame(width: 1)
-                                }
                             }
                             
                             Spacer()
@@ -158,11 +159,13 @@ struct OrderDetailView: View {
                             
                             Spacer()
                             
-                            Text(orderCompleteGoods.status ?? "")
-                                .font(.subheadline)
+                            Text(goods.orderStatus?.kor ?? "")
+                                .font(.caption)
+                                .fontWeight(.semibold)
                                 .foregroundColor(Color("main-highlight-color"))
                         }
                         .padding(.bottom, 5)
+                        
                         
                         HStack {
                             Text("\(goods.price)원")
@@ -183,61 +186,16 @@ struct OrderDetailView: View {
                 .padding(.vertical)
             } else {
                 HStack {
-                    Color("main-shape-bkg-color")
-                        .frame(width: 100, height: 100)
-                        .shadow(radius: 1)
+                    Spacer()
                     
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            
-                            Text("PLACEHOLDER")
-                                .foregroundColor(Color("main-text-color"))
-                                .padding(.trailing)
-                            
-                            Group {
-                                    Text("PLACEHOLDER, PLACEHOLDER")
-                            }
-                            .font(.caption.bold())
-                            .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(.bottom, 10)
-                        
-                        HStack {
-                            Text("PLACEHOLDER")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color("point-color"))
-                            
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                        
-                        HStack {
-                            Text("\(999999)원")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(Color("main-text-color"))
-                            
-                            Spacer()
-                            
-                            Text("수량 \(0)개")
-                                .font(.caption.bold())
-                                .foregroundColor(Color("main-text-color"))
-                        }
-                    }
-                    .padding(10)
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .controlSize(.regular)
+                        .padding()
+                        .tint(Color("main-highlight-color"))
+                    
+                    Spacer()
                 }
-                .redacted(reason: .placeholder)
-                .padding(.vertical)
             }
             
             Rectangle()
@@ -284,13 +242,25 @@ struct OrderDetailView: View {
     @ViewBuilder
     func orderDateHeader(date: Date) -> some View {
         let dateString = formatter.string(from: date.addingTimeInterval(3600 * 9))
+        let limitDate = formatter.string(from: date.addingTimeInterval(3600 * 11))
         
         VStack {
             HStack {
                 Text("주문일자 : \(dateString)")
                     .font(.title3)
                     .fontWeight(.semibold)
-                    .padding()
+                    .padding([.horizontal, .top])
+                    .padding(.bottom, 10)
+                
+                Spacer()
+            }
+            
+            HStack {
+                Text("입금 기한: \(limitDate) 까지")
+                    .font(.headline)
+                    .fontWeight(.light)
+                    .foregroundColor(Color("main-highlight-color"))
+                    .padding([.horizontal, .bottom])
                 
                 Spacer()
             }
