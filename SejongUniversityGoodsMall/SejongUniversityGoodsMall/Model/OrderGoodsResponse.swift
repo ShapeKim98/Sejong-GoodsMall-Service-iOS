@@ -12,15 +12,14 @@ struct OrderGoodsRespnose: Codable, Identifiable {
     let buyerName, phoneNumber: String
     let seller: Seller?
     let address: Address?
-    let orderMethod: OrderType
-    let status: String?
+    let orderMethod: OrderType?
     let createdAt: Date
     let deliveryRequest: String?
     let orderItems: [OrderItem]
     let cartIDList: [Int]?
 
     enum CodingKeys: String, CodingKey {
-        case id, buyerName, phoneNumber, seller, address, orderMethod, status, createdAt, orderItems, deliveryRequest
+        case id, buyerName, phoneNumber, seller, address, orderMethod, createdAt, orderItems, deliveryRequest
         case cartIDList = "cartIdList"
     }
 }

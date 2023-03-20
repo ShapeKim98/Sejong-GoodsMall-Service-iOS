@@ -128,6 +128,7 @@ struct UserInformationView: View {
             if goodsViewModel.scrapGoodsList.isEmpty && goodsViewModel.isScrapListLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
+                    .controlSize(.regular)
                     .padding()
                     .tint(Color("main-highlight-color"))
                     .unredacted()

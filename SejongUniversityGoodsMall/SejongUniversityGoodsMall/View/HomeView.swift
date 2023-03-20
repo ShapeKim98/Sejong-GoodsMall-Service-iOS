@@ -39,7 +39,7 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             navigationBar()
                             
-                            if goodsViewModel.goodsList.isEmpty {
+                            if goodsViewModel.goodsList.isEmpty && goodsViewModel.isGoodsListLoading {
                                 Spacer()
                                 
                                 ProgressView()
@@ -139,6 +139,17 @@ struct HomeView: View {
                 SearchView()
                     .navigationTitle("")
                     .modifier(NavigationColorModifier())
+                    .onDisappear() {
+                        withAnimation(.easeInOut) {
+                            goodsViewModel.isGoodsListLoading = true
+                        }
+                        
+                        if currentCategory.id == 0 {
+                            goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
+                        } else {
+                            goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                        }
+                    }
             } label: {
                 Label("검색", systemImage: "magnifyingglass")
                     .font(.title)
@@ -186,6 +197,17 @@ struct HomeView: View {
                     .navigationTitle("내 정보")
                     .navigationBarTitleDisplayMode(.inline)
                     .modifier(NavigationColorModifier())
+                    .onDisappear() {
+                        withAnimation(.easeInOut) {
+                            goodsViewModel.isGoodsListLoading = true
+                        }
+                        
+                        if currentCategory.id == 0 {
+                            goodsViewModel.fetchGoodsList(token: loginViewModel.isAuthenticate ? loginViewModel.returnToken() : nil)
+                        } else {
+                            goodsViewModel.fetchGoodsListFromCatefory(id: currentCategory.id)
+                        }
+                    }
             } label: {
                 Label("내 정보", systemImage: "person")
                     .font(.title)

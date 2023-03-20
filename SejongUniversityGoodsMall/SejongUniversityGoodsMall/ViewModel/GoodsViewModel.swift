@@ -36,6 +36,7 @@ class GoodsViewModel: ObservableObject {
     @Published var cartGoodsCount: Int = 0
     @Published var orderType: OrderType = .pickUpOrder
     @Published var orderGoodsListFromCart: CartGoodsList = CartGoodsList()
+    @Published var orderGoodsDeliveryFeeFromCart: [Int: Int] = [Int: Int]()
     @Published var orderGoods: [OrderItem] = [OrderItem]()
     @Published var cartIDList: [Int] = [Int]()
     @Published var orderCompleteGoodsList = OrderGoodsRespnoseList()
@@ -113,6 +114,19 @@ class GoodsViewModel: ObservableObject {
                 withAnimation(.easeInOut) {
                     self.isGoodsDetailLoading = false
                 }
+            }
+        }
+        .store(in: &subscriptions)
+    }
+    
+    func fetchorderGoodsDeliveryFeeFromCart(id: Int) {
+        APIService.fetchGoodsDetail(id: id).subscribe(on: DispatchQueue.global(qos: .userInitiated)).retry(1).sink { completion in
+            self.completionHandler(completion: completion) {
+                self.fetchGoodsDetail(id: id)
+            }
+        } receiveValue: { goodsDetail in
+            DispatchQueue.main.async {
+                self.orderGoodsDeliveryFeeFromCart.updateValue(goodsDetail.deliveryFee, forKey: id)
             }
         }
         .store(in: &subscriptions)
@@ -579,7 +593,7 @@ class GoodsViewModel: ObservableObject {
         error = nil
         errorView = nil
         goodsList = GoodsList()
-        goodsDetail = Goods(id: 0, categoryID: 0, categoryName: "", title: "PLACEHOLDER", color: "PLACEHOLDER", size: "PLACEHOLDER", price: 999999, seller: Seller(createdAt: Date(timeIntervalSince1970: 0), modifiedAt: Date(timeIntervalSince1970: 0), id: 0, name: "PLACEHOLDER", phoneNumber: "PLACEHOLDER", accountHolder: "PLACEHOLDER", bank: "PLACEHOLDER", account: "PLACEHOLDER", method: .both), goodsImages: [GoodsImage](), goodsInfos: [GoodsInfo](), description: "PLACEHOLDER", cartItemCount: 0, scrapCount: 99, scraped: false, deliveryFee: 9999)
+        goodsDetail = nil
         isGoodsListLoading = true
         isGoodsDetailLoading = true
         isCategoryLoading = true
@@ -589,11 +603,7 @@ class GoodsViewModel: ObservableObject {
         pickUpCart = CartGoodsList()
         deliveryCart = CartGoodsList()
         seletedGoods = CartGoodsRequest(quantity: 0, cartMethod: .pickUpOrder)
-        categoryList = [Category(id: 0, name: "PLACEHOLDER"),
-                        Category(id: 1, name: "PLACEHOLDER"),
-                        Category(id: 2, name: "PLACEHOLDER"),
-                        Category(id: 3, name: "PLACEHOLDER")
-        ]
+        categoryList = [Category]()
         cartGoodsSelections = [Int: Bool]()
         selectedCartGoodsCount = 0
         selectedCartGoodsPrice = 0

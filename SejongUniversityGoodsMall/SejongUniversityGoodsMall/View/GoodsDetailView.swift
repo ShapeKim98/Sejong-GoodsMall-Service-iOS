@@ -178,7 +178,7 @@ struct GoodsDetailView: View {
                                 }
                             }
                             .onAppear() {
-                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: (goodsViewModel.goodsDetail?.price ?? 0) * goodsViewModel.seletedGoods.quantity))
+                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: (goodsViewModel.goodsDetail?.price ?? 0) * goodsViewModel.seletedGoods.quantity, orderStatus: nil))
                             }
                     }
                     .overlay {
@@ -225,7 +225,7 @@ struct GoodsDetailView: View {
                                 }
                             }
                             .onAppear() {
-                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: (goodsViewModel.goodsDetail?.price ?? 0) * goodsViewModel.seletedGoods.quantity))
+                                goodsViewModel.orderGoods.append(OrderItem(color: goodsViewModel.seletedGoods.color, size: goodsViewModel.seletedGoods.size, quantity: goodsViewModel.seletedGoods.quantity, price: (goodsViewModel.goodsDetail?.price ?? 0) * goodsViewModel.seletedGoods.quantity, orderStatus: nil))
                             }
                     }
                     .overlay {
@@ -442,7 +442,13 @@ struct GoodsDetailView: View {
             Section {
                 orderCompleteInfo(title: "업체명", content: goods.seller.name)
                 
-                orderCompleteInfo(title: "전화번호", content: goods.seller.phoneNumber)
+                if let phoneNumber = goods.seller.phoneNumber {
+                    orderCompleteInfo(title: "전화번호", content: phoneNumber)
+                }
+                
+                if let sns = goods.seller.sns {
+                    orderCompleteInfo(title: "소셜계정", content: sns)
+                }
             } header: {
                 goodsInformationView()
             }

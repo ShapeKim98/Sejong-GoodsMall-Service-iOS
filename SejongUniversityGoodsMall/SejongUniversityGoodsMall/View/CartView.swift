@@ -168,9 +168,10 @@ struct CartView: View {
                                 case .pickUpOrder:
                                     goodsViewModel.pickUpCart.forEach { goods in
                                         if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price, orderStatus: nil))
                                             goodsViewModel.cartIDList.append(goods.id)
                                             goodsViewModel.orderGoodsListFromCart.append(goods)
+                                            goodsViewModel.fetchorderGoodsDeliveryFeeFromCart(id: goods.goodsID)
                                         }
                                     }
                                     
@@ -178,9 +179,10 @@ struct CartView: View {
                                 case .deliveryOrder:
                                     goodsViewModel.deliveryCart.forEach { goods in
                                         if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price, orderStatus: nil))
                                             goodsViewModel.cartIDList.append(goods.id)
                                             goodsViewModel.orderGoodsListFromCart.append(goods)
+                                            goodsViewModel.fetchorderGoodsDeliveryFeeFromCart(id: goods.goodsID)
                                         }
                                     }
                             }
@@ -230,9 +232,10 @@ struct CartView: View {
                                 case .pickUpOrder:
                                     goodsViewModel.pickUpCart.forEach { goods in
                                         if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price, orderStatus: nil))
                                             goodsViewModel.cartIDList.append(goods.id)
                                             goodsViewModel.orderGoodsListFromCart.append(goods)
+                                            goodsViewModel.fetchorderGoodsDeliveryFeeFromCart(id: goods.memberID)
                                         }
                                     }
                                     
@@ -240,9 +243,10 @@ struct CartView: View {
                                 case .deliveryOrder:
                                     goodsViewModel.deliveryCart.forEach { goods in
                                         if let isSelected = goodsViewModel.cartGoodsSelections[goods.id], isSelected {
-                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price))
+                                            goodsViewModel.orderGoods.append(OrderItem(itemID: nil, color: goods.color, size: goods.size, quantity: goods.quantity, price: goods.price, orderStatus: nil))
                                             goodsViewModel.cartIDList.append(goods.id)
                                             goodsViewModel.orderGoodsListFromCart.append(goods)
+                                            goodsViewModel.fetchorderGoodsDeliveryFeeFromCart(id: goods.memberID)
                                         }
                                     }
                             }
@@ -250,6 +254,7 @@ struct CartView: View {
                         .onDisappear() {
                             goodsViewModel.cartGoodsSelections.removeAll()
                             goodsViewModel.updateCartData()
+                            goodsViewModel.orderGoodsDeliveryFeeFromCart.removeAll()
                         }
                 }
                 .overlay {
@@ -657,24 +662,6 @@ struct CartView: View {
                             .foregroundColor(Color("main-text-color"))
                             .padding(.trailing)
                         
-                        if goods.color != nil || goods.size != nil {
-                            Group {
-                                if let color = goods.color, let size = goods.size {
-                                    Text("\(color), \(size)")
-                                } else {
-                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
-                                }
-                            }
-                            .font(.caption.bold())
-                            .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
-                            }
-                        }
-                        
                         Spacer()
                         
                         Button {
@@ -688,6 +675,23 @@ struct CartView: View {
                                 .foregroundColor(Color("main-text-color"))
                         }
                         .unredacted()
+                    }
+                    .padding(.bottom, 5)
+                    
+                    HStack {
+                        if goods.color != nil || goods.size != nil {
+                            Group {
+                                if let color = goods.color, let size = goods.size {
+                                    Text("\(color), \(size)")
+                                } else {
+                                    Text("\(goods.color ?? "")\(goods.size ?? "")")
+                                }
+                            }
+                            .font(.caption.bold())
+                            .foregroundColor(Color("main-text-color"))
+                        }
+                        
+                        Spacer()
                     }
                     .padding(.bottom, 10)
                     

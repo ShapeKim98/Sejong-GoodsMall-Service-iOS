@@ -24,6 +24,8 @@ struct SearchView: View {
         GeometryReader { reader in
             VStack {
                 if goodsViewModel.isSearchLoading {
+                    Spacer()
+                    
                     HStack {
                         Spacer()
                         

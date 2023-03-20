@@ -171,6 +171,11 @@ struct OrderCompleteView: View {
                                 .foregroundColor(Color("main-text-color"))
                                 .padding(.trailing)
                             
+                            Spacer()
+                        }
+                        .padding(.bottom, 5)
+                        
+                        HStack {
                             if goods.color != nil || goods.size != nil {
                                 Group {
                                     if let color = goods.color, let size = goods.size {
@@ -181,12 +186,6 @@ struct OrderCompleteView: View {
                                 }
                                 .font(.caption.bold())
                                 .foregroundColor(Color("main-text-color"))
-                                .padding(.leading)
-                                .background(alignment: .leading) {
-                                    Rectangle()
-                                        .fill(Color("main-text-color"))
-                                        .frame(width: 1)
-                                }
                             }
                             
                             Spacer()
@@ -221,62 +220,17 @@ struct OrderCompleteView: View {
                 }
                 .padding(.vertical)
             } else {
-                HStack() {
-                    Color("main-shape-bkg-color")
-                        .frame(width: 100, height: 100)
-                        .shadow(radius: 1)
+                HStack {
+                    Spacer()
                     
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            
-                            Text("PLACEHOLDER")
-                                .foregroundColor(Color("main-text-color"))
-                                .padding(.trailing)
-                            
-                            Group {
-                                Text("PLACEHOLDER, PLACEHOLDER")
-                            }
-                            .font(.caption.bold())
-                            .foregroundColor(Color("main-text-color"))
-                            .padding(.leading)
-                            .background(alignment: .leading) {
-                                Rectangle()
-                                    .fill(Color("main-text-color"))
-                                    .frame(width: 1)
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(.bottom, 10)
-                        
-                        HStack {
-                            Text("PLACEHOLDER")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Color("point-color"))
-                            
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                        
-                        HStack {
-                            Text("\(999999)원")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(Color("main-text-color"))
-                            
-                            Spacer()
-                            
-                            Text("수량 \(0)개")
-                                .font(.caption.bold())
-                                .foregroundColor(Color("main-text-color"))
-                        }
-                    }
-                    .padding(10)
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .controlSize(.regular)
+                        .padding()
+                        .tint(Color("main-highlight-color"))
+                    
+                    Spacer()
                 }
-                .redacted(reason: .placeholder)
-                .padding(.vertical)
             }
             
             Rectangle()

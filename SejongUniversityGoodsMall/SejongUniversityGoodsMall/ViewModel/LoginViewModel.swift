@@ -91,6 +91,7 @@ class LoginViewModel: ObservableObject {
                 self.isLoading = false
                 self.isSignInFail = false
                 self.token = loginResponse.token
+                print(loginResponse.token)
                 self.saveTokenToKeychain(token: loginResponse.token)
                 self.isAuthenticate = true
                 self.showLoginView = false
