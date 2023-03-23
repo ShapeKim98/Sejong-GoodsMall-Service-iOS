@@ -130,7 +130,7 @@ struct FindEmailPasswordView: View {
         }
         .overlay(alignment: .bottom) {
             if isSelected {
-                Rectangle()
+                RoundedRectangle(cornerRadius: 20)
                     .foregroundColor(Color("main-highlight-color"))
                     .frame(height: 3)
                     .matchedGeometryEffect(id: "선택", in: heroEffect)
