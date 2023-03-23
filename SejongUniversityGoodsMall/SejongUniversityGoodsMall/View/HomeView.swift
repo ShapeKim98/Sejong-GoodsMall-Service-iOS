@@ -50,6 +50,10 @@ struct HomeView: View {
                                     .unredacted()
                                 
                                 Spacer()
+                            } else if goodsViewModel.goodsList.isEmpty {
+                                categorySelection()
+                                
+                                emptyView()
                             } else {
                                 categorySelection()
                                 
@@ -95,6 +99,10 @@ struct HomeView: View {
                                     .unredacted()
                                 
                                 Spacer()
+                            } else if goodsViewModel.goodsList.isEmpty {
+                                categorySelection()
+                                
+                                emptyView()
                             } else {
                                 categorySelection()
                                 
@@ -457,6 +465,40 @@ struct HomeView: View {
             }
         }
         .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    func emptyView() -> some View {
+        VStack {
+            Spacer()
+            
+            HStack {
+                Spacer()
+                
+                Image(systemName: "bag")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100)
+                    .foregroundColor(Color("shape-bkg-color"))
+                    .padding()
+                
+                Spacer()
+            }
+            
+            HStack {
+                Spacer()
+                
+                VStack {
+                    Text("현재 등록된 상품이 없습니다.")
+                        .foregroundColor(Color("secondary-text-color"))
+                }
+                .padding()
+                
+                Spacer()
+            }
+            
+            Spacer()
+        }
     }
 }
 
