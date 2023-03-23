@@ -255,8 +255,7 @@ struct GoodsDetailView: View {
             .onAppear() {
                 let width = reader.size.width
                 let height = reader.size.height
-                print(width)
-                print(height)
+
                 switch width {
                     case 320 where height == 568:
                         deviceType = .oldiPhone
