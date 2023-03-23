@@ -369,7 +369,7 @@ struct CartView: View {
             }
             .overlay(alignment: .bottom) {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: 20)
+                    Rectangle()
                         .foregroundColor(Color("main-highlight-color"))
                         .frame(height: 3)
                         .matchedGeometryEffect(id: "선택", in: orderTypeSeletection)
