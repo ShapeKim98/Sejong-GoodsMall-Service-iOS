@@ -233,8 +233,10 @@ struct UserInformationView: View {
                     
                     Spacer()
                     
-                    Label("다음", systemImage: "chevron.forward")
-                        .labelStyle(.iconOnly)
+                    if !goodsViewModel.orderCompleteGoodsList.isEmpty {
+                        Label("다음", systemImage: "chevron.forward")
+                            .labelStyle(.iconOnly)
+                    }
                 }
                 .padding(.horizontal)
             }
