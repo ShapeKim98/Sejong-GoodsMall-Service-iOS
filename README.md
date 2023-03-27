@@ -46,7 +46,7 @@
 <img  width="241.875px"  height = "520.5px"  src='https://github.com/ShapeKim98/Sejong-University-GoodsMall-Service-iOS/blob/main/SplashImage/Profile.png'/>
 </div>
 
-## 👨‍👩‍👧‍👧 세종이의 집 개발팅 소개
+## 👨‍👩‍👧‍👧 세종이의 집 개발팀 소개
 <p  align="leading">
 
 #### 백앤드
