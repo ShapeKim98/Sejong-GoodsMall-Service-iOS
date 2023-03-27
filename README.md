@@ -1,7 +1,7 @@
 # 세종이의 집 - 세종대학교 굿즈를 확인하고 구매할 수 있는 세종이의 집
 
 <div align="center">
-<img  width="680" height = "160"  src='https://github.com/ShapeKim98/Sejong-University-GoodsMall-Service-iOS/blob/main/SplashImage/타이틀.png'/>
+<img  width="680" height = "160"  src='https://github.com/ShapeKim98/Sejong-University-GoodsMall-Service-iOS/blob/main/ExplainImage/타이틀.png'/>
 </div>
 
 
