@@ -24,7 +24,7 @@
 <p  align="leading">
 
 ### UI/UX 프레임 워크
-- SwiftUI, UIKit
+- SwiftUI
 
 ### 반응형 처리
 - Combine
